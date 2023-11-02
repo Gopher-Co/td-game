@@ -5,6 +5,7 @@ import (
 )
 
 type Coord = float32
+type Frames = int
 
 type Point struct {
 	X Coord
