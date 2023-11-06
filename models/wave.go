@@ -7,10 +7,12 @@ type Wave struct {
 	CurrentTime Frames
 }
 
-func (w *Wave) CallEnemies() []*Enemy {
-	es := make([]*Enemy, 0, len(w.Swarms))
+// CallEnemies returns a slice of ids of enemies that are
+// supposed to appear on the map next frame.
+func (w *Wave) CallEnemies() []string {
+	es := make([]string, 0, len(w.Swarms))
 	for k := range w.Swarms {
-		if e := k.Call(); e != nil {
+		if e := k.Update(); e != "" {
 			es = append(es, e)
 		}
 	}
@@ -18,6 +20,7 @@ func (w *Wave) CallEnemies() []*Enemy {
 	return slices.Clip(es)
 }
 
+// Ended returns true if all the swarms are ended.
 func (w *Wave) Ended() bool {
 	for k := range w.Swarms {
 		if !k.Ended() {
@@ -40,6 +43,9 @@ type EnemySwarm struct {
 	// Interval is time between calls.
 	Interval Frames
 
+	// CurrTime is current time relatively the swarm's start.
+	CurrTime Frames
+
 	// MaxCalls is a maximal amount of enemies that can be called.
 	MaxCalls int
 
@@ -47,10 +53,18 @@ type EnemySwarm struct {
 	CurCalls int
 }
 
+// Ended returns true if maximum calls amount exceeded.
 func (s *EnemySwarm) Ended() bool {
 	return s.CurCalls == s.MaxCalls
 }
 
-func (s *EnemySwarm) Call() *Enemy {
-	return nil
+// Update increases time of EnemySwarm and returns a new enemy id
+// if it's time for it.
+func (s *EnemySwarm) Update() string {
+	defer func() { s.CurrTime++ }()
+
+	if s.CurrTime-s.Timeout >= 0 && (s.CurrTime-s.Timeout)%s.Interval == 0 {
+		return s.EnemyName
+	}
+	return ""
 }

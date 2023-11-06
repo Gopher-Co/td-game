@@ -44,7 +44,7 @@ func (e *Enemy) changeDirection() {
 
 	// event on achieving the end
 	if e.State.CurrPoint == len(e.Path)-1 {
-		// todo deal damage
+		// todo deal damage to player
 		e.Die()
 		return
 	}
@@ -88,6 +88,7 @@ func (e *Enemy) FinalDamage(t TypeAttack, dmg int) int {
 
 // Update is a universal method for updating enemy's state by itself.
 func (e *Enemy) Update() {
+	// calculate velocities on the first iteration
 	if e.State.CurrPoint == -1 {
 		e.changeDirection()
 	}
