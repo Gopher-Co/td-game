@@ -2,9 +2,9 @@ package models
 
 import "slices"
 
+// Wave is a set of the enemies.
 type Wave struct {
-	Swarms      map[EnemySwarm]struct{}
-	CurrentTime Frames
+	Swarms map[EnemySwarm]struct{}
 }
 
 // CallEnemies returns a slice of ids of enemies that are
