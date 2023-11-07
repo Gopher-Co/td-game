@@ -30,17 +30,3 @@ type TowerState struct {
 	Point      Point
 	Aim        *Enemy
 }
-
-type Upgrade struct {
-	Name        string
-	Description string
-	Config      UpgradeConfig
-	Image       image.Image
-	OpenLevel   int
-}
-
-type UpgradeConfig struct {
-	DeltaDamage      int
-	DeltaSpeedAttack Frames
-	DeltaRadius      float64
-}
