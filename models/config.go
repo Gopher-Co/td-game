@@ -1,5 +1,7 @@
 package models
 
+// Config structures are need to pass then to NewXXX functions.
+
 type EnemyConfig struct {
 	Name       string     `json:"name"`
 	MaxHealth  int        `json:"max_health"`
