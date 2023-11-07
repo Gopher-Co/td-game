@@ -4,15 +4,15 @@ import "slices"
 
 // Wave is a set of the enemies.
 type Wave struct {
-	Swarms map[EnemySwarm]struct{}
+	Swarms []EnemySwarm
 }
 
 // CallEnemies returns a slice of ids of enemies that are
 // supposed to appear on the map next frame.
 func (w *Wave) CallEnemies() []string {
 	es := make([]string, 0, len(w.Swarms))
-	for k := range w.Swarms {
-		if e := k.Update(); e != "" {
+	for _, v := range w.Swarms {
+		if e := v.Update(); e != "" {
 			es = append(es, e)
 		}
 	}
@@ -22,8 +22,8 @@ func (w *Wave) CallEnemies() []string {
 
 // Ended returns true if all the swarms are ended.
 func (w *Wave) Ended() bool {
-	for k := range w.Swarms {
-		if !k.Ended() {
+	for _, v := range w.Swarms {
+		if !v.Ended() {
 			return false
 		}
 	}
