@@ -2,6 +2,7 @@ package models
 
 // Config structures are need to pass then to NewXXX functions.
 
+// EnemyConfig is a config for enemy.
 type EnemyConfig struct {
 	Name       string     `json:"name"`
 	MaxHealth  int        `json:"max_health"`
@@ -11,6 +12,7 @@ type EnemyConfig struct {
 	Weaknesses []Weakness `json:"weaknesses"`
 }
 
+// TowerConfig is a config for tower.
 type TowerConfig struct {
 	Upgrades        []UpgradeConfig `json:"upgrades"`
 	Color           string          `json:"color"`
@@ -21,6 +23,7 @@ type TowerConfig struct {
 	OpenLevel       int             `json:"open_level"`
 }
 
+// UpgradeConfig is a config for tower's upgrade.
 type UpgradeConfig struct {
 	Price            int    `json:"price"`
 	DeltaDamage      int    `json:"delta_damage"`
@@ -29,16 +32,19 @@ type UpgradeConfig struct {
 	OpenLevel        int    `json:"open_level"`
 }
 
+// LevelConfig is a config for level.
 type LevelConfig struct {
 	LevelName string       `json:"level_name"`
 	Map       MapConfig    `json:"map"`
 	Waves     []WaveConfig `json:"waves"`
 }
 
+// WaveConfig is a config for wave.
 type WaveConfig struct {
 	Swarms []EnemySwarmConfig `json:"swarms"`
 }
 
+// EnemySwarmConfig is a config for enemy swarm.
 type EnemySwarmConfig struct {
 	// EnemyName is a name of the enemy.
 	EnemyName string `json:"enemy_name"`
@@ -59,11 +65,13 @@ type EnemySwarmConfig struct {
 	CurCalls int `json:"cur_calls"`
 }
 
+// UIConfig is a config for UI.
 type UIConfig struct {
 	// Colors contains hex-colors (e.g. "#AB0BA0") for each key in map
 	Colors map[string]string `json:"colors"`
 }
 
+// MapConfig is a config for map.
 type MapConfig struct {
 	BackgroundColor string  `json:"background_color"`
 	Path            []Point `json:"path"`
