@@ -15,7 +15,8 @@ const (
 // GameState is a struct that represents the state of the game.
 type GameState struct {
 	Map         Map
-	TowersToBuy map[string]Tower
+	TowersToBuy map[string]TowerConfig
+	EnemyToCall map[string]EnemyConfig
 	Ended       bool
 	State       CurrentState
 	UI          *ebitenui.UI
