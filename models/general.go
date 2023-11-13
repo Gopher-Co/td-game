@@ -21,11 +21,6 @@ type Point struct {
 // TypeAttack is an enum that represents the type of attack.
 type TypeAttack int
 
-const (
-	// Common is the type of attack that is common.
-	Common = TypeAttack(iota)
-)
-
 // Drawable is an interface that represents a drawable object.
 type Drawable[T image.Image] interface {
 	Draw(image T)

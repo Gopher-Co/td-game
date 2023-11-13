@@ -1,7 +1,6 @@
 package models
 
 import (
-	"log"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -145,6 +144,15 @@ func (e *Enemy) FinalDamage(t TypeAttack, dmg int) int {
 
 // Update is a universal method for updating enemy's state by itself.
 func (e *Enemy) Update() {
+	if e.State.Dead {
+		return
+	}
+
+	if e.State.Health == 0 {
+		e.Die()
+		return
+	}
+
 	// calculate velocities on the first iteration
 	if e.State.CurrPoint == -1 {
 		e.changeDirection()
@@ -153,7 +161,6 @@ func (e *Enemy) Update() {
 	if e.State.TimeNextPointLeft == 0 {
 		e.changeDirection()
 	}
-	log.Println(e.State.Pos)
 }
 
 func (e *Enemy) move() {
