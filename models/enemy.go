@@ -32,7 +32,7 @@ func NewEnemy(cfg *EnemyConfig, path Path) *Enemy {
 	en := &Enemy{
 		Name: cfg.Name,
 		State: EnemyState{
-			CurrPoint: 0,
+			CurrPoint: -1,
 			Pos:       path[0],
 			Health:    cfg.MaxHealth,
 			Dead:      false,
@@ -98,7 +98,7 @@ func (e *Enemy) changeDirection() {
 
 	// event on achieving the end
 	if e.State.CurrPoint == len(e.Path)-1 {
-		// todo deal damage to player
+		e.State.FinalDamage = e.Damage
 		e.Die()
 		return
 	}
@@ -167,6 +167,7 @@ type EnemyState struct {
 	Health            int
 	TimeNextPointLeft Frames
 	Dead              bool
+	FinalDamage       int
 }
 
 // Weakness stores effects that are detrimental to the enemy
