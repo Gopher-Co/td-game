@@ -42,6 +42,7 @@ type TowerConfig struct {
 	Name            string          `json:"name"`
 	Upgrades        []UpgradeConfig `json:"upgrades"`
 	Price           int             `json:"price"`
+	Type            TypeAttack      `json:"type"`
 	InitDamage      int             `json:"initial_damage"`
 	InitRadius      Coord           `json:"initial_radius"`
 	InitSpeedAttack Frames          `json:"initial_speed_attack"`

@@ -1,11 +1,13 @@
 package models
 
 import (
+	"log"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/icza/gox/imagex/colorx"
+	"golang.org/x/image/colornames"
 )
 
 // Enemy is an entity moving on the Path and trying to
@@ -15,7 +17,7 @@ import (
 type Enemy struct {
 	Name       string
 	State      EnemyState
-	Path       []Point
+	Path       Path
 	MaxHealth  int
 	Vrms       Coord
 	Damage     int
@@ -78,8 +80,9 @@ func (e *Enemy) DealDamage(dmg int) {
 
 func (e *Enemy) Draw(screen *ebiten.Image) {
 	geom := ebiten.GeoM{}
-	geom.Translate(float64(e.State.Pos.X), float64(e.State.Pos.Y))
+	geom.Translate(float64(e.State.Pos.X-float32(e.Image.Bounds().Dx()/2)), float64(e.State.Pos.Y-float32(e.Image.Bounds().Dy()/2)))
 	screen.DrawImage(e.Image, &ebiten.DrawImageOptions{GeoM: geom})
+	vector.DrawFilledCircle(screen, e.State.Pos.X, e.State.Pos.Y, 10, colornames.Aqua, false)
 }
 
 // changeDirection directs the enemy to a new point, if possible.
@@ -150,6 +153,7 @@ func (e *Enemy) Update() {
 	if e.State.TimeNextPointLeft == 0 {
 		e.changeDirection()
 	}
+	log.Println(e.State.Pos)
 }
 
 func (e *Enemy) move() {

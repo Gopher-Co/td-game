@@ -4,6 +4,8 @@ import (
 	"image"
 )
 
+const PathWidth = 32
+
 // Coord is a type for coordinates.
 type Coord = float32
 
