@@ -28,3 +28,11 @@ const (
 type Drawable[T image.Image] interface {
 	Draw(image T)
 }
+
+// ImageConfigure is an interface that can initialize image
+// from the temporary state of the entity (e.g. color.RGBA from color hex-string)
+// and save the image to itself.
+type ImageConfigure[T image.Image] interface {
+	InitImage() error
+	Image() T
+}

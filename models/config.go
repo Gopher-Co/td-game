@@ -1,5 +1,11 @@
 package models
 
+import (
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/icza/gox/imagex/colorx"
+)
+
 // Config structures are need to pass then to NewXXX functions.
 
 // EnemyConfig is a config for enemy.
@@ -7,20 +13,57 @@ type EnemyConfig struct {
 	Name       string     `json:"name"`
 	MaxHealth  int        `json:"max_health"`
 	Damage     int        `json:"damage"`
+	Vrms       Coord      `json:"vrms"`
 	MoneyAward int        `json:"money_award"`
 	Strengths  []Strength `json:"strengths"`
 	Weaknesses []Weakness `json:"weaknesses"`
+	image      *ebiten.Image
+}
+
+func (c *EnemyConfig) InitImage() error {
+	clr, err := colorx.ParseHexColor(c.Name)
+	if err != nil {
+		return err
+	}
+
+	img := ebiten.NewImage(32, 32)
+	vector.DrawFilledCircle(img, 16, 16, 16, clr, true)
+	c.image = img
+
+	return nil
+}
+
+func (c *EnemyConfig) Image() *ebiten.Image {
+	return c.image
 }
 
 // TowerConfig is a config for tower.
 type TowerConfig struct {
+	Name            string          `json:"name"`
 	Upgrades        []UpgradeConfig `json:"upgrades"`
-	Color           string          `json:"color"`
 	Price           int             `json:"price"`
 	InitDamage      int             `json:"initial_damage"`
 	InitRadius      Coord           `json:"initial_radius"`
 	InitSpeedAttack Frames          `json:"initial_speed_attack"`
 	OpenLevel       int             `json:"open_level"`
+	image           *ebiten.Image
+}
+
+func (c *TowerConfig) InitImage() error {
+	clr, err := colorx.ParseHexColor(c.Name)
+	if err != nil {
+		return err
+	}
+
+	img := ebiten.NewImage(32, 32)
+	vector.DrawFilledRect(img, 0, 0, 32, 32, clr, true)
+	c.image = img
+
+	return nil
+}
+
+func (c *TowerConfig) Image() *ebiten.Image {
+	return c.image
 }
 
 // UpgradeConfig is a config for tower's upgrade.
