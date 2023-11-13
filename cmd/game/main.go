@@ -49,7 +49,7 @@ func main() {
 	path := models.Path{{-16, -16}, {200, 200}, {300, 240}, {500, 50}, {500, 350}, {300, 270}, {300, 490}}
 	cfg := &models.EnemyConfig{
 		Name:       "#DEAD00",
-		MaxHealth:  0,
+		MaxHealth:  1,
 		Damage:     0,
 		MoneyAward: 0,
 		Strengths:  nil,
@@ -60,7 +60,7 @@ func main() {
 
 	var es []*models.Enemy
 	for i := 0; i < 10; i++ {
-		cfg.Vrms = 30 + rand.Float32()*30
+		cfg.Vrms = 1 + rand.Float32()*10
 		es = append(es, models.NewEnemy(cfg, path))
 	}
 	ebiten.SetWindowSize(640, 480)
