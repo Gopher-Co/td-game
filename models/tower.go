@@ -7,7 +7,7 @@ type Aim int
 
 const (
 	// DirectAim is a value of Aim that represents a direct aim.
-	Direct Aim = iota
+	DirectAim = Aim(iota)
 
 	// Splash is a value of Aim that represents a splash aim.
 	Splash
