@@ -5,15 +5,34 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"golang.org/x/image/colornames"
 )
 
 // Map is a struct that represents a map.
 type Map struct {
-	Towers      map[*Tower]struct{}
-	Enemies     map[*Enemy]struct{}
+	// Towers on the map now.
+	Towers map[*Tower]struct{}
+
+	// Enemies on the map now.
+	Enemies map[*Enemy]struct{}
+
+	// Projectiles on the map now.
 	Projectiles map[*Projectile]struct{}
 	Path        Path
 	Image       *ebiten.Image
+}
+
+func NewMap(config *MapConfig) *Map {
+	m := &Map{
+		Towers:      map[*Tower]struct{}{},
+		Enemies:     map[*Enemy]struct{}{},
+		Projectiles: map[*Projectile]struct{}{},
+		Path:        config.Path,
+		Image:       ebiten.NewImage(ebiten.WindowSize()),
+	}
+	m.Image.Fill(colornames.Aliceblue)
+
+	return m
 }
 
 func (m *Map) Draw(screen *ebiten.Image) {
