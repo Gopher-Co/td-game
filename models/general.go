@@ -4,7 +4,11 @@ import (
 	"image"
 )
 
-const PathWidth = 32
+const (
+	EnemyImageWidth = 32
+	TowerImageWidth = 32
+	PathWidth       = 32
+)
 
 // Coord is a type for coordinates.
 type Coord = float32

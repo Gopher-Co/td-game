@@ -26,8 +26,8 @@ func (c *EnemyConfig) InitImage() error {
 		return err
 	}
 
-	img := ebiten.NewImage(32, 32)
-	vector.DrawFilledCircle(img, 16, 16, 16, clr, true)
+	img := ebiten.NewImage(EnemyImageWidth, EnemyImageWidth)
+	vector.DrawFilledCircle(img, EnemyImageWidth/2, EnemyImageWidth/2, EnemyImageWidth/2, clr, true)
 	c.image = img
 
 	return nil
