@@ -10,12 +10,10 @@ import (
 type State interface {
 	Drawable[*ebiten.Image]
 	Update() error
-	LoadUI(widgets Widgets)
+	loadUI(widgets Widgets)
 	End() bool
 	NextState() State
 }
 
-// Widgets is a struct that represents a collection of widgets.
-type Widgets struct {
-	w map[string]image.Image
-}
+// Widgets represents a collection of widgets.
+type Widgets map[string]image.Image
