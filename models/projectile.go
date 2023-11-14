@@ -17,8 +17,12 @@ type Projectile struct {
 	Image       image.Image
 }
 
+func (p *Projectile) Update() {
+	p.move()
+}
+
 // Move moves the projectile on the map.
-func (p *Projectile) Move() {
+func (p *Projectile) move() {
 	p.Pos.X += p.Vx
 	p.Pos.Y += p.Vy
 	p.TTL--
