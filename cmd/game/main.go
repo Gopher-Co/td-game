@@ -13,32 +13,17 @@ import (
 )
 
 type Game struct {
-	path  models.Path
-	es    []*models.Enemy
-	State models.State
-	UI    *ebitenui.UI
+	s  models.State
+	UI *ebitenui.UI
 }
 
 func (g *Game) Update() error {
-	for _, e := range g.es {
-		if !e.State.Dead {
-			e.Update()
-		}
-	}
-
-	return nil
+	return g.s.Update()
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	g.path.Draw(screen)
-
-	for _, e := range g.es {
-		if !e.State.Dead {
-			e.Draw(screen)
-		}
-	}
+	g.s.Draw(screen)
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %f\n FPS %f\n", ebiten.ActualTPS(), ebiten.ActualFPS()))
-
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -56,16 +41,31 @@ func main() {
 		Weaknesses: nil,
 	}
 
-	_ = cfg.InitImage()
-
-	var es []*models.Enemy
-	for i := 0; i < 10; i++ {
-		cfg.Vrms = 1 + rand.Float32()*10
-		es = append(es, models.NewEnemy(cfg, path))
+	m := models.NewMap(&models.MapConfig{
+		BackgroundColor: "#AB0BA0",
+		Path:            path,
+	})
+	for i := 0; i < 100; i++ {
+		_ = cfg.InitImage()
+		cfg.Vrms = 1 + rand.Float32()*5
+		m.Enemies = append(m.Enemies, models.NewEnemy(cfg, path))
+		cfg.Name = fmt.Sprintf("#%06x", rand.Intn(0x1000000))
 	}
+	t := models.NewTower(&models.TowerConfig{
+		Name:            "#472398",
+		Upgrades:        nil,
+		Price:           0,
+		Type:            0,
+		InitDamage:      1,
+		InitRadius:      10,
+		InitSpeedAttack: 10,
+		OpenLevel:       0,
+	}, models.Point{100, 100}, path)
+	m.Towers = append(m.Towers, t)
+
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowTitle("Hello, World!")
-	if err := ebiten.RunGame(&Game{es: es, path: path}); err != nil {
+	if err := ebiten.RunGame(&Game{s: models.NewGameState(m, nil, nil, nil, nil)}); err != nil {
 		log.Fatal(err)
 	}
 }

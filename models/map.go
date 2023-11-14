@@ -11,24 +11,21 @@ import (
 // Map is a struct that represents a map.
 type Map struct {
 	// Towers on the map now.
-	Towers map[*Tower]struct{}
+	Towers []*Tower
 
 	// Enemies on the map now.
-	Enemies map[*Enemy]struct{}
+	Enemies []*Enemy
 
 	// Projectiles on the map now.
-	Projectiles map[*Projectile]struct{}
+	Projectiles []*Projectile
 	Path        Path
 	Image       *ebiten.Image
 }
 
 func NewMap(config *MapConfig) *Map {
 	m := &Map{
-		Towers:      map[*Tower]struct{}{},
-		Enemies:     map[*Enemy]struct{}{},
-		Projectiles: map[*Projectile]struct{}{},
-		Path:        config.Path,
-		Image:       ebiten.NewImage(ebiten.WindowSize()),
+		Path:  config.Path,
+		Image: ebiten.NewImage(ebiten.WindowSize()),
 	}
 	m.Image.Fill(colornames.Aliceblue)
 
@@ -36,32 +33,34 @@ func NewMap(config *MapConfig) *Map {
 }
 
 func (m *Map) Update() {
-	for k := range m.Enemies {
-		k.Update()
+	for _, v := range m.Enemies {
+		v.Update()
 	}
-	for k := range m.Towers {
-		k.Update()
+	for _, v := range m.Towers {
+		v.Update()
 	}
-	for k := range m.Projectiles {
-		k.Update()
+	for _, v := range m.Projectiles {
+		v.Update()
 	}
 }
 
 func (m *Map) Draw(screen *ebiten.Image) {
 	screen.DrawImage(m.Image, nil)
 	m.Path.Draw(screen)
-	for p := range m.Projectiles {
+	for _, p := range m.Projectiles {
 		p = p
 		// todo: draw
 	}
 
-	for t := range m.Towers {
+	for _, t := range m.Towers {
 		t = t
 		// todo: draw
 	}
 
-	for e := range m.Enemies {
-		e.Draw(screen)
+	for _, e := range m.Enemies {
+		if !e.State.Dead {
+			e.Draw(screen)
+		}
 	}
 }
 
