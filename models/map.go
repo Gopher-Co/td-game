@@ -35,6 +35,18 @@ func NewMap(config *MapConfig) *Map {
 	return m
 }
 
+func (m *Map) Update() {
+	for k := range m.Enemies {
+		k.Update()
+	}
+	for k := range m.Towers {
+		k.Update()
+	}
+	for k := range m.Projectiles {
+		k.Update()
+	}
+}
+
 func (m *Map) Draw(screen *ebiten.Image) {
 	screen.DrawImage(m.Image, nil)
 	m.Path.Draw(screen)
