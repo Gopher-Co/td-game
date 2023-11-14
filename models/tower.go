@@ -4,6 +4,8 @@ import (
 	"image"
 	"log"
 	"math"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // Aim is a type that represents the enemy that tower attacks.
@@ -47,12 +49,44 @@ func NewTower(config *TowerConfig, pos Point, path Path) *Tower {
 			AimType:    First,
 			IsTurnedOn: true,
 			CoolDown:   config.InitSpeedAttack,
-			Point:      pos,
+			Pos:        pos,
 			Aim:        nil,
 		},
 		SpeedAttack:    config.InitSpeedAttack,
 		Upgrades:       config.Upgrades,
 		UpgradesBought: 0,
+	}
+}
+
+func (t *Tower) Launch() *Projectile {
+	p := &Projectile{
+		Pos:         t.State.Pos,
+		Vrms:        10,
+		Vx:          0,
+		Vy:          0,
+		Type:        t.Type,
+		Damage:      t.Damage,
+		TTL:         0,
+		TargetEnemy: t.State.Aim,
+		Image:       ebiten.NewImage(10, 10),
+	}
+
+	target := p.TargetEnemy.State.Pos
+	z := math.Hypot(float64(target.X-p.Pos.X), float64(target.Y-p.Pos.Y))
+
+	ttl := math.Round(z / float64(p.Vrms))
+	p.TTL = int(ttl)
+	p.Vx = Coord(float64(target.X-p.Pos.X) / ttl)
+	p.Vy = Coord(float64(target.Y-p.Pos.Y) / ttl)
+
+	return p
+}
+
+func (t *Tower) Update() {
+	if t.State.CoolDown == 0 {
+		t.State.CoolDown = t.SpeedAttack
+	} else {
+		t.State.CoolDown--
 	}
 }
 
@@ -102,6 +136,6 @@ type TowerState struct {
 	AimType    Aim
 	IsTurnedOn bool
 	CoolDown   Frames
-	Point      Point
+	Pos        Point
 	Aim        *Enemy
 }
