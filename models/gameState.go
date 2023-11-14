@@ -17,7 +17,7 @@ const (
 
 // GameState is a struct that represents the state of the game.
 type GameState struct {
-	Map         Map
+	Map         *Map
 	TowersToBuy map[string]TowerConfig
 	EnemyToCall map[string]EnemyConfig
 	Ended       bool
@@ -29,16 +29,32 @@ type GameState struct {
 	Time        Frames
 }
 
-func NewGameState() *GameState {
-	//TODO implement me
-	panic("implement me")
+func NewGameState(m *Map, en map[string]EnemyConfig, tw map[string]TowerConfig, waves []Wave, w Widgets) *GameState {
+	gs := &GameState{
+		Map:         m,
+		TowersToBuy: tw,
+		EnemyToCall: en,
+		Ended:       false,
+		State:       Paused,
+		UI:          nil, // loadUI loads it
+		LastWave:    0,
+		CurrentWave: -1,
+		Waves:       waves,
+		Time:        0,
+	}
+
+	//gs.loadUI(w)
+	gs.LastWave = len(gs.Waves) - 1 // is it needed??
+
+	return gs
 }
 
 func (s *GameState) Update() error {
+	s.Map.Update()
 	return nil
 }
 
-func (s *GameState) LoadUI(widgets Widgets) {
+func (s *GameState) loadUI(widgets Widgets) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -49,7 +65,7 @@ func (s *GameState) End() bool {
 }
 
 func (s *GameState) NextState() State {
-	return NewGameState()
+	return nil
 }
 
 func (s *GameState) Draw(screen *ebiten.Image) {

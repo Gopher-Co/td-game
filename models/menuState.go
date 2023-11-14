@@ -11,9 +11,14 @@ type MenuState struct {
 	UI    *ebitenui.UI
 }
 
-func NewMenuState() *MenuState {
-	//TODO implement me
-	panic("implement me")
+func NewMenuState(widgets Widgets) *MenuState {
+	ms := &MenuState{
+		Ended: false,
+		UI:    nil,
+	}
+	ms.loadUI(widgets)
+
+	return ms
 }
 
 func (m *MenuState) Draw(image *ebiten.Image) {
@@ -26,7 +31,7 @@ func (m *MenuState) Update() error {
 	panic("implement me")
 }
 
-func (m *MenuState) LoadUI(widgets Widgets) {
+func (m *MenuState) loadUI(widgets Widgets) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -37,5 +42,5 @@ func (m *MenuState) End() bool {
 }
 
 func (m *MenuState) NextState() State {
-	return NewGameState()
+	return nil
 }
