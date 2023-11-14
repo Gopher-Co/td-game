@@ -12,7 +12,7 @@ type State interface {
 	Update() error
 	LoadUI(widgets Widgets)
 	End() bool
-	NextState() *State
+	NextState() State
 }
 
 // Widgets is a struct that represents a collection of widgets.
