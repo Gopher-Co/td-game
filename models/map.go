@@ -48,13 +48,11 @@ func (m *Map) Draw(screen *ebiten.Image) {
 	screen.DrawImage(m.Image, nil)
 	m.Path.Draw(screen)
 	for _, p := range m.Projectiles {
-		p = p
-		// todo: draw
+		p.Draw(screen)
 	}
 
 	for _, t := range m.Towers {
-		t = t
-		// todo: draw
+		t.Draw(screen)
 	}
 
 	for _, e := range m.Enemies {
@@ -75,6 +73,6 @@ func (p Path) Draw(screen *ebiten.Image) {
 
 func drawLine(screen *ebiten.Image, p1, p2 Point) {
 	x1, y1, x2, y2 := p1.X, p1.Y, p2.X, p2.Y
-	vector.DrawFilledCircle(screen, x2, y2, PathWidth/2, color.RGBA{12, 23, 34, 255}, false)
-	vector.StrokeLine(screen, x1, y1, x2, y2, PathWidth, color.RGBA{12, 23, 34, 255}, false)
+	vector.DrawFilledCircle(screen, x2, y2, PathWidth/2, color.RGBA{12, 23, 34, 255}, true)
+	vector.StrokeLine(screen, x1, y1, x2, y2, PathWidth, color.RGBA{12, 23, 34, 255}, true)
 }
