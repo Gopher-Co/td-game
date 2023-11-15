@@ -4,7 +4,16 @@ import "slices"
 
 // Wave is a set of the enemies.
 type Wave struct {
-	Swarms []EnemySwarm
+	Swarms []*EnemySwarm
+}
+
+func NewWave(config *WaveConfig) *Wave {
+	swarms := make([]*EnemySwarm, len(config.Swarms))
+	for i := 0; i < len(swarms); i++ {
+		swarms[i] = NewEnemySwarm(&config.Swarms[i])
+	}
+
+	return &Wave{Swarms: swarms}
 }
 
 // CallEnemies returns a slice of ids of enemies that are
@@ -51,6 +60,17 @@ type EnemySwarm struct {
 
 	// CurCalls is the current amount of enemies called.
 	CurCalls int
+}
+
+func NewEnemySwarm(config *EnemySwarmConfig) *EnemySwarm {
+	return &EnemySwarm{
+		EnemyName: config.EnemyName,
+		Timeout:   config.Timeout,
+		Interval:  config.Interval,
+		CurrTime:  config.CurrTime,
+		MaxCalls:  config.MaxCalls,
+		CurCalls:  config.CurCalls,
+	}
 }
 
 // Ended returns true if maximum calls amount exceeded.
