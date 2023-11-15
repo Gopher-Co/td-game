@@ -67,6 +67,16 @@ func (c *TowerConfig) Image() *ebiten.Image {
 	return c.image
 }
 
+func (c *TowerConfig) InitUpgrades() []*Upgrade {
+	ups := make([]*Upgrade, len(c.Upgrades))
+
+	for i := 0; i < len(ups); i++ {
+		ups[i] = NewUpgrade(&c.Upgrades[i])
+	}
+
+	return ups
+}
+
 // UpgradeConfig is a config for tower's upgrade.
 type UpgradeConfig struct {
 	Price            int    `json:"price"`

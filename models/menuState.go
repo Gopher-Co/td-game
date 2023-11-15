@@ -32,8 +32,7 @@ func (m *MenuState) Update() error {
 }
 
 func (m *MenuState) loadUI(widgets Widgets) {
-	//TODO implement me
-	panic("implement me")
+
 }
 
 func (m *MenuState) End() bool {

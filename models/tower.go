@@ -26,7 +26,7 @@ type Tower struct {
 	Radius         Coord
 	State          TowerState
 	SpeedAttack    Frames
-	Upgrades       []Upgrade
+	Upgrades       []*Upgrade
 	UpgradesBought int
 }
 
@@ -52,7 +52,7 @@ func NewTower(config *TowerConfig, pos Point, path Path) *Tower {
 			Aim:        nil,
 		},
 		SpeedAttack:    config.InitSpeedAttack,
-		Upgrades:       config.Upgrades,
+		Upgrades:       config.InitUpgrades(),
 		UpgradesBought: 0,
 	}
 }

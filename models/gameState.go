@@ -43,7 +43,7 @@ func NewGameState(m *Map, en map[string]EnemyConfig, tw map[string]TowerConfig, 
 		Time:        0,
 	}
 
-	//gs.loadUI(w)
+	gs.loadUI(w)
 	gs.LastWave = len(gs.Waves) - 1 // is it needed??
 
 	return gs
@@ -55,8 +55,7 @@ func (s *GameState) Update() error {
 }
 
 func (s *GameState) loadUI(widgets Widgets) {
-	//TODO implement me
-	panic("implement me")
+
 }
 
 func (s *GameState) End() bool {
