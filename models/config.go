@@ -119,4 +119,25 @@ type UIConfig struct {
 type MapConfig struct {
 	BackgroundColor string  `json:"background_color"`
 	Path            []Point `json:"path"`
+	image           *ebiten.Image
+}
+
+// InitImage initializes image from the temporary state of the entity.
+func (c *MapConfig) InitImage() error {
+	clr, err := colorx.ParseHexColor(c.BackgroundColor)
+	if err != nil {
+		return err
+	}
+
+	img := ebiten.NewImage(ebiten.WindowSize())
+	img.Fill(clr)
+
+	c.image = img
+
+	return nil
+}
+
+// Image returns image.
+func (c *MapConfig) Image() *ebiten.Image {
+	return c.image
 }
