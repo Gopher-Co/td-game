@@ -60,7 +60,7 @@ func main() {
 		InitRadius:      10,
 		InitSpeedAttack: 10,
 		OpenLevel:       0,
-	}, models.Point{100, 100}, path)
+	}, models.Point{X: 100, Y: 100}, path)
 	m.Towers = append(m.Towers, t)
 
 	ebiten.SetWindowSize(640, 480)
