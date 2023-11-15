@@ -1,7 +1,6 @@
 package models
 
 import (
-	"image"
 	"log"
 	"math"
 
@@ -23,7 +22,7 @@ type Tower struct {
 	Damage         int
 	Type           TypeAttack
 	Price          int
-	Image          image.Image
+	Image          *ebiten.Image
 	Radius         Coord
 	State          TowerState
 	SpeedAttack    Frames
@@ -88,6 +87,12 @@ func (t *Tower) Update() {
 	} else {
 		t.State.CoolDown--
 	}
+}
+
+func (t *Tower) Draw(screen *ebiten.Image) {
+	geom := ebiten.GeoM{}
+	geom.Translate(float64(t.State.Pos.X-float32(t.Image.Bounds().Dx()/2)), float64(t.State.Pos.Y-float32(t.Image.Bounds().Dy()/2)))
+	screen.DrawImage(t.Image, &ebiten.DrawImageOptions{GeoM: geom})
 }
 
 func checkCollision(p, p1, p2 Point) bool {
