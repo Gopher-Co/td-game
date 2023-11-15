@@ -120,3 +120,19 @@ type MapConfig struct {
 	BackgroundColor string  `json:"background_color"`
 	Path            []Point `json:"path"`
 }
+
+func (c *MapConfig) InitImage() error {
+	clr, err := colorx.ParseHexColor(c.BackgroundColor)
+	if err != nil {
+		return err
+	}
+
+	img := ebiten.NewImage(ebiten.WindowSize())
+	img.Fill(clr)
+
+	return nil
+}
+
+func (c *MapConfig) Image() *ebiten.Image {
+	return nil
+}
