@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"golang.org/x/image/colornames"
 )
 
 // Aim is a type that represents the enemy that tower attacks.
@@ -58,18 +59,21 @@ func NewTower(config *TowerConfig, pos Point, path Path) *Tower {
 }
 
 func (t *Tower) Launch() *Projectile {
+	if t.State.CoolDown != 0 {
+		return nil
+	}
 	p := &Projectile{
 		Pos:         t.State.Pos,
-		Vrms:        10,
+		Vrms:        50,
 		Vx:          0,
 		Vy:          0,
 		Type:        t.Type,
 		Damage:      t.Damage,
 		TTL:         0,
 		TargetEnemy: t.State.Aim,
-		Image:       ebiten.NewImage(10, 10),
+		Image:       ebiten.NewImage(15, 15),
 	}
-
+	p.Image.Fill(colornames.Brown)
 	target := p.TargetEnemy.State.Pos
 	z := math.Hypot(float64(target.X-p.Pos.X), float64(target.Y-p.Pos.Y))
 

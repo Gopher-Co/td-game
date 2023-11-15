@@ -33,7 +33,7 @@ func (p *Projectile) Draw(screen *ebiten.Image) {
 func (p *Projectile) move() {
 	p.Pos.X += p.Vx
 	p.Pos.Y += p.Vy
-	p.TTL--
+	p.TTL = max(p.TTL-1, 0)
 }
 
 // EnemyHit checks if the projectile hit the enemy and returns true if it is.

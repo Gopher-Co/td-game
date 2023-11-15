@@ -12,6 +12,8 @@ import (
 	"github.com/gopher-co/td-game/models"
 )
 
+var TempEnemy *models.Enemy
+
 type Game struct {
 	s  models.State
 	UI *ebitenui.UI
@@ -27,11 +29,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return 640, 480
+	return outsideWidth, outsideHeight
 }
 
 func main() {
-	path := models.Path{{-16, -16}, {200, 200}, {300, 240}, {500, 50}, {500, 350}, {300, 270}, {300, 490}}
+	ebiten.SetWindowSize(640, 480)
+	ebiten.SetWindowTitle("Hello, World!")
+
+	path := models.Path{{-16, -16}, {200, 200}, {300, 240}, {500, 50}, {500, 350}, {300, 270}, {300, 500}}
 	cfg := &models.EnemyConfig{
 		Name:       "#DEAD00",
 		MaxHealth:  1,
@@ -45,14 +50,22 @@ func main() {
 		BackgroundColor: "#AB0BA0",
 		Path:            path,
 	})
-	for i := 0; i < 100; i++ {
+
+	_ = cfg.InitImage()
+	cfg.Vrms = 1 + rand.Float32()
+	TempEnemy = models.NewEnemy(cfg, path)
+	m.Enemies = append(m.Enemies, TempEnemy)
+	cfg.Name = fmt.Sprintf("#%06x", rand.Intn(0x1000000))
+
+	for i := 0; i < 1; i++ {
 		_ = cfg.InitImage()
 		cfg.Vrms = 1 + rand.Float32()*5
 		m.Enemies = append(m.Enemies, models.NewEnemy(cfg, path))
 		cfg.Name = fmt.Sprintf("#%06x", rand.Intn(0x1000000))
 	}
-	t := models.NewTower(&models.TowerConfig{
-		Name:            "#472398",
+
+	tcfg := &models.TowerConfig{
+		Name:            "#000",
 		Upgrades:        nil,
 		Price:           0,
 		Type:            0,
@@ -60,11 +73,15 @@ func main() {
 		InitRadius:      10,
 		InitSpeedAttack: 10,
 		OpenLevel:       0,
-	}, models.Point{X: 100, Y: 100}, path)
-	m.Towers = append(m.Towers, t)
+	}
+	if err := tcfg.InitImage(); err != nil {
+		log.Fatalln(err)
+	}
 
-	ebiten.SetWindowSize(640, 480)
-	ebiten.SetWindowTitle("Hello, World!")
+	t := models.NewTower(tcfg, models.Point{X: 250, Y: 50}, path)
+	t.State.Aim = TempEnemy
+	m.Towers = append(m.Towers, t)
+	ebiten.SetVsyncEnabled(true)
 	if err := ebiten.RunGame(&Game{s: models.NewGameState(m, nil, nil, nil, nil)}); err != nil {
 		log.Fatal(err)
 	}
