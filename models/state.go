@@ -1,16 +1,19 @@
 package models
 
-import "image"
+import (
+	"image"
+
+	"github.com/hajimehoshi/ebiten/v2"
+)
 
 // State is an interface that represents a state.
 type State interface {
-	Update()
-	LoadUI(widgets Widgets)
+	Drawable[*ebiten.Image]
+	Update() error
+	loadUI(widgets Widgets)
 	End() bool
-	NextState() *State
+	NextState() State
 }
 
-// Widgets is a struct that represents a collection of widgets.
-type Widgets struct {
-	w map[string]image.Image
-}
+// Widgets represents a collection of widgets.
+type Widgets map[string]image.Image

@@ -6,8 +6,15 @@ type Upgrade struct {
 	DeltaDamage      int
 	DeltaSpeedAttack Frames
 	DeltaRadius      Coord
+	OpenLevel        int
+}
 
-	// OpenLevel is a number of the level completing
-	// of which opens the upgrade.
-	OpenLevel int
+func NewUpgrade(config *UpgradeConfig) *Upgrade {
+	return &Upgrade{
+		Price:            config.Price,
+		DeltaDamage:      config.DeltaDamage,
+		DeltaSpeedAttack: config.DeltaSpeedAttack,
+		DeltaRadius:      config.DeltaRadius,
+		OpenLevel:        config.OpenLevel,
+	}
 }

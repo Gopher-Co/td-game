@@ -1,8 +1,11 @@
 package models
 
 import (
-	"image"
 	"math"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/icza/gox/imagex/colorx"
 )
 
 // Enemy is an entity moving on the Path and trying to
@@ -12,20 +15,71 @@ import (
 type Enemy struct {
 	Name       string
 	State      EnemyState
-	Path       []Point
+	Path       Path
 	MaxHealth  int
 	Vrms       Coord
 	Damage     int
 	MoneyAward int
 	Weaknesses map[TypeAttack]Weakness
 	Strengths  map[TypeAttack]Strength
-	Image      image.Image
+	Image      *ebiten.Image
+}
+
+// NewEnemy creates a new entity of Enemy.
+//
+// Panics if cfg.Color is not a correct hex-string of "#xxxxxx".
+func NewEnemy(cfg *EnemyConfig, path Path) *Enemy {
+	en := &Enemy{
+		Name: cfg.Name,
+		State: EnemyState{
+			CurrPoint: -1,
+			Pos:       path[0],
+			Health:    cfg.MaxHealth,
+			Dead:      false,
+		},
+		Path:       path,
+		MaxHealth:  cfg.MaxHealth,
+		Vrms:       cfg.Vrms,
+		Damage:     cfg.Damage,
+		MoneyAward: cfg.MoneyAward,
+		Weaknesses: map[TypeAttack]Weakness{},
+		Strengths:  map[TypeAttack]Strength{},
+	}
+
+	for _, v := range cfg.Strengths {
+		en.Strengths[v.T] = v
+	}
+
+	for _, v := range cfg.Weaknesses {
+		en.Weaknesses[v.T] = v
+	}
+	if cfg.Image() != nil {
+		en.Image = cfg.Image()
+	} else {
+		clr, err := colorx.ParseHexColor(cfg.Name)
+		if err != nil {
+			panic(err)
+		}
+
+		img := ebiten.NewImage(32, 32)
+		vector.DrawFilledCircle(img, 16, 16, 16, clr, true)
+	}
+
+	en.changeDirection()
+
+	return en
 }
 
 // DealDamage decreases the health of the enemy on dmg points.
 // If health is less than dmg, health will become zero.
 func (e *Enemy) DealDamage(dmg int) {
 	e.State.Health = max(0, e.State.Health-dmg)
+}
+
+func (e *Enemy) Draw(screen *ebiten.Image) {
+	geom := ebiten.GeoM{}
+	geom.Translate(float64(e.State.Pos.X-float32(e.Image.Bounds().Dx()/2)), float64(e.State.Pos.Y-float32(e.Image.Bounds().Dy()/2)))
+	screen.DrawImage(e.Image, &ebiten.DrawImageOptions{GeoM: geom})
 }
 
 // changeDirection directs the enemy to a new point, if possible.
@@ -44,7 +98,7 @@ func (e *Enemy) changeDirection() {
 
 	// event on achieving the end
 	if e.State.CurrPoint == len(e.Path)-1 {
-		// todo deal damage to player
+		e.State.FinalDamage = e.Damage
 		e.Die()
 		return
 	}
@@ -88,6 +142,15 @@ func (e *Enemy) FinalDamage(t TypeAttack, dmg int) int {
 
 // Update is a universal method for updating enemy's state by itself.
 func (e *Enemy) Update() {
+	if e.State.Dead {
+		return
+	}
+
+	if e.State.Health == 0 {
+		e.Die()
+		return
+	}
+
 	// calculate velocities on the first iteration
 	if e.State.CurrPoint == -1 {
 		e.changeDirection()
@@ -113,12 +176,13 @@ type EnemyState struct {
 	Health            int
 	TimeNextPointLeft Frames
 	Dead              bool
+	FinalDamage       int
 }
 
 // Weakness stores effects that are detrimental to the enemy
 type Weakness struct {
-	T      TypeAttack
-	IncDmg int
+	T      TypeAttack `json:"type"`
+	IncDmg int        `json:"inc_dmg"`
 }
 
 // IncDamage returns increased damage.
@@ -128,8 +192,8 @@ func (w Weakness) IncDamage(damage int) int {
 
 // Strength stores effects that are useful to the enemy
 type Strength struct {
-	T      TypeAttack
-	DecDmg int
+	T      TypeAttack `json:"type"`
+	DecDmg int        `json:"dec_dmg"`
 }
 
 // DecDamage returns decreased damage.
