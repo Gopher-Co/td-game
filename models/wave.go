@@ -2,6 +2,17 @@ package models
 
 import "slices"
 
+type GameRule []*Wave
+
+func NewGameRule(config []WaveConfig) GameRule {
+	grs := make(GameRule, len(config))
+	for i := range config {
+		grs[i] = NewWave(&config[i])
+	}
+
+	return grs
+}
+
 // Wave is a set of the enemies.
 type Wave struct {
 	Swarms []*EnemySwarm

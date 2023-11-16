@@ -25,13 +25,13 @@ type GameState struct {
 	UI          *ebitenui.UI
 	LastWave    int
 	CurrentWave int
-	Waves       []Wave
+	GameRule    GameRule
 	Time        Frames
 }
 
-func NewGameState(m *Map, en map[string]EnemyConfig, tw map[string]TowerConfig, waves []Wave, w Widgets) *GameState {
+func NewGameState(config *LevelConfig, en map[string]EnemyConfig, tw map[string]TowerConfig, w Widgets) *GameState {
 	gs := &GameState{
-		Map:         m,
+		Map:         NewMap(&config.Map),
 		TowersToBuy: tw,
 		EnemyToCall: en,
 		Ended:       false,
@@ -39,12 +39,12 @@ func NewGameState(m *Map, en map[string]EnemyConfig, tw map[string]TowerConfig, 
 		UI:          nil, // loadUI loads it
 		LastWave:    0,
 		CurrentWave: -1,
-		Waves:       waves,
+		GameRule:    NewGameRule(config.GameRule),
 		Time:        0,
 	}
 
 	gs.loadUI(w)
-	gs.LastWave = len(gs.Waves) - 1 // is it needed??
+	gs.LastWave = len(gs.GameRule) - 1 // is it needed??
 
 	return gs
 }

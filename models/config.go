@@ -88,10 +88,12 @@ type UpgradeConfig struct {
 
 // LevelConfig is a config for level.
 type LevelConfig struct {
-	LevelName string       `json:"level_name"`
-	Map       MapConfig    `json:"map"`
-	Waves     []WaveConfig `json:"waves"`
+	LevelName string         `json:"level_name"`
+	Map       MapConfig      `json:"map"`
+	GameRule  GameRuleConfig `json:"game_rule"`
 }
+
+type GameRuleConfig []WaveConfig
 
 // WaveConfig is a config for wave.
 type WaveConfig struct {
