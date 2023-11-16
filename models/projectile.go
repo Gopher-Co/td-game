@@ -17,10 +17,15 @@ type Projectile struct {
 	TTL         Frames
 	TargetEnemy *Enemy
 	Image       *ebiten.Image
+	dead        bool
 }
 
 func (p *Projectile) Update() {
 	p.move()
+	if !p.dead && p.TTL == 0 {
+		p.EnemyHit()
+		p.dead = true
+	}
 }
 
 func (p *Projectile) Draw(screen *ebiten.Image) {
@@ -37,10 +42,6 @@ func (p *Projectile) move() {
 }
 
 // EnemyHit checks if the projectile hit the enemy and returns true if it is.
-func (p *Projectile) EnemyHit() bool {
-	if p.TTL == 0 {
-		p.TargetEnemy.DealDamage(p.TargetEnemy.FinalDamage(p.Type, p.Damage))
-		return true
-	}
-	return false
+func (p *Projectile) EnemyHit() {
+	p.TargetEnemy.DealDamage(p.TargetEnemy.FinalDamage(p.Type, p.Damage))
 }

@@ -38,6 +38,7 @@ func (m *Map) Update() {
 	}
 	for _, v := range m.Towers {
 		v.Update()
+		v.TakeAim(m.Enemies)
 		if p := v.Launch(); p != nil {
 			m.Projectiles = append(m.Projectiles, p)
 		}
@@ -51,7 +52,7 @@ func (m *Map) Draw(screen *ebiten.Image) {
 	screen.DrawImage(m.Image, nil)
 	m.Path.Draw(screen)
 	for _, p := range m.Projectiles {
-		if p.TTL == 0 {
+		if p.dead {
 			continue
 		}
 		p.Draw(screen)

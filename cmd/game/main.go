@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"time"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -39,7 +40,7 @@ func main() {
 	path := models.Path{{-16, -16}, {200, 200}, {300, 240}, {500, 50}, {500, 350}, {300, 270}, {300, 500}}
 	cfg := &models.EnemyConfig{
 		Name:       "#DEAD00",
-		MaxHealth:  1,
+		MaxHealth:  18,
 		Damage:     0,
 		MoneyAward: 0,
 		Strengths:  nil,
@@ -52,25 +53,24 @@ func main() {
 	})
 
 	_ = cfg.InitImage()
-	cfg.Vrms = 1 + rand.Float32()
+	cfg.Vrms = 1
 	TempEnemy = models.NewEnemy(cfg, path)
 	m.Enemies = append(m.Enemies, TempEnemy)
 	cfg.Name = fmt.Sprintf("#%06x", rand.Intn(0x1000000))
-
-	for i := 0; i < 1; i++ {
+	go func() {
+		time.Sleep(3 * time.Second)
 		_ = cfg.InitImage()
-		cfg.Vrms = 1 + rand.Float32()*5
+		cfg.Vrms = 2.7
 		m.Enemies = append(m.Enemies, models.NewEnemy(cfg, path))
 		cfg.Name = fmt.Sprintf("#%06x", rand.Intn(0x1000000))
-	}
-
+	}()
 	tcfg := &models.TowerConfig{
 		Name:            "#000",
 		Upgrades:        nil,
 		Price:           0,
 		Type:            0,
 		InitDamage:      1,
-		InitRadius:      10,
+		InitRadius:      200,
 		InitSpeedAttack: 10,
 		OpenLevel:       0,
 	}
@@ -78,11 +78,14 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	t := models.NewTower(tcfg, models.Point{X: 250, Y: 50}, path)
+	t := models.NewTower(tcfg, models.Point{X: 290, Y: 120}, path)
 	t.State.Aim = TempEnemy
 	m.Towers = append(m.Towers, t)
-	ebiten.SetVsyncEnabled(true)
-	if err := ebiten.RunGame(&Game{s: models.NewGameState(m, nil, nil, nil, nil)}); err != nil {
+
+	lcfg := models.NewGameState(&models.LevelConfig{}, nil, nil, nil)
+	lcfg.Map = m
+
+	if err := ebiten.RunGame(&Game{s: lcfg}); err != nil {
 		log.Fatal(err)
 	}
 }

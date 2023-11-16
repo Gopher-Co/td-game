@@ -1,10 +1,12 @@
 package models
 
 import (
-	"log"
+	"image/color"
 	"math"
+	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	"golang.org/x/image/colornames"
 )
 
@@ -59,12 +61,14 @@ func NewTower(config *TowerConfig, pos Point, path Path) *Tower {
 }
 
 func (t *Tower) Launch() *Projectile {
-	if t.State.CoolDown != 0 {
+	if t.State.CoolDown != 0 || t.State.Aim == nil {
 		return nil
 	}
+	t.State.CoolDown = t.SpeedAttack
+
 	p := &Projectile{
 		Pos:         t.State.Pos,
-		Vrms:        50,
+		Vrms:        30,
 		Vx:          0,
 		Vy:          0,
 		Type:        t.Type,
@@ -86,17 +90,48 @@ func (t *Tower) Launch() *Projectile {
 }
 
 func (t *Tower) Update() {
-	if t.State.CoolDown == 0 {
-		t.State.CoolDown = t.SpeedAttack
-	} else {
-		t.State.CoolDown--
-	}
+	t.State.CoolDown = max(t.State.CoolDown-1, 0)
 }
 
 func (t *Tower) Draw(screen *ebiten.Image) {
+	vector.DrawFilledCircle(screen, t.State.Pos.X, t.State.Pos.Y, t.Radius, color.RGBA{0, 0, 0, 30}, true)
+
 	geom := ebiten.GeoM{}
 	geom.Translate(float64(t.State.Pos.X-float32(t.Image.Bounds().Dx()/2)), float64(t.State.Pos.Y-float32(t.Image.Bounds().Dy()/2)))
 	screen.DrawImage(t.Image, &ebiten.DrawImageOptions{GeoM: geom})
+}
+
+func (t *Tower) TakeAim(e1 []*Enemy) {
+	t.takeAimFirst(e1)
+}
+
+func (t *Tower) takeAimFirst(e1 []*Enemy) {
+	enemies := slices.Clone(e1)
+	enemies = slices.DeleteFunc(enemies, func(e *Enemy) bool {
+		tx, ty, ex, ey := t.State.Pos.X, t.State.Pos.Y, e.State.Pos.X, e.State.Pos.Y
+		return e.State.Dead || (tx-ex)*(tx-ex)+(ty-ey)*(ty-ey) > t.Radius*t.Radius
+	})
+
+	if len(enemies) == 0 {
+		t.State.Aim = nil
+		return
+	}
+
+	e := slices.MaxFunc(enemies, func(a, b *Enemy) int {
+		if a.State.CurrPoint > b.State.CurrPoint {
+			return 1
+		} else if a.State.CurrPoint < b.State.CurrPoint {
+			return -1
+		}
+		if Coord(a.State.TimeNextPointLeft)*a.Vrms < Coord(b.State.TimeNextPointLeft)*b.Vrms {
+			return 1
+		} else if Coord(a.State.TimeNextPointLeft)*a.Vrms > Coord(b.State.TimeNextPointLeft)*b.Vrms {
+			return -1
+		}
+		return 0
+	})
+
+	t.State.Aim = e
 }
 
 func checkCollision(p, p1, p2 Point) bool {
@@ -125,7 +160,6 @@ func checkCollision(p, p1, p2 Point) bool {
 
 	A := Point{Coord(x1 - dy), Coord(y1 + dx)}
 	B := Point{Coord(x1 + dy), Coord(y1 - dx)}
-	C := Point{Coord(x2 - dy), Coord(y2 + dx)}
 	D := Point{Coord(x2 + dy), Coord(y2 - dx)}
 
 	sc := func(p1, p2 Point) Coord {
@@ -135,7 +169,6 @@ func checkCollision(p, p1, p2 Point) bool {
 	AM := Point{p.X - A.X, p.Y - A.Y}
 	AB := Point{B.X - A.X, B.Y - A.Y}
 	AD := Point{D.X - A.X, D.Y - A.Y}
-	log.Println(A, B, C, D)
 	return 0 <= sc(AM, AB) && sc(AM, AB) < sc(AB, AB) &&
 		0 <= sc(AM, AD) && sc(AM, AD) < sc(AD, AD)
 }
