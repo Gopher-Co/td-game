@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	EnemyImageWidth = 32
+	EnemyImageWidth = 24
 	TowerImageWidth = 32
 	PathWidth       = 32
 )
