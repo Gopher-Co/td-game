@@ -1,8 +1,8 @@
 {
-  "name": "#ab0ba0",
-  "max_health": 2,
+  "name": "#0ab0ba",
+  "max_health": 1,
   "damage": 10,
-  "vrms": 1.0,
+  "vrms": 3.0,
   "money_award": 0,
   "strengths": [],
   "weaknesses": [{

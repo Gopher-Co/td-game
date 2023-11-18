@@ -146,14 +146,8 @@ type EnemySwarmConfig struct {
 	// Interval is time between calls.
 	Interval Frames `json:"interval"`
 
-	// CurrTime is current time relatively the swarm's start.
-	CurrTime Frames `json:"curr_time"`
-
 	// MaxCalls is a maximal amount of enemies that can be called.
 	MaxCalls int `json:"max_calls"`
-
-	// CurCalls is the current amount of enemies called.
-	CurCalls int `json:"cur_calls"`
 }
 
 // UIConfig is a config for GlobalUI.

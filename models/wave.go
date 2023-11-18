@@ -16,6 +16,7 @@ func NewGameRule(config []WaveConfig) GameRule {
 // Wave is a set of the enemies.
 type Wave struct {
 	Swarms []*EnemySwarm
+	Time   Frames
 }
 
 func NewWave(config *WaveConfig) *Wave {
@@ -32,11 +33,15 @@ func NewWave(config *WaveConfig) *Wave {
 func (w *Wave) CallEnemies() []string {
 	es := make([]string, 0, len(w.Swarms))
 	for _, v := range w.Swarms {
-		if e := v.Update(); e != "" {
+		if v.Ended() {
+			continue
+		}
+		if e := v.Update(w.Time); e != "" {
 			es = append(es, e)
 		}
 	}
 
+	w.Time++
 	return slices.Clip(es)
 }
 
@@ -78,9 +83,8 @@ func NewEnemySwarm(config *EnemySwarmConfig) *EnemySwarm {
 		EnemyName: config.EnemyName,
 		Timeout:   config.Timeout,
 		Interval:  config.Interval,
-		CurrTime:  config.CurrTime,
 		MaxCalls:  config.MaxCalls,
-		CurCalls:  config.CurCalls,
+		CurCalls:  0,
 	}
 }
 
@@ -91,10 +95,9 @@ func (s *EnemySwarm) Ended() bool {
 
 // Update increases time of EnemySwarm and returns a new enemy id
 // if it's time for it.
-func (s *EnemySwarm) Update() string {
-	defer func() { s.CurrTime++ }()
-
-	if s.CurrTime-s.Timeout >= 0 && (s.CurrTime-s.Timeout)%s.Interval == 0 {
+func (s *EnemySwarm) Update(t Frames) string {
+	if t-s.Timeout >= 0 && (t-s.Timeout)%s.Interval == 0 {
+		s.CurCalls++
 		return s.EnemyName
 	}
 	return ""

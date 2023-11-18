@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -85,10 +86,18 @@ func main() {
 	log.Println(global.GlobalUI)
 
 	// LEVEL LOADING
-	gs := models.NewGameState(global.GlobalLevels["Level 1"], global.GlobalMaps, nil, nil, nil)
-
+	gs := models.NewGameState(global.GlobalLevels["Level 1"], global.GlobalMaps, global.GlobalEnemies, global.GlobalTowers, nil)
+	go func() {
+		for {
+			time.Sleep(time.Second)
+			if gs.State == models.Paused {
+				gs.CurrentWave++
+				gs.State = models.Running
+			}
+			log.Println(gs.CurrentWave)
+		}
+	}()
 	// SIMULATE SOME STATE
-	gs.Map.Enemies = append(gs.Map.Enemies, models.NewEnemy(global.GlobalEnemies["#ab0ba0"], gs.Map.Path))
 	gs.Map.Towers = append(gs.Map.Towers, models.NewTower(global.GlobalTowers["#e0983a"], models.Point{300, 350}, gs.Map.Path))
 
 	log.Println("Starting game...")

@@ -69,6 +69,16 @@ func (m *Map) Draw(screen *ebiten.Image) {
 	}
 }
 
+func (m *Map) AreThereAliveEnemies() bool {
+	for _, e := range m.Enemies {
+		if !e.State.Dead {
+			return true
+		}
+	}
+
+	return false
+}
+
 // Path is a struct that represents a path.
 type Path []Point
 
