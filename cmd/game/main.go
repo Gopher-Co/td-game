@@ -65,21 +65,22 @@ func main() {
 		cfg.Name = fmt.Sprintf("#%06x", rand.Intn(0x1000000))
 	}()
 	tcfg := &models.TowerConfig{
-		Name:            "#000",
-		Upgrades:        nil,
-		Price:           0,
-		Type:            0,
-		InitDamage:      1,
-		InitRadius:      200,
-		InitSpeedAttack: 10,
-		OpenLevel:       0,
+		Name:               "#000",
+		Upgrades:           nil,
+		Price:              0,
+		Type:               0,
+		InitDamage:         1,
+		InitRadius:         200,
+		InitSpeedAttack:    10,
+		InitProjectileVrms: 20,
+		ProjectileConfig:   models.ProjectileConfig{Name: "#ddd"},
+		OpenLevel:          0,
 	}
 	if err := tcfg.InitImage(); err != nil {
 		log.Fatalln(err)
 	}
 
 	t := models.NewTower(tcfg, models.Point{X: 290, Y: 120}, path)
-	t.State.Aim = TempEnemy
 	m.Towers = append(m.Towers, t)
 
 	lcfg := models.NewGameState(&models.LevelConfig{}, nil, nil, nil)

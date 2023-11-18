@@ -7,7 +7,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"golang.org/x/image/colornames"
 )
 
 // Aim is a type that represents the enemy that tower attacks.
@@ -21,16 +20,18 @@ const (
 
 // Tower is a struct that represents a tower.
 type Tower struct {
-	Name           string
-	Damage         int
-	Type           TypeAttack
-	Price          int
-	Image          *ebiten.Image
-	Radius         Coord
-	State          TowerState
-	SpeedAttack    Frames
-	Upgrades       []*Upgrade
-	UpgradesBought int
+	Name            string
+	Damage          int
+	Type            TypeAttack
+	Price           int
+	Image           *ebiten.Image
+	Radius          Coord
+	State           TowerState
+	SpeedAttack     Frames
+	ProjectileVrms  Coord
+	ProjectileImage *ebiten.Image
+	Upgrades        []*Upgrade
+	UpgradesBought  int
 }
 
 func NewTower(config *TowerConfig, pos Point, path Path) *Tower {
@@ -54,9 +55,11 @@ func NewTower(config *TowerConfig, pos Point, path Path) *Tower {
 			Pos:        pos,
 			Aim:        nil,
 		},
-		SpeedAttack:    config.InitSpeedAttack,
-		Upgrades:       config.InitUpgrades(),
-		UpgradesBought: 0,
+		SpeedAttack:     config.InitSpeedAttack,
+		ProjectileVrms:  config.InitProjectileVrms,
+		ProjectileImage: config.ProjectileConfig.Image(),
+		Upgrades:        config.InitUpgrades(),
+		UpgradesBought:  0,
 	}
 }
 
@@ -68,16 +71,15 @@ func (t *Tower) Launch() *Projectile {
 
 	p := &Projectile{
 		Pos:         t.State.Pos,
-		Vrms:        30,
+		Vrms:        t.ProjectileVrms,
 		Vx:          0,
 		Vy:          0,
 		Type:        t.Type,
 		Damage:      t.Damage,
 		TTL:         0,
 		TargetEnemy: t.State.Aim,
-		Image:       ebiten.NewImage(15, 15),
+		Image:       t.ProjectileImage,
 	}
-	p.Image.Fill(colornames.Brown)
 	target := p.TargetEnemy.State.Pos
 	z := math.Hypot(float64(target.X-p.Pos.X), float64(target.Y-p.Pos.Y))
 

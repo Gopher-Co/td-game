@@ -6,6 +6,13 @@ import (
 	"github.com/icza/gox/imagex/colorx"
 )
 
+const (
+	EnemyImageWidth     = 24
+	TowerImageWidth     = 32
+	ProjectileImageWith = 16
+	PathWidth           = 32
+)
+
 // Config structures are need to pass then to NewXXX functions.
 
 // EnemyConfig is a config for enemy.
@@ -39,25 +46,31 @@ func (c *EnemyConfig) Image() *ebiten.Image {
 
 // TowerConfig is a config for tower.
 type TowerConfig struct {
-	Name            string          `json:"name"`
-	Upgrades        []UpgradeConfig `json:"upgrades"`
-	Price           int             `json:"price"`
-	Type            TypeAttack      `json:"type"`
-	InitDamage      int             `json:"initial_damage"`
-	InitRadius      Coord           `json:"initial_radius"`
-	InitSpeedAttack Frames          `json:"initial_speed_attack"`
-	OpenLevel       int             `json:"open_level"`
-	image           *ebiten.Image
+	Name               string           `json:"name"`
+	Upgrades           []UpgradeConfig  `json:"upgrades"`
+	Price              int              `json:"price"`
+	Type               TypeAttack       `json:"type"`
+	InitDamage         int              `json:"initial_damage"`
+	InitRadius         Coord            `json:"initial_radius"`
+	InitSpeedAttack    Frames           `json:"initial_speed_attack"`
+	InitProjectileVrms Coord            `json:"init_projectile_speed"`
+	ProjectileConfig   ProjectileConfig `json:"projectile_config"`
+	OpenLevel          int              `json:"open_level"`
+	image              *ebiten.Image
 }
 
 func (c *TowerConfig) InitImage() error {
+	if err := c.ProjectileConfig.InitImage(); err != nil {
+		return err
+	}
+
 	clr, err := colorx.ParseHexColor(c.Name)
 	if err != nil {
 		return err
 	}
 
-	img := ebiten.NewImage(32, 32)
-	vector.DrawFilledRect(img, 0, 0, 32, 32, clr, true)
+	img := ebiten.NewImage(TowerImageWidth, TowerImageWidth)
+	vector.DrawFilledRect(img, 0, 0, TowerImageWidth, TowerImageWidth, clr, true)
 	c.image = img
 
 	return nil
@@ -84,6 +97,28 @@ type UpgradeConfig struct {
 	DeltaSpeedAttack Frames `json:"delta_speed_attack"`
 	DeltaRadius      Coord  `json:"delta_radius"`
 	OpenLevel        int    `json:"open_level"`
+}
+
+type ProjectileConfig struct {
+	Name  string
+	image *ebiten.Image
+}
+
+func (c *ProjectileConfig) InitImage() error {
+	clr, err := colorx.ParseHexColor(c.Name)
+	if err != nil {
+		return err
+	}
+
+	img := ebiten.NewImage(ProjectileImageWith, ProjectileImageWith)
+	vector.DrawFilledRect(img, 0, 0, ProjectileImageWith, ProjectileImageWith, clr, true)
+	c.image = img
+
+	return nil
+}
+
+func (c *ProjectileConfig) Image() *ebiten.Image {
+	return c.image
 }
 
 // LevelConfig is a config for level.
