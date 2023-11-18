@@ -152,8 +152,8 @@ func checkCollision(p, p1, p2 Point) bool {
 	sina := (y2 - y1) / z
 	cosa := 1 - math.Pow(sina, 2)
 
-	dx := PathWidth * cosa
-	dy := PathWidth * sina
+	dx := PathWidth / 2 * cosa
+	dy := PathWidth / 2 * sina
 
 	x1 -= dx
 	x2 += dx
@@ -162,6 +162,7 @@ func checkCollision(p, p1, p2 Point) bool {
 
 	A := Point{Coord(x1 - dy), Coord(y1 + dx)}
 	B := Point{Coord(x1 + dy), Coord(y1 - dx)}
+	//C := Point{Coord(x2 - dy), Coord(y2 + dx)}
 	D := Point{Coord(x2 + dy), Coord(y2 - dx)}
 
 	sc := func(p1, p2 Point) Coord {
@@ -171,8 +172,8 @@ func checkCollision(p, p1, p2 Point) bool {
 	AM := Point{p.X - A.X, p.Y - A.Y}
 	AB := Point{B.X - A.X, B.Y - A.Y}
 	AD := Point{D.X - A.X, D.Y - A.Y}
-	return 0 <= sc(AM, AB) && sc(AM, AB) < sc(AB, AB) &&
-		0 <= sc(AM, AD) && sc(AM, AD) < sc(AD, AD)
+	return 0 < sc(AM, AB) && sc(AM, AB) < sc(AB, AB) &&
+		0 < sc(AM, AD) && sc(AM, AD) < sc(AD, AD)
 }
 
 // TowerState is a struct that represents the state of a tower.
