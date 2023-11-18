@@ -124,7 +124,7 @@ func (c *ProjectileConfig) Image() *ebiten.Image {
 // LevelConfig is a config for level.
 type LevelConfig struct {
 	LevelName string         `json:"level_name"`
-	Map       MapConfig      `json:"map"`
+	MapName   string         `json:"map_name"`
 	GameRule  GameRuleConfig `json:"game_rule"`
 }
 
@@ -164,6 +164,7 @@ type UIConfig struct {
 
 // MapConfig is a config for map.
 type MapConfig struct {
+	Name            string  `json:"name"`
 	BackgroundColor string  `json:"background_color"`
 	Path            []Point `json:"path"`
 	image           *ebiten.Image

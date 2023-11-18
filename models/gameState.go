@@ -18,8 +18,8 @@ const (
 // GameState is a struct that represents the state of the game.
 type GameState struct {
 	Map         *Map
-	TowersToBuy map[string]TowerConfig
-	EnemyToCall map[string]EnemyConfig
+	TowersToBuy map[string]*TowerConfig
+	EnemyToCall map[string]*EnemyConfig
 	Ended       bool
 	State       CurrentState
 	UI          *ebitenui.UI
@@ -29,9 +29,9 @@ type GameState struct {
 	Time        Frames
 }
 
-func NewGameState(config *LevelConfig, en map[string]EnemyConfig, tw map[string]TowerConfig, w Widgets) *GameState {
+func NewGameState(config *LevelConfig, en map[string]*EnemyConfig, tw map[string]*TowerConfig, w Widgets) *GameState {
 	gs := &GameState{
-		Map:         NewMap(&config.Map),
+		Map:         NewMap(GlobalMaps[config.MapName]),
 		TowersToBuy: tw,
 		EnemyToCall: en,
 		Ended:       false,

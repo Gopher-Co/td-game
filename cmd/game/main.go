@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
+	"github.com/gopher-co/td-game/global"
 	"github.com/gopher-co/td-game/io"
 	"github.com/gopher-co/td-game/models"
 )
@@ -36,37 +37,62 @@ func main() {
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowTitle("Hello, World!")
 
-	path := models.Path{{-16, -16}, {200, 200}, {300, 240}, {500, 50}, {500, 350}, {300, 270}, {300, 500}}
-	m := models.NewMap(&models.MapConfig{
-		BackgroundColor: "#AB0BA0",
-		Path:            path,
-	})
+	// load maps
+	mcfgs, err := io.LoadMapConfigs()
+	if err != nil {
+		log.Fatalln(err)
+	}
 
+	for k := range mcfgs {
+		global.Maps[mcfgs[k].Name] = &mcfgs[k]
+	}
+
+	// load levels
+	lcfgs, err := io.LoadLevelConfigs()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	for k := range lcfgs {
+		global.Levels[lcfgs[k].LevelName] = &lcfgs[k]
+	}
+
+	// load enemies
 	ecfgs, err := io.LoadEnemyConfigs()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	for k := range ecfgs {
-		m.Enemies = append(m.Enemies, models.NewEnemy(&ecfgs[k], path))
+		global.Enemies[ecfgs[k].Name] = &ecfgs[k]
 	}
 
+	// load towers
 	tcfgs, err := io.LoadTowerConfigs()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	for k := range tcfgs {
-		if t := models.NewTower(&tcfgs[k], models.Point{190, 100}, path); t != nil {
-			m.Towers = append(m.Towers, t)
-		}
-
+		global.Towers[tcfgs[k].Name] = &tcfgs[k]
 	}
 
-	lcfg := models.NewGameState(&models.LevelConfig{}, nil, nil, nil)
-	lcfg.Map = m
+	// load ui
+	global.UI, err = io.LoadUIConfig()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println(global.UI)
 
-	if err := ebiten.RunGame(&Game{s: lcfg}); err != nil {
+	// LEVEL LOADING
+	gs := models.NewGameState(global.Levels["Level 1"], nil, nil, nil)
+
+	// SIMULATE SOME STATE
+	gs.Map.Enemies = append(gs.Map.Enemies, models.NewEnemy(global.Enemies["#ab0ba0"], gs.Map.Path))
+	gs.Map.Towers = append(gs.Map.Towers, models.NewTower(global.Towers["#e0983a"], models.Point{300, 350}, gs.Map.Path))
+
+	log.Println("Starting game...")
+	if err := ebiten.RunGame(&Game{s: gs}); err != nil {
 		log.Fatal(err)
 	}
 }
