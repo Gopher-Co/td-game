@@ -29,9 +29,9 @@ type GameState struct {
 	Time        Frames
 }
 
-func NewGameState(config *LevelConfig, en map[string]*EnemyConfig, tw map[string]*TowerConfig, w Widgets) *GameState {
+func NewGameState(config *LevelConfig, maps map[string]*MapConfig, en map[string]*EnemyConfig, tw map[string]*TowerConfig, w Widgets) *GameState {
 	gs := &GameState{
-		Map:         NewMap(GlobalMaps[config.MapName]),
+		Map:         NewMap(maps[config.MapName]),
 		TowersToBuy: tw,
 		EnemyToCall: en,
 		Ended:       false,

@@ -44,7 +44,7 @@ func main() {
 	}
 
 	for k := range mcfgs {
-		global.Maps[mcfgs[k].Name] = &mcfgs[k]
+		global.GlobalMaps[mcfgs[k].Name] = &mcfgs[k]
 	}
 
 	// load levels
@@ -54,7 +54,7 @@ func main() {
 	}
 
 	for k := range lcfgs {
-		global.Levels[lcfgs[k].LevelName] = &lcfgs[k]
+		global.GlobalLevels[lcfgs[k].LevelName] = &lcfgs[k]
 	}
 
 	// load enemies
@@ -64,7 +64,7 @@ func main() {
 	}
 
 	for k := range ecfgs {
-		global.Enemies[ecfgs[k].Name] = &ecfgs[k]
+		global.GlobalEnemies[ecfgs[k].Name] = &ecfgs[k]
 	}
 
 	// load towers
@@ -74,22 +74,22 @@ func main() {
 	}
 
 	for k := range tcfgs {
-		global.Towers[tcfgs[k].Name] = &tcfgs[k]
+		global.GlobalTowers[tcfgs[k].Name] = &tcfgs[k]
 	}
 
 	// load ui
-	global.UI, err = io.LoadUIConfig()
+	global.GlobalUI, err = io.LoadUIConfig()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Println(global.UI)
+	log.Println(global.GlobalUI)
 
 	// LEVEL LOADING
-	gs := models.NewGameState(global.Levels["Level 1"], nil, nil, nil)
+	gs := models.NewGameState(global.GlobalLevels["Level 1"], global.GlobalMaps, nil, nil, nil)
 
 	// SIMULATE SOME STATE
-	gs.Map.Enemies = append(gs.Map.Enemies, models.NewEnemy(global.Enemies["#ab0ba0"], gs.Map.Path))
-	gs.Map.Towers = append(gs.Map.Towers, models.NewTower(global.Towers["#e0983a"], models.Point{300, 350}, gs.Map.Path))
+	gs.Map.Enemies = append(gs.Map.Enemies, models.NewEnemy(global.GlobalEnemies["#ab0ba0"], gs.Map.Path))
+	gs.Map.Towers = append(gs.Map.Towers, models.NewTower(global.GlobalTowers["#e0983a"], models.Point{300, 350}, gs.Map.Path))
 
 	log.Println("Starting game...")
 	if err := ebiten.RunGame(&Game{s: gs}); err != nil {

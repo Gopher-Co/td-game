@@ -156,7 +156,7 @@ type EnemySwarmConfig struct {
 	CurCalls int `json:"cur_calls"`
 }
 
-// UIConfig is a config for UI.
+// UIConfig is a config for GlobalUI.
 type UIConfig struct {
 	// Colors contains hex-colors (e.g. "#AB0BA0") for each key in map
 	Colors map[string]string `json:"colors"`
