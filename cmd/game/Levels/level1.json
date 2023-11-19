@@ -30,6 +30,16 @@
           "enemy_name": "#ab0ba0",
           "timeout": 0,
           "interval": 50,
+          "max_calls": 10
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "#0ab0ba",
+          "timeout": 0,
+          "interval": 10,
           "max_calls": 50
         }
       ]

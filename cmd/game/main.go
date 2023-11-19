@@ -8,6 +8,7 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
 	"github.com/gopher-co/td-game/global"
 	"github.com/gopher-co/td-game/io"
@@ -17,11 +18,16 @@ import (
 var TempEnemy *models.Enemy
 
 type Game struct {
-	s  models.State
-	UI *ebitenui.UI
+	s       models.State
+	UI      *ebitenui.UI
+	fscreen bool
 }
 
 func (g *Game) Update() error {
+	if inpututil.IsKeyJustPressed(ebiten.KeyF11) {
+		g.fscreen = !g.fscreen
+		ebiten.SetFullscreen(g.fscreen)
+	}
 	return g.s.Update()
 }
 
@@ -31,7 +37,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return outsideWidth, outsideHeight
+	return 640, 480
 }
 
 func main() {

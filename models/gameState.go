@@ -1,8 +1,11 @@
 package models
 
 import (
+	"fmt"
+
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 // CurrentState is an enum that represents the current state of the game.
@@ -93,4 +96,7 @@ func (s *GameState) NextState() State {
 
 func (s *GameState) Draw(screen *ebiten.Image) {
 	s.Map.Draw(screen)
+	if s.CurrentWave >= 0 {
+		ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Wave %d", s.CurrentWave+1), 0, 460)
+	}
 }

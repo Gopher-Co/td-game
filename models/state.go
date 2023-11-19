@@ -1,8 +1,6 @@
 package models
 
 import (
-	"image"
-
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -16,4 +14,4 @@ type State interface {
 }
 
 // Widgets represents a collection of widgets.
-type Widgets map[string]image.Image
+type Widgets map[string]*ebiten.Image
