@@ -2,7 +2,7 @@
   "name": "#ab0ba0",
   "max_health": 2,
   "damage": 10,
-  "vrms": 1.0,
+  "vrms": 5.0,
   "money_award": 0,
   "strengths": [],
   "weaknesses": [{

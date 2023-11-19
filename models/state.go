@@ -10,7 +10,6 @@ type State interface {
 	Update() error
 	loadUI(widgets Widgets)
 	End() bool
-	NextState() State
 }
 
 // Widgets represents a collection of widgets.

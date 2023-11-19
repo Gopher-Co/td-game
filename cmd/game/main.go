@@ -28,6 +28,17 @@ func (g *Game) Update() error {
 		g.fscreen = !g.fscreen
 		ebiten.SetFullscreen(g.fscreen)
 	}
+	if g.s.End() {
+		switch g.s.(type) {
+		case *models.GameState:
+			g.s = models.NewMenuState(global.GlobalLevels, models.Widgets(global.GlobalUI))
+		case *models.MenuState:
+			ms := g.s.(*models.MenuState)
+			g.s = models.NewGameState(global.GlobalLevels[ms.Next], global.GlobalMaps, global.GlobalEnemies, global.GlobalTowers, models.Widgets(global.GlobalUI))
+		default:
+			panic(fmt.Sprintf("type %T must be handled", g.s))
+		}
+	}
 	return g.s.Update()
 }
 
@@ -37,11 +48,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return 640, 480
+	return 1920, 1080
 }
 
 func main() {
-	ebiten.SetWindowSize(640, 480)
+	ebiten.SetWindowSize(1600, 900)
 	ebiten.SetWindowTitle("Hello, World!")
 
 	// load maps
@@ -92,22 +103,25 @@ func main() {
 	log.Println(global.GlobalUI)
 
 	// LEVEL LOADING
-	gs := models.NewGameState(global.GlobalLevels["Level 1"], global.GlobalMaps, global.GlobalEnemies, global.GlobalTowers, nil)
+	game := &Game{s: models.NewMenuState(global.GlobalLevels, models.Widgets(global.GlobalUI))}
+
+	//gs := models.NewGameState(global.GlobalLevels["Level 1"], global.GlobalMaps, global.GlobalEnemies, global.GlobalTowers, nil)
 	go func() {
 		for {
 			time.Sleep(time.Second)
-			if gs.State == models.Paused {
-				gs.CurrentWave++
-				gs.State = models.Running
+			if gs, ok := game.s.(*models.GameState); ok {
+				if gs.State == models.Paused {
+					gs.CurrentWave++
+					gs.State = models.Running
+				}
 			}
-			log.Println(gs.CurrentWave)
 		}
 	}()
 	// SIMULATE SOME STATE
-	gs.Map.Towers = append(gs.Map.Towers, models.NewTower(global.GlobalTowers["#e0983a"], models.Point{300, 350}, gs.Map.Path))
+	//gs.Map.Towers = append(gs.Map.Towers, models.NewTower(global.GlobalTowers["#e0983a"], models.Point{300, 350}, gs.Map.Path))
 
 	log.Println("Starting game...")
-	if err := ebiten.RunGame(&Game{s: gs}); err != nil {
+	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
 }

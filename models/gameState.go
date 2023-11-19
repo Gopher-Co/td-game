@@ -90,10 +90,6 @@ func (s *GameState) End() bool {
 	return s.Ended
 }
 
-func (s *GameState) NextState() State {
-	return nil
-}
-
 func (s *GameState) Draw(screen *ebiten.Image) {
 	s.Map.Draw(screen)
 	if s.CurrentWave >= 0 {

@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	EnemyImageWidth     = 24
-	TowerImageWidth     = 16
-	ProjectileImageWith = 16
-	PathWidth           = 32
+	EnemyImageWidth     = 48
+	TowerImageWidth     = 32
+	ProjectileImageWith = 32
+	PathWidth           = 64
 )
 
 // Config structures are need to pass then to NewXXX functions.
@@ -171,7 +171,7 @@ func (c *MapConfig) InitImage() error {
 		return err
 	}
 
-	img := ebiten.NewImage(ebiten.WindowSize())
+	img := ebiten.NewImage(1920, 1080)
 	img.Fill(clr)
 
 	c.image = img

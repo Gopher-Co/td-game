@@ -5,7 +5,6 @@ import (
 	"log"
 	"math"
 	"os"
-	"runtime"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/image"
@@ -21,16 +20,18 @@ import (
 
 // MenuState is a struct that represents the state of the menu.
 type MenuState struct {
-	Levels []*LevelConfig
+	Levels map[string]*LevelConfig
 	Ended  bool
 	UI     *ebitenui.UI
+	Next   string
 }
 
-func NewMenuState(configs []*LevelConfig, widgets Widgets) *MenuState {
+func NewMenuState(configs map[string]*LevelConfig, widgets Widgets) *MenuState {
 	ms := &MenuState{
 		Levels: configs,
 		Ended:  false,
 		UI:     nil,
+		Next:   "",
 	}
 	ms.loadUI(widgets)
 
@@ -52,10 +53,6 @@ func (m *MenuState) loadUI(widgets Widgets) {
 
 func (m *MenuState) End() bool {
 	return m.Ended
-}
-
-func (m *MenuState) NextState() State {
-	return nil
 }
 
 func mustLoadFont(size float64) font.Face {
@@ -152,7 +149,7 @@ func (m *MenuState) btn(widgets Widgets) *widget.Container {
 		widget.ButtonOpts.Text("PLAY!", fnt, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
 			m.UI = m.loadLevelMenuUI(widgets)
-			runtime.GC()
+			log.Println(m.UI)
 		}),
 	)
 	btn2 := widget.NewButton(
@@ -189,8 +186,6 @@ func (m *MenuState) loadLevelMenuUI(widgets Widgets) *ebitenui.UI {
 		widget.ButtonOpts.Text("<", mustLoadFont(128), &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			m.UI = m.loadMainMenuUI(widgets)
-			log.Println("ui")
-			runtime.GC()
 		}),
 	)
 
@@ -223,9 +218,8 @@ func (m *MenuState) loadScrollingLevels(widgets Widgets) *widget.Container {
 			widget.RowLayoutOpts.Spacing(20),
 		)),
 	)
-	for _, v := range m.Levels {
+	for k, v := range m.Levels {
 		cont := widget.NewContainer(
-			widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{MaxWidth: 300})),
 			widget.ContainerOpts.Layout(widget.NewGridLayout(
 				widget.GridLayoutOpts.Columns(1),
 				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true, false}),
@@ -234,9 +228,47 @@ func (m *MenuState) loadScrollingLevels(widgets Widgets) *widget.Container {
 		text1 := widget.NewText(
 			widget.TextOpts.Text("aboba", mustLoadFont(72), color.White),
 		)
-		text2 := widget.NewText(
-			widget.TextOpts.Text(v.LevelName, mustLoadFont(72), color.White),
-			widget.TextOpts.WidgetOpts(widget.WidgetOpts.MinSize(0, 600)),
+		text2 := widget.NewTextArea(
+			widget.TextAreaOpts.Text(v.LevelName),
+			widget.TextAreaOpts.FontFace(mustLoadFont(36)),
+			widget.TextAreaOpts.FontColor(color.White),
+			widget.TextAreaOpts.ContainerOpts(
+				widget.ContainerOpts.WidgetOpts(
+					//Set the layout data for the textarea
+					//including a max height to ensure the scroll bar is visible
+					widget.WidgetOpts.LayoutData(widget.GridLayoutData{
+						MaxWidth:  400,
+						MaxHeight: 740,
+					}),
+					//Set the minimum size for the widget
+					widget.WidgetOpts.MinSize(400, 740),
+				),
+			),
+			//Set padding between edge of the widget and where the text is drawn
+			widget.TextAreaOpts.TextPadding(widget.NewInsetsSimple(10)),
+			//This sets the background images for the scroll container
+			widget.TextAreaOpts.ScrollContainerOpts(
+				widget.ScrollContainerOpts.Image(&widget.ScrollContainerImage{
+					Idle: image.NewNineSliceColor(color.Black),
+					Mask: image.NewNineSliceColor(color.Black),
+				}),
+			),
+			//This sets the images to use for the sliders
+			widget.TextAreaOpts.SliderOpts(
+				widget.SliderOpts.Images(
+					// Set the track images
+					&widget.SliderTrackImage{
+						Idle:  image.NewNineSliceColor(color.NRGBA{200, 200, 200, 255}),
+						Hover: image.NewNineSliceColor(color.NRGBA{200, 200, 200, 255}),
+					},
+					// Set the handle images
+					&widget.ButtonImage{
+						Idle:    image.NewNineSliceColor(color.NRGBA{255, 100, 100, 255}),
+						Hover:   image.NewNineSliceColor(color.NRGBA{255, 100, 100, 255}),
+						Pressed: image.NewNineSliceColor(color.NRGBA{255, 100, 100, 255}),
+					},
+				),
+			),
 		)
 		btn := widget.NewButton(
 			widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(colornames.Beige)}),
@@ -244,6 +276,10 @@ func (m *MenuState) loadScrollingLevels(widgets Widgets) *widget.Container {
 			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{
 				VerticalPosition: widget.GridLayoutPositionEnd,
 			})),
+			widget.ButtonOpts.PressedHandler(func(_ *widget.ButtonPressedEventArgs) {
+				m.Ended = true
+				m.Next = k
+			}),
 		)
 
 		cont.AddChild(text1)

@@ -5,7 +5,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"golang.org/x/image/colornames"
 )
 
 // Map is a struct that represents a map.
@@ -25,9 +24,8 @@ type Map struct {
 func NewMap(config *MapConfig) *Map {
 	m := &Map{
 		Path:  config.Path,
-		Image: ebiten.NewImage(ebiten.WindowSize()),
+		Image: config.Image(),
 	}
-	m.Image.Fill(colornames.Aliceblue)
 
 	return m
 }
