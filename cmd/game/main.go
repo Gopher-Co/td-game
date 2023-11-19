@@ -3,13 +3,14 @@ package main
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"time"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
+	"github.com/gopher-co/td-game/global"
+	"github.com/gopher-co/td-game/io"
 	"github.com/gopher-co/td-game/models"
 )
 
@@ -37,56 +38,70 @@ func main() {
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowTitle("Hello, World!")
 
-	path := models.Path{{-16, -16}, {200, 200}, {300, 240}, {500, 50}, {500, 350}, {300, 270}, {300, 500}}
-	cfg := &models.EnemyConfig{
-		Name:       "#DEAD00",
-		MaxHealth:  18,
-		Damage:     0,
-		MoneyAward: 0,
-		Strengths:  nil,
-		Weaknesses: nil,
-	}
-
-	m := models.NewMap(&models.MapConfig{
-		BackgroundColor: "#AB0BA0",
-		Path:            path,
-	})
-
-	_ = cfg.InitImage()
-	cfg.Vrms = 1
-	TempEnemy = models.NewEnemy(cfg, path)
-	m.Enemies = append(m.Enemies, TempEnemy)
-	cfg.Name = fmt.Sprintf("#%06x", rand.Intn(0x1000000))
-	go func() {
-		time.Sleep(3 * time.Second)
-		_ = cfg.InitImage()
-		cfg.Vrms = 2.7
-		m.Enemies = append(m.Enemies, models.NewEnemy(cfg, path))
-		cfg.Name = fmt.Sprintf("#%06x", rand.Intn(0x1000000))
-	}()
-	tcfg := &models.TowerConfig{
-		Name:               "#000",
-		Upgrades:           nil,
-		Price:              0,
-		Type:               0,
-		InitDamage:         1,
-		InitRadius:         200,
-		InitSpeedAttack:    10,
-		InitProjectileVrms: 20,
-		ProjectileConfig:   models.ProjectileConfig{Name: "#ddd"},
-		OpenLevel:          0,
-	}
-	if err := tcfg.InitImage(); err != nil {
+	// load maps
+	mcfgs, err := io.LoadMapConfigs()
+	if err != nil {
 		log.Fatalln(err)
 	}
 
-	t := models.NewTower(tcfg, models.Point{X: 290, Y: 120}, path)
-	m.Towers = append(m.Towers, t)
+	for k := range mcfgs {
+		global.GlobalMaps[mcfgs[k].Name] = &mcfgs[k]
+	}
 
-	lcfg := models.NewGameState(&models.LevelConfig{}, nil, nil, nil)
-	lcfg.Map = m
+	// load levels
+	lcfgs, err := io.LoadLevelConfigs()
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	if err := ebiten.RunGame(&Game{s: lcfg}); err != nil {
+	for k := range lcfgs {
+		global.GlobalLevels[lcfgs[k].LevelName] = &lcfgs[k]
+	}
+
+	// load enemies
+	ecfgs, err := io.LoadEnemyConfigs()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	for k := range ecfgs {
+		global.GlobalEnemies[ecfgs[k].Name] = &ecfgs[k]
+	}
+
+	// load towers
+	tcfgs, err := io.LoadTowerConfigs()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	for k := range tcfgs {
+		global.GlobalTowers[tcfgs[k].Name] = &tcfgs[k]
+	}
+
+	// load ui
+	global.GlobalUI, err = io.LoadUIConfig()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println(global.GlobalUI)
+
+	// LEVEL LOADING
+	gs := models.NewGameState(global.GlobalLevels["Level 1"], global.GlobalMaps, global.GlobalEnemies, global.GlobalTowers, nil)
+	go func() {
+		for {
+			time.Sleep(time.Second)
+			if gs.State == models.Paused {
+				gs.CurrentWave++
+				gs.State = models.Running
+			}
+			log.Println(gs.CurrentWave)
+		}
+	}()
+	// SIMULATE SOME STATE
+	gs.Map.Towers = append(gs.Map.Towers, models.NewTower(global.GlobalTowers["#e0983a"], models.Point{300, 350}, gs.Map.Path))
+
+	log.Println("Starting game...")
+	if err := ebiten.RunGame(&Game{s: gs}); err != nil {
 		log.Fatal(err)
 	}
 }

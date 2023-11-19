@@ -18,8 +18,8 @@ const (
 // GameState is a struct that represents the state of the game.
 type GameState struct {
 	Map         *Map
-	TowersToBuy map[string]TowerConfig
-	EnemyToCall map[string]EnemyConfig
+	TowersToBuy map[string]*TowerConfig
+	EnemyToCall map[string]*EnemyConfig
 	Ended       bool
 	State       CurrentState
 	UI          *ebitenui.UI
@@ -29,9 +29,9 @@ type GameState struct {
 	Time        Frames
 }
 
-func NewGameState(config *LevelConfig, en map[string]EnemyConfig, tw map[string]TowerConfig, w Widgets) *GameState {
+func NewGameState(config *LevelConfig, maps map[string]*MapConfig, en map[string]*EnemyConfig, tw map[string]*TowerConfig, w Widgets) *GameState {
 	gs := &GameState{
-		Map:         NewMap(&config.Map),
+		Map:         NewMap(maps[config.MapName]),
 		TowersToBuy: tw,
 		EnemyToCall: en,
 		Ended:       false,
@@ -50,7 +50,32 @@ func NewGameState(config *LevelConfig, en map[string]EnemyConfig, tw map[string]
 }
 
 func (s *GameState) Update() error {
+	if s.Ended {
+		return nil
+	}
+
+	if s.State == Paused {
+		return nil
+	}
+
 	s.Map.Update()
+	wave := s.GameRule[s.CurrentWave]
+	if wave.Ended() && !s.Map.AreThereAliveEnemies() {
+		s.State = Paused
+		s.Map.Enemies = []*Enemy{}
+		s.Map.Projectiles = []*Projectile{}
+		if s.CurrentWave == len(s.GameRule)-1 {
+			s.Ended = true
+		}
+
+		return nil
+	}
+
+	es := wave.CallEnemies()
+	for _, str := range es {
+		s.Map.Enemies = append(s.Map.Enemies, NewEnemy(s.EnemyToCall[str], s.Map.Path))
+	}
+
 	return nil
 }
 
@@ -59,8 +84,7 @@ func (s *GameState) loadUI(widgets Widgets) {
 }
 
 func (s *GameState) End() bool {
-	//TODO implement me
-	panic("implement me")
+	return s.Ended
 }
 
 func (s *GameState) NextState() State {

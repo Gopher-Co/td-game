@@ -8,7 +8,7 @@ import (
 
 const (
 	EnemyImageWidth     = 24
-	TowerImageWidth     = 32
+	TowerImageWidth     = 16
 	ProjectileImageWith = 16
 	PathWidth           = 32
 )
@@ -124,7 +124,7 @@ func (c *ProjectileConfig) Image() *ebiten.Image {
 // LevelConfig is a config for level.
 type LevelConfig struct {
 	LevelName string         `json:"level_name"`
-	Map       MapConfig      `json:"map"`
+	MapName   string         `json:"map_name"`
 	GameRule  GameRuleConfig `json:"game_rule"`
 }
 
@@ -146,17 +146,11 @@ type EnemySwarmConfig struct {
 	// Interval is time between calls.
 	Interval Frames `json:"interval"`
 
-	// CurrTime is current time relatively the swarm's start.
-	CurrTime Frames `json:"curr_time"`
-
 	// MaxCalls is a maximal amount of enemies that can be called.
 	MaxCalls int `json:"max_calls"`
-
-	// CurCalls is the current amount of enemies called.
-	CurCalls int `json:"cur_calls"`
 }
 
-// UIConfig is a config for UI.
+// UIConfig is a config for GlobalUI.
 type UIConfig struct {
 	// Colors contains hex-colors (e.g. "#AB0BA0") for each key in map
 	Colors map[string]string `json:"colors"`
@@ -164,6 +158,7 @@ type UIConfig struct {
 
 // MapConfig is a config for map.
 type MapConfig struct {
+	Name            string  `json:"name"`
 	BackgroundColor string  `json:"background_color"`
 	Path            []Point `json:"path"`
 	image           *ebiten.Image
