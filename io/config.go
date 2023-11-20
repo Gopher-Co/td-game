@@ -11,12 +11,12 @@ import (
 )
 
 func ReadConfigs[T any](dirName, ext string) ([]T, error) {
-	var cfg T
 	var cfgs []T
 
 	dir := os.DirFS(dirName)
 
 	err := fs.WalkDir(dir, ".", func(path string, d fs.DirEntry, err error) error {
+		var cfg T
 		if path == "." {
 			return nil
 		}

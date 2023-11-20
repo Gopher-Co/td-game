@@ -8,7 +8,7 @@ import (
 
 const (
 	EnemyImageWidth     = 48
-	TowerImageWidth     = 32
+	TowerImageWidth     = 64
 	ProjectileImageWith = 32
 	PathWidth           = 64
 )

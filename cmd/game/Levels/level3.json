@@ -1,5 +1,5 @@
 {
-  "level_name": "Level 1",
+  "level_name": "Level 3",
   "map_name": "kavo",
   "game_rule": [
     {
@@ -8,19 +8,19 @@
           "enemy_name": "#ab0ba0",
           "timeout": 180,
           "interval": 10,
-          "max_calls": 100
+          "max_calls": 10
         },
         {
           "enemy_name": "#ab0ba0",
           "timeout": 360,
           "interval": 60,
-          "max_calls": 100
+          "max_calls": 10
         },
         {
           "enemy_name": "#0ab0ba",
           "timeout": 1000,
           "interval": 20,
-          "max_calls": 200
+          "max_calls": 20
         }
       ]
     },
@@ -28,9 +28,9 @@
       "swarms": [
         {
           "enemy_name": "#ab0ba0",
-          "timeout": 76745674,
+          "timeout": 0,
           "interval": 50,
-          "max_calls": 100
+          "max_calls": 10
         }
       ]
     },
@@ -38,9 +38,9 @@
       "swarms": [
         {
           "enemy_name": "#0ab0ba",
-          "timeout": 60000,
+          "timeout": 0,
           "interval": 10,
-          "max_calls": 500
+          "max_calls": 50
         }
       ]
     }

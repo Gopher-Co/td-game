@@ -31,10 +31,11 @@ func (g *Game) Update() error {
 	if g.s.End() {
 		switch g.s.(type) {
 		case *models.GameState:
-			g.s = models.NewMenuState(global.GlobalLevels, models.Widgets(global.GlobalUI))
+			g.s = models.NewMenuState(global.Levels, models.Widgets(global.UI))
 		case *models.MenuState:
 			ms := g.s.(*models.MenuState)
-			g.s = models.NewGameState(global.GlobalLevels[ms.Next], global.GlobalMaps, global.GlobalEnemies, global.GlobalTowers, models.Widgets(global.GlobalUI))
+			log.Println(ms.Next)
+			g.s = models.NewGameState(global.Levels[ms.Next], global.Maps, global.Enemies, global.Towers, models.Widgets(global.UI))
 		default:
 			panic(fmt.Sprintf("type %T must be handled", g.s))
 		}
@@ -52,7 +53,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 }
 
 func main() {
-	ebiten.SetWindowSize(1600, 900)
+	ebiten.SetWindowSize(1280, 720)
 	ebiten.SetWindowTitle("Hello, World!")
 
 	// load maps
@@ -62,17 +63,18 @@ func main() {
 	}
 
 	for k := range mcfgs {
-		global.GlobalMaps[mcfgs[k].Name] = &mcfgs[k]
+		global.Maps[mcfgs[k].Name] = &mcfgs[k]
 	}
 
 	// load levels
 	lcfgs, err := io.LoadLevelConfigs()
+
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	for k := range lcfgs {
-		global.GlobalLevels[lcfgs[k].LevelName] = &lcfgs[k]
+		global.Levels[lcfgs[k].LevelName] = &lcfgs[k]
 	}
 
 	// load enemies
@@ -82,7 +84,7 @@ func main() {
 	}
 
 	for k := range ecfgs {
-		global.GlobalEnemies[ecfgs[k].Name] = &ecfgs[k]
+		global.Enemies[ecfgs[k].Name] = &ecfgs[k]
 	}
 
 	// load towers
@@ -92,26 +94,28 @@ func main() {
 	}
 
 	for k := range tcfgs {
-		global.GlobalTowers[tcfgs[k].Name] = &tcfgs[k]
+		global.Towers[tcfgs[k].Name] = &tcfgs[k]
 	}
 
 	// load ui
-	global.GlobalUI, err = io.LoadUIConfig()
+	global.UI, err = io.LoadUIConfig()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Println(global.GlobalUI)
 
 	// LEVEL LOADING
-	game := &Game{s: models.NewMenuState(global.GlobalLevels, models.Widgets(global.GlobalUI))}
+	game := &Game{s: models.NewMenuState(global.Levels, models.Widgets(global.UI))}
 
 	//gs := models.NewGameState(global.GlobalLevels["Level 1"], global.GlobalMaps, global.GlobalEnemies, global.GlobalTowers, nil)
 	go func() {
 		for {
 			time.Sleep(time.Second)
 			if gs, ok := game.s.(*models.GameState); ok {
-				if gs.State == models.Paused {
+				switch gs.State {
+				case models.NextWaveReady:
 					gs.CurrentWave++
+					fallthrough
+				case models.Paused:
 					gs.State = models.Running
 				}
 			}

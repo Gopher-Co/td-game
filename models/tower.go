@@ -1,12 +1,10 @@
 package models
 
 import (
-	"image/color"
 	"math"
 	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 // Aim is a type that represents the enemy that tower attacks.
@@ -35,10 +33,8 @@ type Tower struct {
 }
 
 func NewTower(config *TowerConfig, pos Point, path Path) *Tower {
-	for i := 0; i < len(path)-1; i++ {
-		if checkCollision(Point{pos.X, pos.Y}, path[i], path[i+1]) {
-			return nil
-		}
+	if checkCollisionPath(pos, path) {
+		return nil
 	}
 
 	return &Tower{
@@ -96,8 +92,6 @@ func (t *Tower) Update() {
 }
 
 func (t *Tower) Draw(screen *ebiten.Image) {
-	vector.DrawFilledCircle(screen, t.State.Pos.X, t.State.Pos.Y, t.Radius, color.RGBA{0, 0, 0, 30}, true)
-
 	geom := ebiten.GeoM{}
 	geom.Translate(float64(t.State.Pos.X-float32(t.Image.Bounds().Dx()/2)), float64(t.State.Pos.Y-float32(t.Image.Bounds().Dy()/2)))
 	screen.DrawImage(t.Image, &ebiten.DrawImageOptions{GeoM: geom})
@@ -134,6 +128,16 @@ func (t *Tower) takeAimFirst(e1 []*Enemy) {
 	})
 
 	t.State.Aim = e
+}
+
+func checkCollisionPath(pos Point, path Path) bool {
+	for i := 0; i < len(path)-1; i++ {
+		if checkCollision(Point{pos.X, pos.Y}, path[i], path[i+1]) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func checkCollision(p, p1, p2 Point) bool {

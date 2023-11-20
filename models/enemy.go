@@ -70,6 +70,15 @@ func NewEnemy(cfg *EnemyConfig, path Path) *Enemy {
 	return en
 }
 
+func (e *Enemy) DealDamageToPlayer() int {
+	if e.State.Dead && e.State.FinalDamage > 0 {
+		fd := e.State.FinalDamage
+		e.State.FinalDamage = 0
+		return fd
+	}
+	return 0
+}
+
 // DealDamage decreases the health of the enemy on dmg points.
 // If health is less than dmg, health will become zero.
 func (e *Enemy) DealDamage(dmg int) {
@@ -99,6 +108,7 @@ func (e *Enemy) changeDirection() {
 	// event on achieving the end
 	if e.State.CurrPoint == len(e.Path)-1 {
 		e.State.FinalDamage = e.Damage
+		e.State.PassPath = true
 		e.Die()
 		return
 	}
@@ -176,6 +186,7 @@ type EnemyState struct {
 	Health            int
 	TimeNextPointLeft Frames
 	Dead              bool
+	PassPath          bool
 	FinalDamage       int
 }
 

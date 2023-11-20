@@ -1,11 +1,16 @@
 package ui
 
 import (
+	"image/color"
 	"image/png"
 	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/icza/gox/imagex/colorx"
+)
+
+var (
+	TextColor color.Color
 )
 
 func InitImage(s string) (*ebiten.Image, error) {
