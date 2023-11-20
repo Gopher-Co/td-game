@@ -4,6 +4,7 @@ go 1.21.3
 
 require (
 	github.com/ebitenui/ebitenui v0.5.5
+	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/hajimehoshi/ebiten/v2 v2.6.2
 	github.com/icza/gox v0.0.0-20230924165045-adcb03233bb5
 	golang.org/x/image v0.14.0

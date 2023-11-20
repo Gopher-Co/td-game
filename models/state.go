@@ -1,8 +1,6 @@
 package models
 
 import (
-	"image"
-
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -12,8 +10,7 @@ type State interface {
 	Update() error
 	loadUI(widgets Widgets)
 	End() bool
-	NextState() State
 }
 
 // Widgets represents a collection of widgets.
-type Widgets map[string]image.Image
+type Widgets map[string]*ebiten.Image

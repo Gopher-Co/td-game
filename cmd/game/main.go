@@ -8,6 +8,7 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
 	"github.com/gopher-co/td-game/global"
 	"github.com/gopher-co/td-game/io"
@@ -17,11 +18,28 @@ import (
 var TempEnemy *models.Enemy
 
 type Game struct {
-	s  models.State
-	UI *ebitenui.UI
+	s       models.State
+	UI      *ebitenui.UI
+	fscreen bool
 }
 
 func (g *Game) Update() error {
+	if inpututil.IsKeyJustPressed(ebiten.KeyF11) {
+		g.fscreen = !g.fscreen
+		ebiten.SetFullscreen(g.fscreen)
+	}
+	if g.s.End() {
+		switch g.s.(type) {
+		case *models.GameState:
+			g.s = models.NewMenuState(global.Levels, models.Widgets(global.UI))
+		case *models.MenuState:
+			ms := g.s.(*models.MenuState)
+			log.Println(ms.Next)
+			g.s = models.NewGameState(global.Levels[ms.Next], global.Maps, global.Enemies, global.Towers, models.Widgets(global.UI))
+		default:
+			panic(fmt.Sprintf("type %T must be handled", g.s))
+		}
+	}
 	return g.s.Update()
 }
 
@@ -31,11 +49,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return outsideWidth, outsideHeight
+	return 1920, 1080
 }
 
 func main() {
-	ebiten.SetWindowSize(640, 480)
+	ebiten.SetWindowSize(1280, 720)
 	ebiten.SetWindowTitle("Hello, World!")
 
 	// load maps
@@ -45,17 +63,18 @@ func main() {
 	}
 
 	for k := range mcfgs {
-		global.GlobalMaps[mcfgs[k].Name] = &mcfgs[k]
+		global.Maps[mcfgs[k].Name] = &mcfgs[k]
 	}
 
 	// load levels
 	lcfgs, err := io.LoadLevelConfigs()
+
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	for k := range lcfgs {
-		global.GlobalLevels[lcfgs[k].LevelName] = &lcfgs[k]
+		global.Levels[lcfgs[k].LevelName] = &lcfgs[k]
 	}
 
 	// load enemies
@@ -65,7 +84,7 @@ func main() {
 	}
 
 	for k := range ecfgs {
-		global.GlobalEnemies[ecfgs[k].Name] = &ecfgs[k]
+		global.Enemies[ecfgs[k].Name] = &ecfgs[k]
 	}
 
 	// load towers
@@ -75,33 +94,38 @@ func main() {
 	}
 
 	for k := range tcfgs {
-		global.GlobalTowers[tcfgs[k].Name] = &tcfgs[k]
+		global.Towers[tcfgs[k].Name] = &tcfgs[k]
 	}
 
 	// load ui
-	global.GlobalUI, err = io.LoadUIConfig()
+	global.UI, err = io.LoadUIConfig()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Println(global.GlobalUI)
 
 	// LEVEL LOADING
-	gs := models.NewGameState(global.GlobalLevels["Level 1"], global.GlobalMaps, global.GlobalEnemies, global.GlobalTowers, nil)
+	game := &Game{s: models.NewMenuState(global.Levels, models.Widgets(global.UI))}
+
+	//gs := models.NewGameState(global.GlobalLevels["Level 1"], global.GlobalMaps, global.GlobalEnemies, global.GlobalTowers, nil)
 	go func() {
 		for {
 			time.Sleep(time.Second)
-			if gs.State == models.Paused {
-				gs.CurrentWave++
-				gs.State = models.Running
+			if gs, ok := game.s.(*models.GameState); ok {
+				switch gs.State {
+				case models.NextWaveReady:
+					gs.CurrentWave++
+					fallthrough
+				case models.Paused:
+					gs.State = models.Running
+				}
 			}
-			log.Println(gs.CurrentWave)
 		}
 	}()
 	// SIMULATE SOME STATE
-	gs.Map.Towers = append(gs.Map.Towers, models.NewTower(global.GlobalTowers["#e0983a"], models.Point{300, 350}, gs.Map.Path))
+	//gs.Map.Towers = append(gs.Map.Towers, models.NewTower(global.GlobalTowers["#e0983a"], models.Point{300, 350}, gs.Map.Path))
 
 	log.Println("Starting game...")
-	if err := ebiten.RunGame(&Game{s: gs}); err != nil {
+	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
 }
