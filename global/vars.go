@@ -1,3 +1,4 @@
+// Package global contains global variables used in the game.
 package global
 
 import "github.com/gopher-co/td-game/models"
