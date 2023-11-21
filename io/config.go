@@ -10,13 +10,17 @@ import (
 	"slices"
 )
 
+// ReadConfigs reads all files with extension ext from dirName and returns a slice of T.
 func ReadConfigs[T any](dirName, ext string) ([]T, error) {
 	var cfgs []T
 
+	// open dir
 	dir := os.DirFS(dirName)
 
+	// walk dir
 	err := fs.WalkDir(dir, ".", func(path string, d fs.DirEntry, err error) error {
 		var cfg T
+
 		if path == "." {
 			return nil
 		}
