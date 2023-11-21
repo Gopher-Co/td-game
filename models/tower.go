@@ -11,27 +11,56 @@ import (
 type Aim int
 
 const (
+	// First is a type of aim that represents the first enemy.
 	First = Aim(iota)
+
+	// Weakest is a type of aim that represents the weakest enemy.
 	Weakest
+
+	// Strongest is a type of aim that represents the strongest enemy.
 	Strongest
 )
 
 // Tower is a struct that represents a tower.
 type Tower struct {
-	Name            string
-	Damage          int
-	Type            TypeAttack
-	Price           int
-	Image           *ebiten.Image
-	Radius          Coord
-	State           TowerState
-	SpeedAttack     Frames
-	ProjectileVrms  Coord
+	// Name is a name of the tower.
+	Name string
+
+	// Damage is a damage of the tower.
+	Damage int
+
+	// Type is a type of the tower.
+	Type TypeAttack
+
+	// Price is a price of the tower.
+	Price int
+
+	// Image is an image of the tower.
+	Image *ebiten.Image
+
+	// Radius is a radius of the tower.
+	Radius Coord
+
+	// State is a state of the tower.
+	State TowerState
+
+	// SpeedAttack is a speed of the tower's attack.
+	SpeedAttack Frames
+
+	// ProjectileVrms is a root mean square speed of the tower's projectile.
+	ProjectileVrms Coord
+
+	// ProjectileImage is an image of the tower's projectile.
 	ProjectileImage *ebiten.Image
-	Upgrades        []*Upgrade
-	UpgradesBought  int
+
+	// Upgrades is a list of upgrades of the tower.
+	Upgrades []*Upgrade
+
+	// UpgradesBought is a number of upgrades bought.
+	UpgradesBought int
 }
 
+// NewTower creates a new entity of Tower.
 func NewTower(config *TowerConfig, pos Point, path Path) *Tower {
 	if checkCollisionPath(pos, path) {
 		return nil
@@ -59,6 +88,7 @@ func NewTower(config *TowerConfig, pos Point, path Path) *Tower {
 	}
 }
 
+// Launch launches a projectile from the tower.
 func (t *Tower) Launch() *Projectile {
 	if t.State.CoolDown != 0 || t.State.Aim == nil {
 		return nil
@@ -87,20 +117,24 @@ func (t *Tower) Launch() *Projectile {
 	return p
 }
 
+// Update updates the tower.
 func (t *Tower) Update() {
 	t.State.CoolDown = max(t.State.CoolDown-1, 0)
 }
 
+// Draw draws the tower.
 func (t *Tower) Draw(screen *ebiten.Image) {
 	geom := ebiten.GeoM{}
 	geom.Translate(float64(t.State.Pos.X-float32(t.Image.Bounds().Dx()/2)), float64(t.State.Pos.Y-float32(t.Image.Bounds().Dy()/2)))
 	screen.DrawImage(t.Image, &ebiten.DrawImageOptions{GeoM: geom})
 }
 
+// TakeAim takes aim at the enemy.
 func (t *Tower) TakeAim(e1 []*Enemy) {
 	t.takeAimFirst(e1)
 }
 
+// takeAimFirst takes aim at the first enemy.
 func (t *Tower) takeAimFirst(e1 []*Enemy) {
 	enemies := slices.Clone(e1)
 	enemies = slices.DeleteFunc(enemies, func(e *Enemy) bool {
@@ -130,6 +164,7 @@ func (t *Tower) takeAimFirst(e1 []*Enemy) {
 	t.State.Aim = e
 }
 
+// checkCollisionPath checks if the path collides with the tower.
 func checkCollisionPath(pos Point, path Path) bool {
 	for i := 0; i < len(path)-1; i++ {
 		if checkCollision(Point{pos.X, pos.Y}, path[i], path[i+1]) {
@@ -140,6 +175,7 @@ func checkCollisionPath(pos Point, path Path) bool {
 	return false
 }
 
+// checkCollision checks if the point collides with the line segment.
 func checkCollision(p, p1, p2 Point) bool {
 	tx1, ty1, tx2, ty2 := p1.X, p1.Y, p2.X, p2.Y
 	x1, x2 := float64(min(tx1, tx2)), float64(max(tx1, tx2))
@@ -182,9 +218,18 @@ func checkCollision(p, p1, p2 Point) bool {
 
 // TowerState is a struct that represents the state of a tower.
 type TowerState struct {
-	AimType    Aim
+	// AimType is a type of aim.
+	AimType Aim
+
+	// IsTurnedOn is a flag that shows if the tower is turned on.
 	IsTurnedOn bool
-	CoolDown   Frames
-	Pos        Point
-	Aim        *Enemy
+
+	// CoolDown is a cool down of the tower.
+	CoolDown Frames
+
+	// Pos is a position of the tower.
+	Pos Point
+
+	// Aim is an enemy that the tower is aiming at.
+	Aim *Enemy
 }
