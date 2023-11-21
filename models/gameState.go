@@ -271,7 +271,7 @@ func (s *GameState) loadGameUI(widgets Widgets) *ebitenui.UI {
 }
 
 // scrollCont creates a scroll container.
-func (s *GameState) scrollCont(widgets Widgets) *widget.Container {
+func (s *GameState) scrollCont(_ Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(2),
@@ -333,8 +333,8 @@ func (s *GameState) scrollCont(widgets Widgets) *widget.Container {
 		widget.ScrollContainerOpts.StretchContentWidth(),
 		widget.ScrollContainerOpts.Content(content),
 		widget.ScrollContainerOpts.Image(&widget.ScrollContainerImage{
-			Idle: image2.NewNineSliceColor(color.NRGBA{0x13, 0x1a, 0x22, 0xff}),
-			Mask: image2.NewNineSliceColor(color.NRGBA{0x13, 0x1a, 0x22, 0xff}),
+			Idle: image2.NewNineSliceColor(color.NRGBA{R: 0x13, G: 0x1a, B: 0x22, A: 0xff}),
+			Mask: image2.NewNineSliceColor(color.NRGBA{R: 0x13, G: 0x1a, B: 0x22, A: 0xff}),
 		}),
 	)
 
@@ -355,14 +355,14 @@ func (s *GameState) scrollCont(widgets Widgets) *widget.Container {
 		widget.SliderOpts.Images(
 			// Set the track images
 			&widget.SliderTrackImage{
-				Idle:  image2.NewNineSliceColor(color.NRGBA{100, 100, 100, 255}),
-				Hover: image2.NewNineSliceColor(color.NRGBA{100, 100, 100, 255}),
+				Idle:  image2.NewNineSliceColor(color.NRGBA{R: 100, G: 100, B: 100, A: 255}),
+				Hover: image2.NewNineSliceColor(color.NRGBA{R: 100, G: 100, B: 100, A: 255}),
 			},
 			// Set the handle images
 			&widget.ButtonImage{
-				Idle:    image2.NewNineSliceColor(color.NRGBA{255, 100, 100, 255}),
-				Hover:   image2.NewNineSliceColor(color.NRGBA{255, 100, 100, 255}),
-				Pressed: image2.NewNineSliceColor(color.NRGBA{255, 100, 100, 255}),
+				Idle:    image2.NewNineSliceColor(color.NRGBA{R: 255, G: 100, B: 100, A: 255}),
+				Hover:   image2.NewNineSliceColor(color.NRGBA{R: 255, G: 100, B: 100, A: 255}),
+				Pressed: image2.NewNineSliceColor(color.NRGBA{R: 255, G: 100, B: 100, A: 255}),
 			},
 		),
 	)
