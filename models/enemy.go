@@ -13,16 +13,35 @@ import (
 //
 // In the beginning MaxHealth == State.Health.
 type Enemy struct {
-	Name       string
-	State      EnemyState
-	Path       Path
-	MaxHealth  int
-	Vrms       Coord
-	Damage     int
+	// Name is a name of the enemy.
+	Name string
+
+	// State is a state of the enemy.
+	State EnemyState
+
+	// Path is a path of the enemy.
+	Path Path
+
+	// MaxHealth is a maximal health of the enemy.
+	MaxHealth int
+
+	// Vrms is a root mean square speed of the enemy.
+	Vrms Coord
+
+	// Damage is a damage of the enemy.
+	Damage int
+
+	// MoneyAward is a money award for killing the enemy.
 	MoneyAward int
+
+	// Weaknesses is a list of weaknesses of the enemy.
 	Weaknesses map[TypeAttack]Weakness
-	Strengths  map[TypeAttack]Strength
-	Image      *ebiten.Image
+
+	// Strengths is a list of strengths of the enemy.
+	Strengths map[TypeAttack]Strength
+
+	// Image is an image of the enemy.
+	Image *ebiten.Image
 }
 
 // NewEnemy creates a new entity of Enemy.
@@ -70,6 +89,7 @@ func NewEnemy(cfg *EnemyConfig, path Path) *Enemy {
 	return en
 }
 
+// DealDamageToPlayer returns the final damage to the player.
 func (e *Enemy) DealDamageToPlayer() int {
 	if e.State.Dead && e.State.FinalDamage > 0 {
 		fd := e.State.FinalDamage
@@ -85,6 +105,7 @@ func (e *Enemy) DealDamage(dmg int) {
 	e.State.Health = max(0, e.State.Health-dmg)
 }
 
+// Draw draws the enemy on the screen.
 func (e *Enemy) Draw(screen *ebiten.Image) {
 	geom := ebiten.GeoM{}
 	geom.Translate(float64(e.State.Pos.X-float32(e.Image.Bounds().Dx()/2)), float64(e.State.Pos.Y-float32(e.Image.Bounds().Dy()/2)))
@@ -171,6 +192,7 @@ func (e *Enemy) Update() {
 	}
 }
 
+// move moves the enemy to the next point.
 func (e *Enemy) move() {
 	e.State.Pos.X += e.State.Vx
 	e.State.Pos.Y += e.State.Vy
@@ -179,15 +201,32 @@ func (e *Enemy) move() {
 
 // EnemyState is a struct
 type EnemyState struct {
-	CurrPoint         int
-	Pos               Point
-	Vx                Coord
-	Vy                Coord
-	Health            int
+	// CurrPoint is a current point in Path.
+	CurrPoint int
+
+	// Pos is a current position of the enemy.
+	Pos Point
+
+	// Vx is a velocity on X-axis.
+	Vx Coord
+
+	// Vy is a velocity on Y-axis.
+	Vy Coord
+
+	// Health is a current health of the enemy.
+	Health int
+
+	// TimeNextPointLeft is a time left to the next point.
 	TimeNextPointLeft Frames
-	Dead              bool
-	PassPath          bool
-	FinalDamage       int
+
+	// Dead is a flag that shows if the enemy is dead.
+	Dead bool
+
+	// PassPath is a flag that shows if the enemy has passed the path.
+	PassPath bool
+
+	// FinalDamage is a final damage to the player.
+	FinalDamage int
 }
 
 // Weakness stores effects that are detrimental to the enemy
