@@ -215,7 +215,7 @@ func (m *MenuState) loadLevelMenuUI(widgets Widgets) *ebitenui.UI {
 }
 
 // loadScrollingLevels loads the scrolling levels.
-func (m *MenuState) loadScrollingLevels(widgets Widgets) *widget.Container {
+func (m *MenuState) loadScrollingLevels(_ Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -278,8 +278,8 @@ func (m *MenuState) loadScrollingLevels(widgets Widgets) *widget.Container {
 		widget.ScrollContainerOpts.StretchContentWidth(),
 		widget.ScrollContainerOpts.Content(content),
 		widget.ScrollContainerOpts.Image(&widget.ScrollContainerImage{
-			Idle: image.NewNineSliceColor(color.NRGBA{0x13, 0x1a, 0x22, 0xff}),
-			Mask: image.NewNineSliceColor(color.NRGBA{0x13, 0x1a, 0x22, 0xff}),
+			Idle: image.NewNineSliceColor(color.NRGBA{R: 0x13, G: 0x1a, B: 0x22, A: 0xff}),
+			Mask: image.NewNineSliceColor(color.NRGBA{R: 0x13, G: 0x1a, B: 0x22, A: 0xff}),
 		}),
 	)
 	root.AddChild(scrollContainer)
@@ -299,14 +299,14 @@ func (m *MenuState) loadScrollingLevels(widgets Widgets) *widget.Container {
 		widget.SliderOpts.Images(
 			// Set the track images
 			&widget.SliderTrackImage{
-				Idle:  image.NewNineSliceColor(color.NRGBA{100, 100, 100, 255}),
-				Hover: image.NewNineSliceColor(color.NRGBA{100, 100, 100, 255}),
+				Idle:  image.NewNineSliceColor(color.NRGBA{R: 100, G: 100, B: 100, A: 255}),
+				Hover: image.NewNineSliceColor(color.NRGBA{R: 100, G: 100, B: 100, A: 255}),
 			},
 			// Set the handle images
 			&widget.ButtonImage{
-				Idle:    image.NewNineSliceColor(color.NRGBA{255, 100, 100, 255}),
-				Hover:   image.NewNineSliceColor(color.NRGBA{255, 100, 100, 255}),
-				Pressed: image.NewNineSliceColor(color.NRGBA{255, 100, 100, 255}),
+				Idle:    image.NewNineSliceColor(color.NRGBA{R: 255, G: 100, B: 100, A: 255}),
+				Hover:   image.NewNineSliceColor(color.NRGBA{R: 255, G: 100, B: 100, A: 255}),
+				Pressed: image.NewNineSliceColor(color.NRGBA{R: 255, G: 100, B: 100, A: 255}),
 			},
 		),
 	)
