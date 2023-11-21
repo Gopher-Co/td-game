@@ -15,8 +15,6 @@ import (
 	"github.com/gopher-co/td-game/models"
 )
 
-var TempEnemy *models.Enemy
-
 type Game struct {
 	s       models.State
 	UI      *ebitenui.UI
@@ -48,7 +46,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %f\n FPS %f\n", ebiten.ActualTPS(), ebiten.ActualFPS()))
 }
 
-func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
+func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 	return 1920, 1080
 }
 
