@@ -232,10 +232,8 @@ func (s *GameState) loadGameUI(widgets Widgets) *ebitenui.UI {
 	)
 	go func() {
 		for {
-			select {
-			case <-time.After(time.Millisecond):
-				health.Label = fmt.Sprintf("Health: %d", s.PlayerMapState.Health)
-			}
+			<-time.After(time.Millisecond)
+			health.Label = fmt.Sprintf("Health: %d", s.PlayerMapState.Health)
 		}
 	}()
 
@@ -251,10 +249,8 @@ func (s *GameState) loadGameUI(widgets Widgets) *ebitenui.UI {
 
 	go func() {
 		for {
-			select {
-			case <-time.After(time.Millisecond):
-				money.Label = fmt.Sprintf("Money: %d", s.PlayerMapState.Money)
-			}
+			<-time.After(time.Millisecond)
+			money.Label = fmt.Sprintf("Money: %d", s.PlayerMapState.Money)
 		}
 	}()
 
