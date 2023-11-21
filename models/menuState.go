@@ -27,6 +27,7 @@ type MenuState struct {
 	Next   string
 }
 
+// NewMenuState creates a new entity of MenuState.
 func NewMenuState(configs map[string]*LevelConfig, widgets Widgets) *MenuState {
 	ms := &MenuState{
 		Levels: configs,
@@ -39,23 +40,28 @@ func NewMenuState(configs map[string]*LevelConfig, widgets Widgets) *MenuState {
 	return ms
 }
 
+// Draw draws the menu.
 func (m *MenuState) Draw(image *ebiten.Image) {
 	m.UI.Draw(image)
 }
 
+// Update updates the menu.
 func (m *MenuState) Update() error {
 	m.UI.Update()
 	return nil
 }
 
+// loadUI loads the UI.
 func (m *MenuState) loadUI(widgets Widgets) {
 	m.UI = m.loadMainMenuUI(widgets)
 }
 
+// End returns true if the menu is ended.
 func (m *MenuState) End() bool {
 	return m.Ended
 }
 
+// mustLoadFont loads a font.
 func mustLoadFont(size float64) font.Face {
 	ttfFont, err := truetype.Parse(goregular.TTF)
 	if err != nil {
@@ -69,6 +75,7 @@ func mustLoadFont(size float64) font.Face {
 	})
 }
 
+// loadMainMenuUI loads the main menu UI.
 func (m *MenuState) loadMainMenuUI(widgets Widgets) *ebitenui.UI {
 	mainMenuImg := widgets[ui.MenuMainImage]
 	bgImg := widgets[ui.MenuBackgroundImage]
@@ -120,6 +127,7 @@ func (m *MenuState) loadMainMenuUI(widgets Widgets) *ebitenui.UI {
 	return &ebitenui.UI{Container: root}
 }
 
+// btn returns the buttons.
 func (m *MenuState) btn(widgets Widgets) *widget.Container {
 	buttons := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
@@ -178,6 +186,7 @@ func (m *MenuState) btn(widgets Widgets) *widget.Container {
 	return buttons
 }
 
+// loadLevelMenuUI loads the level menu UI.
 func (m *MenuState) loadLevelMenuUI(widgets Widgets) *ebitenui.UI {
 	bgImg := widgets[ui.MenuBackgroundImage]
 	menuBackground := image.NewNineSliceSimple(bgImg, 0, 1)
@@ -205,6 +214,7 @@ func (m *MenuState) loadLevelMenuUI(widgets Widgets) *ebitenui.UI {
 	return &ebitenui.UI{Container: root}
 }
 
+// loadScrollingLevels loads the scrolling levels.
 func (m *MenuState) loadScrollingLevels(widgets Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
