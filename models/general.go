@@ -12,7 +12,10 @@ type Frames = int
 
 // Point is a struct that represents a point.
 type Point struct {
+	// X is a X coordinate.
 	X Coord
+
+	// Y is a Y coordinate.
 	Y Coord
 }
 
