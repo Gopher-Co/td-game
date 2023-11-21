@@ -181,9 +181,14 @@ func (c *ProjectileConfig) Image() *ebiten.Image {
 
 // LevelConfig is a config for level.
 type LevelConfig struct {
-	LevelName string         `json:"level_name"`
-	MapName   string         `json:"map_name"`
-	GameRule  GameRuleConfig `json:"game_rule"`
+	// LevelName is a name of the level.
+	LevelName string `json:"level_name"`
+
+	// MapName is a name of the map.
+	MapName string `json:"map_name"`
+
+	// GameRule is a config for game rule.
+	GameRule GameRuleConfig `json:"game_rule"`
 }
 
 // GameRuleConfig is a config for game rule.
@@ -217,10 +222,16 @@ type UIConfig struct {
 
 // MapConfig is a config for map.
 type MapConfig struct {
-	Name            string  `json:"name"`
-	BackgroundColor string  `json:"background_color"`
-	Path            []Point `json:"path"`
-	image           *ebiten.Image
+	// Name is a name of the map.
+	Name string `json:"name"`
+
+	// BackgroundColor is a background color of the map.
+	BackgroundColor string `json:"background_color"`
+
+	// Path is a path of the map.
+	Path []Point `json:"path"`
+
+	image *ebiten.Image
 }
 
 // InitImage initializes image from the temporary state of the entity.
