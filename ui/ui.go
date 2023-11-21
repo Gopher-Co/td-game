@@ -1,3 +1,4 @@
+// Package ui provides tools for working with the user interface.
 package ui
 
 import (
@@ -10,13 +11,16 @@ import (
 )
 
 var (
+	// TextColor is a color of the text.
 	TextColor color.Color
 )
 
+// InitImage initializes an image.
 func InitImage(s string) (*ebiten.Image, error) {
 	return initColor(s)
 }
 
+// initColor initializes an image with a color.
 func initColor(s string) (*ebiten.Image, error) {
 	clr, err := colorx.ParseHexColor(s)
 	if err != nil {
@@ -29,6 +33,7 @@ func initColor(s string) (*ebiten.Image, error) {
 	return img, nil
 }
 
+// initPNG initializes an image with a PNG file.
 func initPNG(s string) (*ebiten.Image, error) {
 	f, err := os.Open(s)
 	if err != nil {

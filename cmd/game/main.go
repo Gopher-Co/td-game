@@ -1,3 +1,4 @@
+// Package main provides the entry point of the game.
 package main
 
 import (
@@ -15,14 +16,14 @@ import (
 	"github.com/gopher-co/td-game/models"
 )
 
-var TempEnemy *models.Enemy
-
+// Game implements ebiten.Game interface.
 type Game struct {
 	s       models.State
 	UI      *ebitenui.UI
 	fscreen bool
 }
 
+// Update updates the game state by one tick.
 func (g *Game) Update() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyF11) {
 		g.fscreen = !g.fscreen
@@ -43,15 +44,18 @@ func (g *Game) Update() error {
 	return g.s.Update()
 }
 
+// Draw draws the game screen by one frame.
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.s.Draw(screen)
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %f\n FPS %f\n", ebiten.ActualTPS(), ebiten.ActualFPS()))
 }
 
-func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
+// Layout returns the game screen size.
+func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 	return 1920, 1080
 }
 
+// main is the entry point of the game.
 func main() {
 	ebiten.SetWindowSize(1280, 720)
 	ebiten.SetWindowTitle("Hello, World!")

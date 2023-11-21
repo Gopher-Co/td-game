@@ -1,6 +1,6 @@
 module github.com/gopher-co/td-game
 
-go 1.21.3
+go 1.21.4
 
 require (
 	github.com/ebitenui/ebitenui v0.5.5

@@ -2,6 +2,7 @@ package io
 
 import "github.com/gopher-co/td-game/models"
 
+// LoadTowerConfigs loads tower configs from the Towers directory.
 func LoadTowerConfigs() ([]models.TowerConfig, error) {
 	tcfgs, err := ReadConfigs[models.TowerConfig]("./Towers", ".json")
 	if err != nil {

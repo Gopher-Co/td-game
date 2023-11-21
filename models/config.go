@@ -7,26 +7,48 @@ import (
 )
 
 const (
-	EnemyImageWidth     = 48
-	TowerImageWidth     = 64
+	// EnemyImageWidth is a width of the enemy image.
+	EnemyImageWidth = 48
+
+	// TowerImageWidth is a width of the tower image.
+	TowerImageWidth = 64
+
+	// ProjectileImageWith is a width of the projectile image.
 	ProjectileImageWith = 32
-	PathWidth           = 64
+
+	// PathWidth is a width of the path.
+	PathWidth = 64
 )
 
 // Config structures are need to pass then to NewXXX functions.
 
 // EnemyConfig is a config for enemy.
 type EnemyConfig struct {
-	Name       string     `json:"name"`
-	MaxHealth  int        `json:"max_health"`
-	Damage     int        `json:"damage"`
-	Vrms       Coord      `json:"vrms"`
-	MoneyAward int        `json:"money_award"`
-	Strengths  []Strength `json:"strengths"`
+	// Name is a name of the enemy.
+	Name string `json:"name"`
+
+	// MaxHealth is a maximal health of the enemy.
+	MaxHealth int `json:"max_health"`
+
+	// Damage is a damage of the enemy.
+	Damage int `json:"damage"`
+
+	// Vrms is a root mean square speed of the enemy.
+	Vrms Coord `json:"vrms"`
+
+	// MoneyAward is a money award for killing the enemy.
+	MoneyAward int `json:"money_award"`
+
+	// Strengths is a list of strengths of the enemy.
+	Strengths []Strength `json:"strengths"`
+
+	// Weaknesses is a list of weaknesses of the enemy.
 	Weaknesses []Weakness `json:"weaknesses"`
-	image      *ebiten.Image
+
+	image *ebiten.Image
 }
 
+// InitImage initializes image from the temporary state of the entity.
 func (c *EnemyConfig) InitImage() error {
 	clr, err := colorx.ParseHexColor(c.Name)
 	if err != nil {
@@ -40,25 +62,47 @@ func (c *EnemyConfig) InitImage() error {
 	return nil
 }
 
+// Image returns image.
 func (c *EnemyConfig) Image() *ebiten.Image {
 	return c.image
 }
 
 // TowerConfig is a config for tower.
 type TowerConfig struct {
-	Name               string           `json:"name"`
-	Upgrades           []UpgradeConfig  `json:"upgrades"`
-	Price              int              `json:"price"`
-	Type               TypeAttack       `json:"type"`
-	InitDamage         int              `json:"initial_damage"`
-	InitRadius         Coord            `json:"initial_radius"`
-	InitSpeedAttack    Frames           `json:"initial_speed_attack"`
-	InitProjectileVrms Coord            `json:"init_projectile_speed"`
-	ProjectileConfig   ProjectileConfig `json:"projectile_config"`
-	OpenLevel          int              `json:"open_level"`
-	image              *ebiten.Image
+	// Name is a name of the tower.
+	Name string `json:"name"`
+
+	// Upgrades is a list of upgrades of the tower.
+	Upgrades []UpgradeConfig `json:"upgrades"`
+
+	// Price is a price of the tower.
+	Price int `json:"price"`
+
+	// Type is a type of the tower attack.
+	Type TypeAttack `json:"type"`
+
+	// InitDamage is an initial damage of the tower.
+	InitDamage int `json:"initial_damage"`
+
+	// InitRadius is an initial radius of the tower.
+	InitRadius Coord `json:"initial_radius"`
+
+	// InitSpeedAttack is an initial speed attack of the tower.
+	InitSpeedAttack Frames `json:"initial_speed_attack"`
+
+	// InitProjectileVrms is an initial projectile vrms of the tower.
+	InitProjectileVrms Coord `json:"init_projectile_speed"`
+
+	// ProjectileConfig is a config for projectile.
+	ProjectileConfig ProjectileConfig `json:"projectile_config"`
+
+	// OpenLevel is a level when the tower can be opened.
+	OpenLevel int `json:"open_level"`
+
+	image *ebiten.Image
 }
 
+// InitImage initializes image from the temporary state of the entity.
 func (c *TowerConfig) InitImage() error {
 	if err := c.ProjectileConfig.InitImage(); err != nil {
 		return err
@@ -76,10 +120,12 @@ func (c *TowerConfig) InitImage() error {
 	return nil
 }
 
+// Image returns image.
 func (c *TowerConfig) Image() *ebiten.Image {
 	return c.image
 }
 
+// InitUpgrades initializes upgrades from the temporary state of the entity.
 func (c *TowerConfig) InitUpgrades() []*Upgrade {
 	ups := make([]*Upgrade, len(c.Upgrades))
 
@@ -92,18 +138,29 @@ func (c *TowerConfig) InitUpgrades() []*Upgrade {
 
 // UpgradeConfig is a config for tower's upgrade.
 type UpgradeConfig struct {
-	Price            int    `json:"price"`
-	DeltaDamage      int    `json:"delta_damage"`
+	// Price is a price of the upgrade.
+	Price int `json:"price"`
+
+	// DeltaDamage is a delta damage of the upgrade.
+	DeltaDamage int `json:"delta_damage"`
+
+	// DeltaSpeedAttack is a delta speed attack of the upgrade.
 	DeltaSpeedAttack Frames `json:"delta_speed_attack"`
-	DeltaRadius      Coord  `json:"delta_radius"`
-	OpenLevel        int    `json:"open_level"`
+
+	// DeltaRadius is a delta radius of the upgrade.
+	DeltaRadius Coord `json:"delta_radius"`
+
+	// OpenLevel is a level when the upgrade can be opened.
+	OpenLevel int `json:"open_level"`
 }
 
+// ProjectileConfig is a config for projectile.
 type ProjectileConfig struct {
 	Name  string
 	image *ebiten.Image
 }
 
+// InitImage initializes image from the temporary state of the entity.
 func (c *ProjectileConfig) InitImage() error {
 	clr, err := colorx.ParseHexColor(c.Name)
 	if err != nil {
@@ -117,17 +174,24 @@ func (c *ProjectileConfig) InitImage() error {
 	return nil
 }
 
+// Image returns image.
 func (c *ProjectileConfig) Image() *ebiten.Image {
 	return c.image
 }
 
 // LevelConfig is a config for level.
 type LevelConfig struct {
-	LevelName string         `json:"level_name"`
-	MapName   string         `json:"map_name"`
-	GameRule  GameRuleConfig `json:"game_rule"`
+	// LevelName is a name of the level.
+	LevelName string `json:"level_name"`
+
+	// MapName is a name of the map.
+	MapName string `json:"map_name"`
+
+	// GameRule is a config for game rule.
+	GameRule GameRuleConfig `json:"game_rule"`
 }
 
+// GameRuleConfig is a config for game rule.
 type GameRuleConfig []WaveConfig
 
 // WaveConfig is a config for wave.
@@ -158,10 +222,16 @@ type UIConfig struct {
 
 // MapConfig is a config for map.
 type MapConfig struct {
-	Name            string  `json:"name"`
-	BackgroundColor string  `json:"background_color"`
-	Path            []Point `json:"path"`
-	image           *ebiten.Image
+	// Name is a name of the map.
+	Name string `json:"name"`
+
+	// BackgroundColor is a background color of the map.
+	BackgroundColor string `json:"background_color"`
+
+	// Path is a path of the map.
+	Path []Point `json:"path"`
+
+	image *ebiten.Image
 }
 
 // InitImage initializes image from the temporary state of the entity.

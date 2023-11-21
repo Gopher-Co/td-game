@@ -2,8 +2,10 @@ package models
 
 import "slices"
 
+// GameRule is a set of waves.
 type GameRule []*Wave
 
+// NewGameRule returns a new GameRule.
 func NewGameRule(config []WaveConfig) GameRule {
 	grs := make(GameRule, len(config))
 	for i := range config {
@@ -15,10 +17,15 @@ func NewGameRule(config []WaveConfig) GameRule {
 
 // Wave is a set of the enemies.
 type Wave struct {
+
+	// Swarms is a set of the enemy swarms.
 	Swarms []*EnemySwarm
-	Time   Frames
+
+	// Time is a current time of the wave.
+	Time Frames
 }
 
+// NewWave returns a new Wave.
 func NewWave(config *WaveConfig) *Wave {
 	swarms := make([]*EnemySwarm, len(config.Swarms))
 	for i := 0; i < len(swarms); i++ {
@@ -59,6 +66,7 @@ func (w *Wave) Ended() bool {
 // Enemies are called in the same interval limited times.
 // EnemySwarm can call only one type of the enemy.
 type EnemySwarm struct {
+
 	// EnemyName is a name of the enemy.
 	EnemyName string
 
@@ -78,6 +86,7 @@ type EnemySwarm struct {
 	CurCalls int
 }
 
+// NewEnemySwarm returns a new EnemySwarm.
 func NewEnemySwarm(config *EnemySwarmConfig) *EnemySwarm {
 	return &EnemySwarm{
 		EnemyName: config.EnemyName,

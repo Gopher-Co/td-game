@@ -7,8 +7,10 @@ import (
 	"github.com/gopher-co/td-game/ui"
 )
 
+// ErrUINotOnce is returned when there are more than 1 files in ./UI.
 var ErrUINotOnce = fmt.Errorf("there must be only 1 file in ./UI")
 
+// LoadUIConfig loads UI configs from the UI directory.
 func LoadUIConfig() (models.UI, error) {
 	uicfg, err := ReadConfigs[map[string]string]("./UI", ".json")
 	if err != nil {
