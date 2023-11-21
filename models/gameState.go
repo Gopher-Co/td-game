@@ -22,27 +22,53 @@ type CurrentState int
 const (
 	// Running is the state when the game is running.
 	Running CurrentState = iota
+
 	// Paused is the state when the game is paused.
 	Paused
+
+	// NextWaveReady is the state when the next wave is ready.
 	NextWaveReady
 )
 
 // GameState is a struct that represents the state of the game.
 type GameState struct {
-	Map            *Map
-	TowersToBuy    map[string]*TowerConfig
-	EnemyToCall    map[string]*EnemyConfig
-	Ended          bool
-	State          CurrentState
-	UI             *ebitenui.UI
-	LastWave       int
-	CurrentWave    int
-	GameRule       GameRule
-	Time           Frames
+	// Map is a map of the game.
+	Map *Map
+
+	// TowersToBuy is a map of towers that can be bought.
+	TowersToBuy map[string]*TowerConfig
+
+	// EnemyToCall is a map of enemies that can be called.
+	EnemyToCall map[string]*EnemyConfig
+
+	// Ended is a flag that represents if the game is ended.
+	Ended bool
+
+	// State is a current state of the game.
+	State CurrentState
+
+	// UI is a UI of the game.
+	UI *ebitenui.UI
+
+	// LastWave is a number of the last wave.
+	LastWave int
+
+	// CurrentWave is a number of the current wave.
+	CurrentWave int
+
+	// GameRule is a game rule of the game.
+	GameRule GameRule
+
+	// Time is a time of the game.
+	Time Frames
+
+	// PlayerMapState is a state of the player on the map.
 	PlayerMapState PlayerMapState
-	tookTower      *TowerConfig
+
+	tookTower *TowerConfig
 }
 
+// NewGameState creates a new entity of GameState.
 func NewGameState(config *LevelConfig, maps map[string]*MapConfig, en map[string]*EnemyConfig, tw map[string]*TowerConfig, w Widgets) *GameState {
 	gs := &GameState{
 		Map:         NewMap(maps[config.MapName]),
@@ -67,6 +93,7 @@ func NewGameState(config *LevelConfig, maps map[string]*MapConfig, en map[string
 	return gs
 }
 
+// Update updates the state of the game.
 func (s *GameState) Update() error {
 	if s.Ended {
 		return nil
@@ -127,14 +154,17 @@ func (s *GameState) Update() error {
 	return nil
 }
 
+// loadUI loads UI.
 func (s *GameState) loadUI(widgets Widgets) {
 	s.UI = s.loadGameUI(widgets)
 }
 
+// End returns true if the game is ended.
 func (s *GameState) End() bool {
 	return s.Ended
 }
 
+// Draw draws the game on the screen.
 func (s *GameState) Draw(screen *ebiten.Image) {
 	subScreen := screen.SubImage(image.Rect(0, 0, 1500, 1080))
 	s.Map.Draw(subScreen.(*ebiten.Image))
@@ -145,6 +175,7 @@ func (s *GameState) Draw(screen *ebiten.Image) {
 	s.UI.Draw(screen)
 }
 
+// loadGameUI loads UI of the game.
 func (s *GameState) loadGameUI(widgets Widgets) *ebitenui.UI {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
@@ -239,6 +270,7 @@ func (s *GameState) loadGameUI(widgets Widgets) *ebitenui.UI {
 	return &ebitenui.UI{Container: root}
 }
 
+// scrollCont creates a scroll container.
 func (s *GameState) scrollCont(widgets Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
