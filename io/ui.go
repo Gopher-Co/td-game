@@ -12,7 +12,7 @@ var ErrUINotOnce = fmt.Errorf("there must be only 1 file in ./UI")
 
 // LoadUIConfig loads UI configs from the UI directory.
 func LoadUIConfig() (models.UI, error) {
-	uicfg, err := ReadConfigs[map[string]string]("./UI", ".json")
+	uicfg, err := ReadConfigs[map[string]string]("./UI", ".ui")
 	if err != nil {
 		return nil, err
 	}
