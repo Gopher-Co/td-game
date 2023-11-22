@@ -4,7 +4,7 @@ import "github.com/gopher-co/td-game/models"
 
 // LoadMapConfigs loads map configs from the Maps directory.
 func LoadMapConfigs() ([]models.MapConfig, error) {
-	mcfgs, err := ReadConfigs[models.MapConfig]("./Maps", ".json")
+	mcfgs, err := ReadConfigs[models.MapConfig]("./Maps", ".map")
 	if err != nil {
 		return nil, err
 	}
