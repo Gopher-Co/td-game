@@ -185,9 +185,15 @@ func CheckCollisionPath(pos general.Point, path Path) bool {
 
 // checkCollision checks if the point collides with the line segment.
 func checkCollision(p, p1, p2 general.Point) bool {
-	tx1, ty1, tx2, ty2 := p1.X, p1.Y, p2.X, p2.Y
-	x1, x2 := float64(min(tx1, tx2)), float64(max(tx1, tx2))
-	y1, y2 := float64(min(ty1, ty2)), float64(max(ty1, ty2))
+	x1, x2 := float64(p1.X), float64(p2.X)
+	y1, y2 := float64(p1.Y), float64(p2.Y)
+
+	sign := func(x float64) float64 {
+		if math.Signbit(x) {
+			return -1
+		}
+		return 1
+	}
 
 	// 		***
 	// 		(x1,y1)**        z
@@ -198,7 +204,7 @@ func checkCollision(p, p1, p2 general.Point) bool {
 	z := math.Hypot(x2-x1, y2-y1)
 
 	sina := (y2 - y1) / z
-	cosa := 1 - math.Pow(sina, 2)
+	cosa := sign(x2-x1) * math.Sqrt(1-math.Pow(sina, 2))
 
 	dx := config.PathWidth / 2 * cosa
 	dy := config.PathWidth / 2 * sina
@@ -210,7 +216,6 @@ func checkCollision(p, p1, p2 general.Point) bool {
 
 	A := general.Point{general.Coord(x1 - dy), general.Coord(y1 + dx)}
 	B := general.Point{general.Coord(x1 + dy), general.Coord(y1 - dx)}
-	//C := Point{Coord(x2 - dy), Coord(y2 + dx)}
 	D := general.Point{general.Coord(x2 + dy), general.Coord(y2 - dx)}
 
 	sc := func(p1, p2 general.Point) general.Coord {
