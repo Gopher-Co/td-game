@@ -3,11 +3,13 @@ package gamestate
 import (
 	"fmt"
 	"image"
+	"image/color"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 
 	"github.com/gopher-co/td-game/models/config"
 	"github.com/gopher-co/td-game/models/general"
@@ -112,6 +114,8 @@ func (s *GameState) Update() error {
 				s.Map.Towers = append(s.Map.Towers, t)
 			}
 		}
+	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton2) {
+		s.tookTower = nil
 	}
 
 	if s.State == NextWaveReady {
@@ -163,10 +167,29 @@ func (s *GameState) Draw(screen *ebiten.Image) {
 		ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Wave %d", s.CurrentWave+1), 0, 1900)
 	}
 
+	if s.tookTower != nil {
+		s.drawTookImageBeforeCursor(screen)
+	}
+
 	s.UI.Draw(screen)
 }
 
 // loadUI loads UI.
 func (s *GameState) loadUI(widgets general.Widgets) {
 	s.UI = s.loadGameUI(widgets)
+}
+
+func (s *GameState) drawTookImageBeforeCursor(screen *ebiten.Image) {
+	img := s.tookTower.Image()
+	cx, cy := ebiten.CursorPosition()
+	ix, iy := img.Bounds().Dx(), img.Bounds().Dy()
+
+	if !ingame.CheckCollisionPath(general.Point{general.Coord(cx), general.Coord(cy)}, s.Map.Path) {
+		vector.DrawFilledCircle(screen, float32(cx), float32(cy), s.tookTower.InitRadius, color.RGBA{0, 0, 0, 0x20}, true)
+	} else {
+		vector.DrawFilledCircle(screen, float32(cx), float32(cy), s.tookTower.InitRadius, color.RGBA{0xff, 0, 0, 0x20}, true)
+	}
+	geom := ebiten.GeoM{}
+	geom.Translate(float64(cx-ix/2), float64(cy-iy/2))
+	screen.DrawImage(img, &ebiten.DrawImageOptions{GeoM: geom})
 }

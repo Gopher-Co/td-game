@@ -65,7 +65,7 @@ type Tower struct {
 
 // NewTower creates a new entity of Tower.
 func NewTower(config *config.Tower, pos general.Point, path Path) *Tower {
-	if checkCollisionPath(pos, path) {
+	if CheckCollisionPath(pos, path) {
 		return nil
 	}
 
@@ -172,8 +172,8 @@ func (t *Tower) takeAimFirst(e1 []*Enemy) {
 	t.State.Aim = e
 }
 
-// checkCollisionPath checks if the path collides with the tower.
-func checkCollisionPath(pos general.Point, path Path) bool {
+// CheckCollisionPath checks if the path collides with the tower.
+func CheckCollisionPath(pos general.Point, path Path) bool {
 	for i := 0; i < len(path)-1; i++ {
 		if checkCollision(general.Point{pos.X, pos.Y}, path[i], path[i+1]) {
 			return true

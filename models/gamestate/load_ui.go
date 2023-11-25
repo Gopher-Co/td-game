@@ -152,7 +152,9 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 			})),
 			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(200, 100)),
 			widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
-				s.tookTower = v
+				if s.PlayerMapState.Money >= v.Price {
+					s.tookTower = v
+				}
 			}),
 		)
 		text := widget.NewText(
