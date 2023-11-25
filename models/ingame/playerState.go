@@ -1,4 +1,4 @@
-package models
+package ingame
 
 // PlayerState is a struct that represents a state of the player.
 type PlayerState struct {

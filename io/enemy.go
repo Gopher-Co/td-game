@@ -1,10 +1,12 @@
 package io
 
-import "github.com/gopher-co/td-game/models"
+import (
+	"github.com/gopher-co/td-game/models/config"
+)
 
 // LoadEnemyConfigs loads enemy configs from the Enemies directory.
-func LoadEnemyConfigs() ([]models.EnemyConfig, error) {
-	ecfgs, err := ReadConfigs[models.EnemyConfig]("./Enemies", ".enm")
+func LoadEnemyConfigs() ([]config.Enemy, error) {
+	ecfgs, err := ReadConfigs[config.Enemy]("./Enemies", ".enm")
 	if err != nil {
 		return nil, err
 	}

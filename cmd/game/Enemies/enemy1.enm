@@ -1,6 +1,6 @@
 {
   "name": "#ab0ba0",
-  "max_health": 20,
+  "max_health": 10,
   "damage": 3,
   "vrms": 1.0,
   "money_award": 2,

@@ -11,14 +11,16 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
-	"github.com/gopher-co/td-game/global"
 	"github.com/gopher-co/td-game/io"
-	"github.com/gopher-co/td-game/models"
+	"github.com/gopher-co/td-game/models/gamestate"
+	"github.com/gopher-co/td-game/models/general"
+	"github.com/gopher-co/td-game/models/menustate"
+	"github.com/gopher-co/td-game/ui"
 )
 
 // Game implements ebiten.Game interface.
 type Game struct {
-	s       models.State
+	s       general.State
 	UI      *ebitenui.UI
 	fscreen bool
 }
@@ -31,12 +33,12 @@ func (g *Game) Update() error {
 	}
 	if g.s.End() {
 		switch g.s.(type) {
-		case *models.GameState:
-			g.s = models.NewMenuState(global.Levels, models.Widgets(global.UI))
-		case *models.MenuState:
-			ms := g.s.(*models.MenuState)
+		case *gamestate.GameState:
+			g.s = menustate.New(Levels, general.Widgets(UI))
+		case *menustate.MenuState:
+			ms := g.s.(*menustate.MenuState)
 			log.Println(ms.Next)
-			g.s = models.NewGameState(global.Levels[ms.Next], global.Maps, global.Enemies, global.Towers, models.Widgets(global.UI))
+			g.s = gamestate.New(Levels[ms.Next], Maps, Enemies, Towers, general.Widgets(UI))
 		default:
 			panic(fmt.Sprintf("type %T must be handled", g.s))
 		}
@@ -67,7 +69,7 @@ func main() {
 	}
 
 	for k := range mcfgs {
-		global.Maps[mcfgs[k].Name] = &mcfgs[k]
+		Maps[mcfgs[k].Name] = &mcfgs[k]
 	}
 
 	// load levels
@@ -78,7 +80,7 @@ func main() {
 	}
 
 	for k := range lcfgs {
-		global.Levels[lcfgs[k].LevelName] = &lcfgs[k]
+		Levels[lcfgs[k].LevelName] = &lcfgs[k]
 	}
 
 	// load enemies
@@ -88,7 +90,7 @@ func main() {
 	}
 
 	for k := range ecfgs {
-		global.Enemies[ecfgs[k].Name] = &ecfgs[k]
+		Enemies[ecfgs[k].Name] = &ecfgs[k]
 	}
 
 	// load towers
@@ -98,29 +100,36 @@ func main() {
 	}
 
 	for k := range tcfgs {
-		global.Towers[tcfgs[k].Name] = &tcfgs[k]
+		Towers[tcfgs[k].Name] = &tcfgs[k]
 	}
 
 	// load ui
-	global.UI, err = io.LoadUIConfig()
+	uicfg, err := io.LoadUIConfig()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	// LEVEL LOADING
-	game := &Game{s: models.NewMenuState(global.Levels, models.Widgets(global.UI))}
+	for k, v := range uicfg.Colors {
+		UI[k], err = ui.InitImage(v)
+		if err != nil {
+			log.Fatalf("image not loaded %v:%v, error: %v", k, v, err)
+		}
+	}
 
-	//gs := models.NewGameState(global.GlobalLevels["Level 1"], global.GlobalMaps, global.GlobalEnemies, global.GlobalTowers, nil)
+	// LEVEL LOADING
+	game := &Game{s: menustate.New(Levels, general.Widgets(UI))}
+
+	//gs := models.New(global.GlobalLevels["Level 1"], global.GlobalMaps, global.GlobalEnemies, global.GlobalTowers, nil)
 	go func() {
 		for {
 			time.Sleep(time.Second)
-			if gs, ok := game.s.(*models.GameState); ok {
+			if gs, ok := game.s.(*gamestate.GameState); ok {
 				switch gs.State {
-				case models.NextWaveReady:
+				case gamestate.NextWaveReady:
 					gs.CurrentWave++
 					fallthrough
-				case models.Paused:
-					gs.State = models.Running
+				case gamestate.Paused:
+					gs.State = gamestate.Running
 				}
 			}
 		}

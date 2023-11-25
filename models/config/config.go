@@ -1,9 +1,11 @@
-package models
+package config
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/icza/gox/imagex/colorx"
+
+	"github.com/gopher-co/td-game/models/general"
 )
 
 const (
@@ -22,8 +24,8 @@ const (
 
 // Config structures are need to pass then to NewXXX functions.
 
-// EnemyConfig is a config for enemy.
-type EnemyConfig struct {
+// Enemy is a config for enemy.
+type Enemy struct {
 	// Name is a name of the enemy.
 	Name string `json:"name"`
 
@@ -34,7 +36,7 @@ type EnemyConfig struct {
 	Damage int `json:"damage"`
 
 	// Vrms is a root mean square speed of the enemy.
-	Vrms Coord `json:"vrms"`
+	Vrms general.Coord `json:"vrms"`
 
 	// MoneyAward is a money award for killing the enemy.
 	MoneyAward int `json:"money_award"`
@@ -48,8 +50,18 @@ type EnemyConfig struct {
 	image *ebiten.Image
 }
 
+type Strength struct {
+	T      general.TypeAttack `json:"type"`
+	DecDmg int                `json:"dec_dmg"`
+}
+
+type Weakness struct {
+	T      general.TypeAttack `json:"type"`
+	IncDmg int                `json:"inc_dmg"`
+}
+
 // InitImage initializes image from the temporary state of the entity.
-func (c *EnemyConfig) InitImage() error {
+func (c *Enemy) InitImage() error {
 	clr, err := colorx.ParseHexColor(c.Name)
 	if err != nil {
 		return err
@@ -63,38 +75,38 @@ func (c *EnemyConfig) InitImage() error {
 }
 
 // Image returns image.
-func (c *EnemyConfig) Image() *ebiten.Image {
+func (c *Enemy) Image() *ebiten.Image {
 	return c.image
 }
 
-// TowerConfig is a config for tower.
-type TowerConfig struct {
+// Tower is a config for tower.
+type Tower struct {
 	// Name is a name of the tower.
 	Name string `json:"name"`
 
 	// Upgrades is a list of upgrades of the tower.
-	Upgrades []UpgradeConfig `json:"upgrades"`
+	Upgrades []Upgrade `json:"upgrades"`
 
 	// Price is a price of the tower.
 	Price int `json:"price"`
 
 	// Type is a type of the tower attack.
-	Type TypeAttack `json:"type"`
+	Type general.TypeAttack `json:"type"`
 
 	// InitDamage is an initial damage of the tower.
 	InitDamage int `json:"initial_damage"`
 
 	// InitRadius is an initial radius of the tower.
-	InitRadius Coord `json:"initial_radius"`
+	InitRadius general.Coord `json:"initial_radius"`
 
 	// InitSpeedAttack is an initial speed attack of the tower.
-	InitSpeedAttack Frames `json:"initial_speed_attack"`
+	InitSpeedAttack general.Frames `json:"initial_speed_attack"`
 
 	// InitProjectileVrms is an initial projectile vrms of the tower.
-	InitProjectileVrms Coord `json:"init_projectile_speed"`
+	InitProjectileVrms general.Coord `json:"init_projectile_speed"`
 
 	// ProjectileConfig is a config for projectile.
-	ProjectileConfig ProjectileConfig `json:"projectile_config"`
+	ProjectileConfig Projectile `json:"projectile_config"`
 
 	// OpenLevel is a level when the tower can be opened.
 	OpenLevel int `json:"open_level"`
@@ -103,7 +115,7 @@ type TowerConfig struct {
 }
 
 // InitImage initializes image from the temporary state of the entity.
-func (c *TowerConfig) InitImage() error {
+func (c *Tower) InitImage() error {
 	if err := c.ProjectileConfig.InitImage(); err != nil {
 		return err
 	}
@@ -121,23 +133,12 @@ func (c *TowerConfig) InitImage() error {
 }
 
 // Image returns image.
-func (c *TowerConfig) Image() *ebiten.Image {
+func (c *Tower) Image() *ebiten.Image {
 	return c.image
 }
 
-// InitUpgrades initializes upgrades from the temporary state of the entity.
-func (c *TowerConfig) InitUpgrades() []*Upgrade {
-	ups := make([]*Upgrade, len(c.Upgrades))
-
-	for i := 0; i < len(ups); i++ {
-		ups[i] = NewUpgrade(&c.Upgrades[i])
-	}
-
-	return ups
-}
-
-// UpgradeConfig is a config for tower's upgrade.
-type UpgradeConfig struct {
+// Upgrade is a config for tower's upgrade.
+type Upgrade struct {
 	// Price is a price of the upgrade.
 	Price int `json:"price"`
 
@@ -145,23 +146,23 @@ type UpgradeConfig struct {
 	DeltaDamage int `json:"delta_damage"`
 
 	// DeltaSpeedAttack is a delta speed attack of the upgrade.
-	DeltaSpeedAttack Frames `json:"delta_speed_attack"`
+	DeltaSpeedAttack general.Frames `json:"delta_speed_attack"`
 
 	// DeltaRadius is a delta radius of the upgrade.
-	DeltaRadius Coord `json:"delta_radius"`
+	DeltaRadius general.Coord `json:"delta_radius"`
 
 	// OpenLevel is a level when the upgrade can be opened.
 	OpenLevel int `json:"open_level"`
 }
 
-// ProjectileConfig is a config for projectile.
-type ProjectileConfig struct {
+// Projectile is a config for projectile.
+type Projectile struct {
 	Name  string
 	image *ebiten.Image
 }
 
 // InitImage initializes image from the temporary state of the entity.
-func (c *ProjectileConfig) InitImage() error {
+func (c *Projectile) InitImage() error {
 	clr, err := colorx.ParseHexColor(c.Name)
 	if err != nil {
 		return err
@@ -175,12 +176,12 @@ func (c *ProjectileConfig) InitImage() error {
 }
 
 // Image returns image.
-func (c *ProjectileConfig) Image() *ebiten.Image {
+func (c *Projectile) Image() *ebiten.Image {
 	return c.image
 }
 
-// LevelConfig is a config for level.
-type LevelConfig struct {
+// Level is a config for level.
+type Level struct {
 	// LevelName is a name of the level.
 	LevelName string `json:"level_name"`
 
@@ -188,40 +189,40 @@ type LevelConfig struct {
 	MapName string `json:"map_name"`
 
 	// GameRule is a config for game rule.
-	GameRule GameRuleConfig `json:"game_rule"`
+	GameRule GameRule `json:"game_rule"`
 }
 
-// GameRuleConfig is a config for game rule.
-type GameRuleConfig []WaveConfig
+// GameRule is a config for game rule.
+type GameRule []Wave
 
-// WaveConfig is a config for wave.
-type WaveConfig struct {
-	Swarms []EnemySwarmConfig `json:"swarms"`
+// Wave is a config for wave.
+type Wave struct {
+	Swarms []EnemySwarm `json:"swarms"`
 }
 
-// EnemySwarmConfig is a config for enemy swarm.
-type EnemySwarmConfig struct {
+// EnemySwarm is a config for enemy swarm.
+type EnemySwarm struct {
 	// EnemyName is a name of the enemy.
 	EnemyName string `json:"enemy_name"`
 
 	// Timeout is the time when the first enemy can be called.
-	Timeout Frames `json:"timeout"`
+	Timeout general.Frames `json:"timeout"`
 
 	// Interval is time between calls.
-	Interval Frames `json:"interval"`
+	Interval general.Frames `json:"interval"`
 
 	// MaxCalls is a maximal amount of enemies that can be called.
 	MaxCalls int `json:"max_calls"`
 }
 
-// UIConfig is a config for GlobalUI.
-type UIConfig struct {
+// UI is a config for GlobalUI.
+type UI struct {
 	// Colors contains hex-colors (e.g. "#AB0BA0") for each key in map
 	Colors map[string]string `json:"colors"`
 }
 
-// MapConfig is a config for map.
-type MapConfig struct {
+// Map is a config for map.
+type Map struct {
 	// Name is a name of the map.
 	Name string `json:"name"`
 
@@ -229,13 +230,13 @@ type MapConfig struct {
 	BackgroundColor string `json:"background_color"`
 
 	// Path is a path of the map.
-	Path []Point `json:"path"`
+	Path []general.Point `json:"path"`
 
 	image *ebiten.Image
 }
 
 // InitImage initializes image from the temporary state of the entity.
-func (c *MapConfig) InitImage() error {
+func (c *Map) InitImage() error {
 	clr, err := colorx.ParseHexColor(c.BackgroundColor)
 	if err != nil {
 		return err
@@ -250,6 +251,6 @@ func (c *MapConfig) InitImage() error {
 }
 
 // Image returns image.
-func (c *MapConfig) Image() *ebiten.Image {
+func (c *Map) Image() *ebiten.Image {
 	return c.image
 }

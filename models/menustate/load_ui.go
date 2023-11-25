@@ -1,4 +1,4 @@
-package models
+package menustate
 
 import (
 	"image/color"
@@ -10,73 +10,16 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/colornames"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/gofont/goregular"
 
+	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/ui"
+	"github.com/gopher-co/td-game/ui/loaders"
 )
 
-// MenuState is a struct that represents the state of the menu.
-type MenuState struct {
-	Levels map[string]*LevelConfig
-	Ended  bool
-	UI     *ebitenui.UI
-	Next   string
-}
-
-// NewMenuState creates a new entity of MenuState.
-func NewMenuState(configs map[string]*LevelConfig, widgets Widgets) *MenuState {
-	ms := &MenuState{
-		Levels: configs,
-		Ended:  false,
-		UI:     nil,
-		Next:   "",
-	}
-	ms.loadUI(widgets)
-
-	return ms
-}
-
-// Draw draws the menu.
-func (m *MenuState) Draw(image *ebiten.Image) {
-	m.UI.Draw(image)
-}
-
-// Update updates the menu.
-func (m *MenuState) Update() error {
-	m.UI.Update()
-	return nil
-}
-
-// loadUI loads the UI.
-func (m *MenuState) loadUI(widgets Widgets) {
-	m.UI = m.loadMainMenuUI(widgets)
-}
-
-// End returns true if the menu is ended.
-func (m *MenuState) End() bool {
-	return m.Ended
-}
-
-// mustLoadFont loads a font.
-func mustLoadFont(size float64) font.Face {
-	ttfFont, err := truetype.Parse(goregular.TTF)
-	if err != nil {
-		panic(err)
-	}
-
-	return truetype.NewFace(ttfFont, &truetype.Options{
-		Size:    size,
-		DPI:     72,
-		Hinting: font.HintingFull,
-	})
-}
-
 // loadMainMenuUI loads the main menu UI.
-func (m *MenuState) loadMainMenuUI(widgets Widgets) *ebitenui.UI {
+func (m *MenuState) loadMainMenuUI(widgets general.Widgets) *ebitenui.UI {
 	mainMenuImg := widgets[ui.MenuMainImage]
 	bgImg := widgets[ui.MenuBackgroundImage]
 
@@ -128,7 +71,7 @@ func (m *MenuState) loadMainMenuUI(widgets Widgets) *ebitenui.UI {
 }
 
 // btn returns the buttons.
-func (m *MenuState) btn(widgets Widgets) *widget.Container {
+func (m *MenuState) btn(widgets general.Widgets) *widget.Container {
 	buttons := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -144,7 +87,7 @@ func (m *MenuState) btn(widgets Widgets) *widget.Container {
 		widget.ContainerOpts.BackgroundImage(image.NewNineSliceSimple(widgets[ui.MenuLeftSidebarImage], 0, 10)),
 	)
 
-	fnt := mustLoadFont(72)
+	fnt := loaders.FontTrueType(72)
 
 	text := widget.NewText(
 		widget.TextOpts.Text("Go Build,\nGo Defend!", fnt, color.White),
@@ -187,13 +130,13 @@ func (m *MenuState) btn(widgets Widgets) *widget.Container {
 }
 
 // loadLevelMenuUI loads the level menu UI.
-func (m *MenuState) loadLevelMenuUI(widgets Widgets) *ebitenui.UI {
+func (m *MenuState) loadLevelMenuUI(widgets general.Widgets) *ebitenui.UI {
 	bgImg := widgets[ui.MenuBackgroundImage]
 	menuBackground := image.NewNineSliceSimple(bgImg, 0, 1)
 
 	backBtn := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(colornames.Aqua)}),
-		widget.ButtonOpts.Text("<", mustLoadFont(128), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text("<", loaders.FontTrueType(128), &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			m.UI = m.loadMainMenuUI(widgets)
 		}),
@@ -215,7 +158,7 @@ func (m *MenuState) loadLevelMenuUI(widgets Widgets) *ebitenui.UI {
 }
 
 // loadScrollingLevels loads the scrolling levels.
-func (m *MenuState) loadScrollingLevels(_ Widgets) *widget.Container {
+func (m *MenuState) loadScrollingLevels(_ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -235,8 +178,8 @@ func (m *MenuState) loadScrollingLevels(_ Widgets) *widget.Container {
 		levels = append(levels, k)
 	}
 	sort.Strings(levels)
-	ttf72 := mustLoadFont(72)
-	ttf36 := mustLoadFont(72)
+	ttf72 := loaders.FontTrueType(72)
+	ttf36 := loaders.FontTrueType(36)
 	//blackImg := image.NewNineSliceColor(color.Black)
 	for _, k := range levels {
 		k := k

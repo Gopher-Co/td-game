@@ -1,4 +1,4 @@
-package models
+package ingame
 
 import (
 	"math"
@@ -6,6 +6,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/icza/gox/imagex/colorx"
+
+	"github.com/gopher-co/td-game/models/config"
+	"github.com/gopher-co/td-game/models/general"
 )
 
 // Enemy is an entity moving on the Path and trying to
@@ -26,7 +29,7 @@ type Enemy struct {
 	MaxHealth int
 
 	// Vrms is a root mean square speed of the enemy.
-	Vrms Coord
+	Vrms general.Coord
 
 	// Damage is a damage of the enemy.
 	Damage int
@@ -35,10 +38,10 @@ type Enemy struct {
 	MoneyAward int
 
 	// Weaknesses is a list of weaknesses of the enemy.
-	Weaknesses map[TypeAttack]Weakness
+	Weaknesses map[general.TypeAttack]Weakness
 
 	// Strengths is a list of strengths of the enemy.
-	Strengths map[TypeAttack]Strength
+	Strengths map[general.TypeAttack]Strength
 
 	// Image is an image of the enemy.
 	Image *ebiten.Image
@@ -47,7 +50,7 @@ type Enemy struct {
 // NewEnemy creates a new entity of Enemy.
 //
 // Panics if cfg.Color is not a correct hex-string of "#xxxxxx".
-func NewEnemy(cfg *EnemyConfig, path Path) *Enemy {
+func NewEnemy(cfg *config.Enemy, path Path) *Enemy {
 	en := &Enemy{
 		Name: cfg.Name,
 		State: EnemyState{
@@ -61,16 +64,16 @@ func NewEnemy(cfg *EnemyConfig, path Path) *Enemy {
 		Vrms:       cfg.Vrms,
 		Damage:     cfg.Damage,
 		MoneyAward: cfg.MoneyAward,
-		Weaknesses: map[TypeAttack]Weakness{},
-		Strengths:  map[TypeAttack]Strength{},
+		Weaknesses: map[general.TypeAttack]Weakness{},
+		Strengths:  map[general.TypeAttack]Strength{},
 	}
 
 	for _, v := range cfg.Strengths {
-		en.Strengths[v.T] = v
+		en.Strengths[v.T] = Strength(v)
 	}
 
 	for _, v := range cfg.Weaknesses {
-		en.Weaknesses[v.T] = v
+		en.Weaknesses[v.T] = Weakness(v)
 	}
 	if cfg.Image() != nil {
 		en.Image = cfg.Image()
@@ -144,8 +147,8 @@ func (e *Enemy) changeDirection() {
 	t := math.Hypot(float64(dX), float64(dY)) / float64(e.Vrms) // t = S / Vrms
 	frameTime := int(math.Round(t))
 
-	e.State.Vx = dX / Coord(frameTime)
-	e.State.Vy = dY / Coord(frameTime)
+	e.State.Vx = dX / general.Coord(frameTime)
+	e.State.Vy = dY / general.Coord(frameTime)
 	e.State.TimeNextPointLeft = frameTime
 }
 
@@ -156,7 +159,7 @@ func (e *Enemy) Die() {
 
 // FinalDamage returns the final damage depending on weaknesses
 // and strengths of the enemy.
-func (e *Enemy) FinalDamage(t TypeAttack, dmg int) int {
+func (e *Enemy) FinalDamage(t general.TypeAttack, dmg int) int {
 	for k, v := range e.Weaknesses {
 		if k == t {
 			return v.IncDamage(dmg)
@@ -205,19 +208,19 @@ type EnemyState struct {
 	CurrPoint int
 
 	// Pos is a current position of the enemy.
-	Pos Point
+	Pos general.Point
 
 	// Vx is a velocity on X-axis.
-	Vx Coord
+	Vx general.Coord
 
 	// Vy is a velocity on Y-axis.
-	Vy Coord
+	Vy general.Coord
 
 	// Health is a current health of the enemy.
 	Health int
 
 	// TimeNextPointLeft is a time left to the next point.
-	TimeNextPointLeft Frames
+	TimeNextPointLeft general.Frames
 
 	// Dead is a flag that shows if the enemy is dead.
 	Dead bool
@@ -231,8 +234,8 @@ type EnemyState struct {
 
 // Weakness stores effects that are detrimental to the enemy
 type Weakness struct {
-	T      TypeAttack `json:"type"`
-	IncDmg int        `json:"inc_dmg"`
+	T      general.TypeAttack
+	IncDmg int
 }
 
 // IncDamage returns increased damage.
@@ -242,8 +245,8 @@ func (w Weakness) IncDamage(damage int) int {
 
 // Strength stores effects that are useful to the enemy
 type Strength struct {
-	T      TypeAttack `json:"type"`
-	DecDmg int        `json:"dec_dmg"`
+	T      general.TypeAttack
+	DecDmg int
 }
 
 // DecDamage returns decreased damage.

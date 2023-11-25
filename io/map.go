@@ -1,10 +1,12 @@
 package io
 
-import "github.com/gopher-co/td-game/models"
+import (
+	"github.com/gopher-co/td-game/models/config"
+)
 
 // LoadMapConfigs loads map configs from the Maps directory.
-func LoadMapConfigs() ([]models.MapConfig, error) {
-	mcfgs, err := ReadConfigs[models.MapConfig]("./Maps", ".map")
+func LoadMapConfigs() ([]config.Map, error) {
+	mcfgs, err := ReadConfigs[config.Map]("./Maps", ".map")
 	if err != nil {
 		return nil, err
 	}
