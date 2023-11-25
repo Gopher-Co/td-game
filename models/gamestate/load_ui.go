@@ -9,6 +9,7 @@ import (
 	"github.com/ebitenui/ebitenui"
 	image2 "github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
+	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/colornames"
 
 	"github.com/gopher-co/td-game/models/general"
@@ -33,6 +34,10 @@ func (s *GameState) loadGameUI(widgets general.Widgets) *ebitenui.UI {
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 
+	speedContainer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+	)
+
 	backButton := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
@@ -50,7 +55,39 @@ func (s *GameState) loadGameUI(widgets general.Widgets) *ebitenui.UI {
 	)
 	buttonContainer.AddChild(backButton)
 
+	var speedButton *widget.Button
+	speedButton = widget.NewButton(
+		widget.ButtonOpts.Image(&widget.ButtonImage{
+			Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
+		}),
+		widget.ButtonOpts.Text("<<", loaders.FontTrueType(60), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
+			if s.speedUp {
+				ebiten.SetTPS(60)
+				s.speedUp = false
+				speedButton.Image = &widget.ButtonImage{
+					Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
+				}
+				return
+			}
+
+			ebiten.SetTPS(180)
+			s.speedUp = true
+			speedButton.Image = &widget.ButtonImage{
+				Idle: image2.NewNineSliceColor(colornames.Greenyellow),
+			}
+		}),
+		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+			HorizontalPosition: widget.AnchorLayoutPositionEnd,
+			VerticalPosition:   widget.AnchorLayoutPositionEnd,
+			StretchHorizontal:  false,
+			StretchVertical:    false,
+		})),
+	)
+	speedContainer.AddChild(speedButton)
+
 	mapContainer.AddChild(buttonContainer)
+	mapContainer.AddChild(speedContainer)
 
 	towerMenuContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
@@ -71,8 +108,9 @@ func (s *GameState) loadGameUI(widgets general.Widgets) *ebitenui.UI {
 		}),
 	)
 	go func() {
+		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
 		for {
-			<-time.After(time.Millisecond)
+			<-ticker.C
 			health.Label = fmt.Sprintf("Health: %d", s.PlayerMapState.Health)
 		}
 	}()
@@ -88,8 +126,9 @@ func (s *GameState) loadGameUI(widgets general.Widgets) *ebitenui.UI {
 	)
 
 	go func() {
+		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
 		for {
-			<-time.After(time.Millisecond)
+			<-ticker.C
 			money.Label = fmt.Sprintf("Money: %d", s.PlayerMapState.Money)
 		}
 	}()

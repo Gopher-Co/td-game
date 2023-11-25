@@ -63,6 +63,8 @@ type GameState struct {
 	PlayerMapState ingame.PlayerMapState
 
 	tookTower *config.Tower
+
+	speedUp bool
 }
 
 // New creates a new entity of GameState.
@@ -125,31 +127,11 @@ func (s *GameState) Update() error {
 	s.Map.Update()
 	wave := s.GameRule[s.CurrentWave]
 	if wave.Ended() && !s.Map.AreThereAliveEnemies() {
-		s.State = NextWaveReady
-		s.Map.Enemies = []*ingame.Enemy{}
-		s.Map.Projectiles = []*ingame.Projectile{}
-		if s.CurrentWave == len(s.GameRule)-1 {
-			s.Ended = true
-		}
-
+		s.setStateAfterWave()
 		return nil
 	}
 
-	es := wave.CallEnemies()
-	for _, str := range es {
-		s.Map.Enemies = append(s.Map.Enemies, ingame.NewEnemy(s.EnemyToCall[str], s.Map.Path))
-	}
-
-	for _, e := range s.Map.Enemies {
-		if e.State.Dead {
-			if e.State.PassPath {
-				s.PlayerMapState.Health = max(s.PlayerMapState.Health-e.DealDamageToPlayer(), 0)
-			} else {
-				s.PlayerMapState.Money += e.MoneyAward
-				e.MoneyAward = 0
-			}
-		}
-	}
+	s.updateRunning(wave)
 
 	return nil
 }
@@ -172,6 +154,37 @@ func (s *GameState) Draw(screen *ebiten.Image) {
 	}
 
 	s.UI.Draw(screen)
+}
+
+func (s *GameState) setStateAfterWave() {
+	s.State = NextWaveReady
+	s.Map.Enemies = []*ingame.Enemy{}
+	s.Map.Projectiles = []*ingame.Projectile{}
+	if s.CurrentWave == len(s.GameRule)-1 {
+		s.Ended = true
+	}
+}
+
+func (s *GameState) setStateAfterEnd() {
+	ebiten.SetTPS(60)
+}
+
+func (s *GameState) updateRunning(wave *ingame.Wave) {
+	es := wave.CallEnemies()
+	for _, str := range es {
+		s.Map.Enemies = append(s.Map.Enemies, ingame.NewEnemy(s.EnemyToCall[str], s.Map.Path))
+	}
+
+	for _, e := range s.Map.Enemies {
+		if e.State.Dead {
+			if e.State.PassPath {
+				s.PlayerMapState.Health = max(s.PlayerMapState.Health-e.DealDamageToPlayer(), 0)
+			} else {
+				s.PlayerMapState.Money += e.MoneyAward
+				e.MoneyAward = 0
+			}
+		}
+	}
 }
 
 // loadUI loads UI.
