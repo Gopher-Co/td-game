@@ -1,4 +1,4 @@
-package models
+package ingame
 
 import "github.com/hajimehoshi/ebiten/v2"
 

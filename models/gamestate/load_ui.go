@@ -1,8 +1,7 @@
-package models
+package gamestate
 
 import (
 	"fmt"
-	"image"
 	"image/color"
 	"math"
 	"time"
@@ -10,173 +9,14 @@ import (
 	"github.com/ebitenui/ebitenui"
 	image2 "github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"golang.org/x/image/colornames"
+
+	"github.com/gopher-co/td-game/models/general"
+	"github.com/gopher-co/td-game/ui/loaders"
 )
-
-// CurrentState is an enum that represents the current state of the game.
-type CurrentState int
-
-const (
-	// Running is the state when the game is running.
-	Running CurrentState = iota
-
-	// Paused is the state when the game is paused.
-	Paused
-
-	// NextWaveReady is the state when the next wave is ready.
-	NextWaveReady
-)
-
-// GameState is a struct that represents the state of the game.
-type GameState struct {
-	// Map is a map of the game.
-	Map *Map
-
-	// TowersToBuy is a map of towers that can be bought.
-	TowersToBuy map[string]*TowerConfig
-
-	// EnemyToCall is a map of enemies that can be called.
-	EnemyToCall map[string]*EnemyConfig
-
-	// Ended is a flag that represents if the game is ended.
-	Ended bool
-
-	// State is a current state of the game.
-	State CurrentState
-
-	// UI is a UI of the game.
-	UI *ebitenui.UI
-
-	// LastWave is a number of the last wave.
-	LastWave int
-
-	// CurrentWave is a number of the current wave.
-	CurrentWave int
-
-	// GameRule is a game rule of the game.
-	GameRule GameRule
-
-	// Time is a time of the game.
-	Time Frames
-
-	// PlayerMapState is a state of the player on the map.
-	PlayerMapState PlayerMapState
-
-	tookTower *TowerConfig
-}
-
-// NewGameState creates a new entity of GameState.
-func NewGameState(config *LevelConfig, maps map[string]*MapConfig, en map[string]*EnemyConfig, tw map[string]*TowerConfig, w Widgets) *GameState {
-	gs := &GameState{
-		Map:         NewMap(maps[config.MapName]),
-		TowersToBuy: tw,
-		EnemyToCall: en,
-		Ended:       false,
-		State:       NextWaveReady,
-		UI:          nil, // loadUI loads it
-		LastWave:    0,
-		CurrentWave: -1,
-		GameRule:    NewGameRule(config.GameRule),
-		Time:        0,
-		PlayerMapState: PlayerMapState{
-			Health: 100,
-			Money:  650,
-		},
-	}
-
-	gs.loadUI(w)
-	gs.LastWave = len(gs.GameRule) - 1 // is it needed??
-
-	return gs
-}
-
-// Update updates the state of the game.
-func (s *GameState) Update() error {
-	if s.Ended {
-		return nil
-	}
-
-	if s.State == Paused {
-		return nil
-	}
-
-	s.UI.Update()
-
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) && s.tookTower != nil {
-		x, y := ebiten.CursorPosition()
-		pos := Point{Coord(x), Coord(y)}
-
-		if x < 1500 && s.PlayerMapState.Money >= s.tookTower.Price {
-			if t := NewTower(s.tookTower, pos, s.Map.Path); t != nil {
-				s.PlayerMapState.Money -= s.tookTower.Price
-				s.tookTower = nil
-				s.Map.Towers = append(s.Map.Towers, t)
-			}
-		}
-	}
-
-	if s.State == NextWaveReady {
-		return nil
-	}
-
-	s.Map.Update()
-	wave := s.GameRule[s.CurrentWave]
-	if wave.Ended() && !s.Map.AreThereAliveEnemies() {
-		s.State = NextWaveReady
-		s.Map.Enemies = []*Enemy{}
-		s.Map.Projectiles = []*Projectile{}
-		if s.CurrentWave == len(s.GameRule)-1 {
-			s.Ended = true
-		}
-
-		return nil
-	}
-
-	es := wave.CallEnemies()
-	for _, str := range es {
-		s.Map.Enemies = append(s.Map.Enemies, NewEnemy(s.EnemyToCall[str], s.Map.Path))
-	}
-
-	for _, e := range s.Map.Enemies {
-		if e.State.Dead {
-			if e.State.PassPath {
-				s.PlayerMapState.Health = max(s.PlayerMapState.Health-e.DealDamageToPlayer(), 0)
-			} else {
-				s.PlayerMapState.Money += e.MoneyAward
-				e.MoneyAward = 0
-			}
-		}
-	}
-
-	return nil
-}
-
-// loadUI loads UI.
-func (s *GameState) loadUI(widgets Widgets) {
-	s.UI = s.loadGameUI(widgets)
-}
-
-// End returns true if the game is ended.
-func (s *GameState) End() bool {
-	return s.Ended
-}
-
-// Draw draws the game on the screen.
-func (s *GameState) Draw(screen *ebiten.Image) {
-	subScreen := screen.SubImage(image.Rect(0, 0, 1500, 1080))
-	s.Map.Draw(subScreen.(*ebiten.Image))
-	if s.CurrentWave >= 0 {
-		ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Wave %d", s.CurrentWave+1), 0, 1900)
-	}
-
-	s.UI.Draw(screen)
-}
 
 // loadGameUI loads UI of the game.
-func (s *GameState) loadGameUI(widgets Widgets) *ebitenui.UI {
+func (s *GameState) loadGameUI(widgets general.Widgets) *ebitenui.UI {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(2),
@@ -197,7 +37,7 @@ func (s *GameState) loadGameUI(widgets Widgets) *ebitenui.UI {
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
 		}),
-		widget.ButtonOpts.Text("<", mustLoadFont(80), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text("<", loaders.FontTrueType(80), &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
 			s.State = Paused
 		}),
@@ -220,7 +60,7 @@ func (s *GameState) loadGameUI(widgets Widgets) *ebitenui.UI {
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{})),
 		widget.ContainerOpts.BackgroundImage(image2.NewNineSliceColor(colornames.Blueviolet)),
 	)
-	ttf := mustLoadFont(40)
+	ttf := loaders.FontTrueType(40)
 	health := widget.NewText(
 		widget.TextOpts.Text(fmt.Sprintf("Health: %d", s.PlayerMapState.Health), ttf, color.White),
 		widget.TextOpts.Insets(widget.Insets{
@@ -267,7 +107,7 @@ func (s *GameState) loadGameUI(widgets Widgets) *ebitenui.UI {
 }
 
 // scrollCont creates a scroll container.
-func (s *GameState) scrollCont(_ Widgets) *widget.Container {
+func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(2),
@@ -312,11 +152,13 @@ func (s *GameState) scrollCont(_ Widgets) *widget.Container {
 			})),
 			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(200, 100)),
 			widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
-				s.tookTower = v
+				if s.PlayerMapState.Money >= v.Price {
+					s.tookTower = v
+				}
 			}),
 		)
 		text := widget.NewText(
-			widget.TextOpts.Text(v.Name, mustLoadFont(20), color.White),
+			widget.TextOpts.Text(v.Name, loaders.FontTrueType(20), color.White),
 		)
 
 		cont.AddChild(button)
@@ -376,5 +218,3 @@ func (s *GameState) scrollCont(_ Widgets) *widget.Container {
 
 	return root
 }
-
-//func (s *GameState) putNewTower(root *widget.Container, tower *Tower)

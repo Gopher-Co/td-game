@@ -3,31 +3,21 @@ package io
 import (
 	"fmt"
 
-	"github.com/gopher-co/td-game/models"
-	"github.com/gopher-co/td-game/ui"
+	"github.com/gopher-co/td-game/models/config"
 )
 
 // ErrUINotOnce is returned when there are more than 1 files in ./UI.
 var ErrUINotOnce = fmt.Errorf("there must be only 1 file in ./UI")
 
 // LoadUIConfig loads UI configs from the UI directory.
-func LoadUIConfig() (models.UI, error) {
-	uicfg, err := ReadConfigs[map[string]string]("./UI", ".ui")
+func LoadUIConfig() (config.UI, error) {
+	uicfgs, err := ReadConfigs[config.UI]("./UI", ".ui")
 	if err != nil {
-		return nil, err
+		return config.UI{}, fmt.Errorf("ui config read error: %w", err)
 	}
-	if len(uicfg) != 1 {
-		return nil, ErrUINotOnce
-	}
-
-	uis := make(models.UI)
-	for k, v := range uicfg[0] {
-		img, err := ui.InitImage(v)
-		if err != nil {
-			return nil, err
-		}
-		uis[k] = img
+	if len(uicfgs) != 1 {
+		return config.UI{}, ErrUINotOnce
 	}
 
-	return uis, nil
+	return uicfgs[0], err
 }

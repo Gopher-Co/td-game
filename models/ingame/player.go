@@ -1,4 +1,4 @@
-package models
+package ingame
 
 // PlayerMapState is a state of the player during the game.
 type PlayerMapState struct {

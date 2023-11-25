@@ -1,12 +1,17 @@
-package models
+package ingame
 
-import "slices"
+import (
+	"slices"
+
+	"github.com/gopher-co/td-game/models/config"
+	"github.com/gopher-co/td-game/models/general"
+)
 
 // GameRule is a set of waves.
 type GameRule []*Wave
 
 // NewGameRule returns a new GameRule.
-func NewGameRule(config []WaveConfig) GameRule {
+func NewGameRule(config []config.Wave) GameRule {
 	grs := make(GameRule, len(config))
 	for i := range config {
 		grs[i] = NewWave(&config[i])
@@ -22,11 +27,11 @@ type Wave struct {
 	Swarms []*EnemySwarm
 
 	// Time is a current time of the wave.
-	Time Frames
+	Time general.Frames
 }
 
 // NewWave returns a new Wave.
-func NewWave(config *WaveConfig) *Wave {
+func NewWave(config *config.Wave) *Wave {
 	swarms := make([]*EnemySwarm, len(config.Swarms))
 	for i := 0; i < len(swarms); i++ {
 		swarms[i] = NewEnemySwarm(&config.Swarms[i])
@@ -71,13 +76,13 @@ type EnemySwarm struct {
 	EnemyName string
 
 	// Timeout is the time when the first enemy can be called.
-	Timeout Frames
+	Timeout general.Frames
 
 	// Interval is time between calls.
-	Interval Frames
+	Interval general.Frames
 
 	// CurrTime is current time relatively the swarm's start.
-	CurrTime Frames
+	CurrTime general.Frames
 
 	// MaxCalls is a maximal amount of enemies that can be called.
 	MaxCalls int
@@ -87,7 +92,7 @@ type EnemySwarm struct {
 }
 
 // NewEnemySwarm returns a new EnemySwarm.
-func NewEnemySwarm(config *EnemySwarmConfig) *EnemySwarm {
+func NewEnemySwarm(config *config.EnemySwarm) *EnemySwarm {
 	return &EnemySwarm{
 		EnemyName: config.EnemyName,
 		Timeout:   config.Timeout,
@@ -104,7 +109,7 @@ func (s *EnemySwarm) Ended() bool {
 
 // Update increases time of EnemySwarm and returns a new enemy id
 // if it's time for it.
-func (s *EnemySwarm) Update(t Frames) string {
+func (s *EnemySwarm) Update(t general.Frames) string {
 	if t-s.Timeout >= 0 && (t-s.Timeout)%s.Interval == 0 {
 		s.CurCalls++
 		return s.EnemyName

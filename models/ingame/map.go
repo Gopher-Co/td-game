@@ -1,10 +1,13 @@
-package models
+package ingame
 
 import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+
+	"github.com/gopher-co/td-game/models/config"
+	"github.com/gopher-co/td-game/models/general"
 )
 
 // Map is a struct that represents a map.
@@ -26,7 +29,7 @@ type Map struct {
 }
 
 // NewMap creates a new entity of Map.
-func NewMap(config *MapConfig) *Map {
+func NewMap(config *config.Map) *Map {
 	m := &Map{
 		Path:  config.Path,
 		Image: config.Image(),
@@ -86,7 +89,7 @@ func (m *Map) AreThereAliveEnemies() bool {
 }
 
 // Path is a struct that represents a path.
-type Path []Point
+type Path []general.Point
 
 // Draw draws the path.
 func (p Path) Draw(screen *ebiten.Image) {
@@ -96,8 +99,8 @@ func (p Path) Draw(screen *ebiten.Image) {
 }
 
 // drawLine draws a line between two points.
-func drawLine(screen *ebiten.Image, p1, p2 Point) {
+func drawLine(screen *ebiten.Image, p1, p2 general.Point) {
 	x1, y1, x2, y2 := p1.X, p1.Y, p2.X, p2.Y
-	vector.DrawFilledCircle(screen, x2, y2, PathWidth/2, color.RGBA{R: 12, G: 23, B: 34, A: 255}, true)
-	vector.StrokeLine(screen, x1, y1, x2, y2, PathWidth, color.RGBA{R: 12, G: 23, B: 34, A: 255}, true)
+	vector.DrawFilledCircle(screen, x2, y2, config.PathWidth/2, color.RGBA{R: 12, G: 23, B: 34, A: 255}, true)
+	vector.StrokeLine(screen, x1, y1, x2, y2, config.PathWidth, color.RGBA{R: 12, G: 23, B: 34, A: 255}, true)
 }

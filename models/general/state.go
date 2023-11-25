@@ -1,4 +1,4 @@
-package models
+package general
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
@@ -11,9 +11,6 @@ type State interface {
 
 	// Update updates the state.
 	Update() error
-
-	// loadUI loads the UI.
-	loadUI(widgets Widgets)
 
 	// End returns true if the state is ended.
 	End() bool
