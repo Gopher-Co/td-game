@@ -43,6 +43,7 @@ func (m *Map) Update() {
 	for _, v := range m.Enemies {
 		v.Update()
 	}
+
 	for _, v := range m.Towers {
 		v.Update()
 		v.TakeAim(m.Enemies)
@@ -50,6 +51,7 @@ func (m *Map) Update() {
 			m.Projectiles = append(m.Projectiles, p)
 		}
 	}
+
 	for _, v := range m.Projectiles {
 		v.Update()
 	}

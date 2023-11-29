@@ -1,9 +1,13 @@
 package gamestate
 
 import (
+	"context"
 	"fmt"
 	"image"
 	"image/color"
+	"log"
+	"runtime"
+	"slices"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -64,7 +68,11 @@ type GameState struct {
 
 	tookTower *config.Tower
 
+	chosenTower *ingame.Tower
+
 	speedUp bool
+
+	cancel context.CancelFunc
 }
 
 // New creates a new entity of GameState.
@@ -88,7 +96,9 @@ func New(
 		},
 	}
 
-	gs.loadUI(w)
+	ctx, cancel := context.WithCancel(context.Background())
+	gs.UI = gs.loadGameUI(ctx, w)
+	gs.cancel = cancel
 
 	return gs
 }
@@ -103,8 +113,31 @@ func (s *GameState) Update() error {
 		return nil
 	}
 
+	// if clicked on tower
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
+		x, _ := ebiten.CursorPosition()
+		if x <= 1500 {
+			ts := slices.Clone(s.Map.Towers)
+			slices.Reverse(ts)
+			b := true
+			for _, t := range ts {
+				if b && t.IsClicked() {
+					log.Println(t.Name)
+					t.Chosen = true
+					b = !b
+					s.updateTowerUI(t)
+					s.showTowerInfoMenu()
+				} else {
+					t.Chosen = false
+					s.showTowerMenu()
+				}
+			}
+		}
+	}
+
 	s.UI.Update()
 
+	// put tower on the map
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) && s.tookTower != nil {
 		x, y := ebiten.CursorPosition()
 		pos := general.Point{general.Coord(x), general.Coord(y)}
@@ -128,9 +161,12 @@ func (s *GameState) Update() error {
 	wave := s.GameRule[s.CurrentWave]
 	if wave.Ended() && !s.Map.AreThereAliveEnemies() {
 		s.setStateAfterWave()
+		if s.CurrentWave == len(s.GameRule)-1 {
+			s.Ended = true
+			s.setStateAfterEnd()
+		}
 		return nil
 	}
-
 	s.updateRunning(wave)
 
 	return nil
@@ -143,6 +179,9 @@ func (s *GameState) End() bool {
 
 // Draw draws the game on the screen.
 func (s *GameState) Draw(screen *ebiten.Image) {
+	if s.Ended == true {
+		return
+	}
 	subScreen := screen.SubImage(image.Rect(0, 0, 1500, 1080))
 	s.Map.Draw(subScreen.(*ebiten.Image))
 	if s.CurrentWave >= 0 {
@@ -160,13 +199,19 @@ func (s *GameState) setStateAfterWave() {
 	s.State = NextWaveReady
 	s.Map.Enemies = []*ingame.Enemy{}
 	s.Map.Projectiles = []*ingame.Projectile{}
-	if s.CurrentWave == len(s.GameRule)-1 {
-		s.Ended = true
-	}
 }
 
 func (s *GameState) setStateAfterEnd() {
+	c := s.UI.Container.Children()
+	for k := range c {
+		c[k] = nil
+	}
+	s.UI.Container = nil
+	s.UI = nil
+	s.cancel()
+	s.cancel = nil
 	ebiten.SetTPS(60)
+	runtime.GC()
 }
 
 func (s *GameState) updateRunning(wave *ingame.Wave) {
@@ -185,11 +230,6 @@ func (s *GameState) updateRunning(wave *ingame.Wave) {
 			}
 		}
 	}
-}
-
-// loadUI loads UI.
-func (s *GameState) loadUI(widgets general.Widgets) {
-	s.UI = s.loadGameUI(widgets)
 }
 
 func (s *GameState) drawTookImageBeforeCursor(screen *ebiten.Image) {

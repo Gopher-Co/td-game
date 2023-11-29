@@ -1,6 +1,7 @@
 package gamestate
 
 import (
+	"context"
 	"fmt"
 	"image/color"
 	"math"
@@ -13,11 +14,12 @@ import (
 	"golang.org/x/image/colornames"
 
 	"github.com/gopher-co/td-game/models/general"
+	"github.com/gopher-co/td-game/models/ingame"
 	"github.com/gopher-co/td-game/ui/loaders"
 )
 
 // loadGameUI loads UI of the game.
-func (s *GameState) loadGameUI(widgets general.Widgets) *ebitenui.UI {
+func (s *GameState) loadGameUI(ctx context.Context, widgets general.Widgets) *ebitenui.UI {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(2),
@@ -25,119 +27,9 @@ func (s *GameState) loadGameUI(widgets general.Widgets) *ebitenui.UI {
 		)),
 	)
 
-	mapContainer := widget.NewContainer(
-		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.MinSize(1500, 0)),
-		widget.ContainerOpts.Layout(widget.NewStackedLayout()),
-	)
+	mapContainer := s.loadMapContainer(ctx, widgets)
 
-	buttonContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
-	)
-
-	speedContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
-	)
-
-	backButton := widget.NewButton(
-		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
-		}),
-		widget.ButtonOpts.Text("<", loaders.FontTrueType(80), &widget.ButtonTextColor{Idle: color.White}),
-		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
-			s.State = Paused
-		}),
-		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-			HorizontalPosition: widget.AnchorLayoutPositionEnd,
-			VerticalPosition:   0,
-			StretchHorizontal:  false,
-			StretchVertical:    false,
-		})),
-	)
-	buttonContainer.AddChild(backButton)
-
-	var speedButton *widget.Button
-	speedButton = widget.NewButton(
-		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
-		}),
-		widget.ButtonOpts.Text("<<", loaders.FontTrueType(60), &widget.ButtonTextColor{Idle: color.White}),
-		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
-			if s.speedUp {
-				ebiten.SetTPS(60)
-				s.speedUp = false
-				speedButton.Image = &widget.ButtonImage{
-					Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
-				}
-				return
-			}
-
-			ebiten.SetTPS(180)
-			s.speedUp = true
-			speedButton.Image = &widget.ButtonImage{
-				Idle: image2.NewNineSliceColor(colornames.Greenyellow),
-			}
-		}),
-		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-			HorizontalPosition: widget.AnchorLayoutPositionEnd,
-			VerticalPosition:   widget.AnchorLayoutPositionEnd,
-			StretchHorizontal:  false,
-			StretchVertical:    false,
-		})),
-	)
-	speedContainer.AddChild(speedButton)
-
-	mapContainer.AddChild(buttonContainer)
-	mapContainer.AddChild(speedContainer)
-
-	towerMenuContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(1),
-			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true}),
-		)),
-		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{})),
-		widget.ContainerOpts.BackgroundImage(image2.NewNineSliceColor(colornames.Blueviolet)),
-	)
-	ttf := loaders.FontTrueType(40)
-	health := widget.NewText(
-		widget.TextOpts.Text(fmt.Sprintf("Health: %d", s.PlayerMapState.Health), ttf, color.White),
-		widget.TextOpts.Insets(widget.Insets{
-			Top:    0,
-			Left:   10,
-			Right:  0,
-			Bottom: 0,
-		}),
-	)
-	go func() {
-		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
-		for {
-			<-ticker.C
-			health.Label = fmt.Sprintf("Health: %d", s.PlayerMapState.Health)
-		}
-	}()
-
-	money := widget.NewText(
-		widget.TextOpts.Text(fmt.Sprintf("Money: %d", s.PlayerMapState.Money), ttf, color.White),
-		widget.TextOpts.Insets(widget.Insets{
-			Top:    0,
-			Left:   10,
-			Right:  0,
-			Bottom: 0,
-		}),
-	)
-
-	go func() {
-		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
-		for {
-			<-ticker.C
-			money.Label = fmt.Sprintf("Money: %d", s.PlayerMapState.Money)
-		}
-	}()
-
-	scrollContainer := s.scrollCont(widgets)
-
-	towerMenuContainer.AddChild(health)
-	towerMenuContainer.AddChild(money)
-	towerMenuContainer.AddChild(scrollContainer)
+	towerMenuContainer := s.loadTowerMenuContainer(ctx, widgets)
 
 	root.AddChild(mapContainer)
 	root.AddChild(towerMenuContainer)
@@ -254,6 +146,277 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 	})
 
 	root.AddChild(vSlider)
+
+	return root
+}
+
+func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+	root := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true}),
+		)),
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{})),
+		widget.ContainerOpts.BackgroundImage(image2.NewNineSliceColor(colornames.Blueviolet)),
+	)
+	ttf := loaders.FontTrueType(40)
+	health := widget.NewText(
+		widget.TextOpts.Text(fmt.Sprintf("Health: %d", s.PlayerMapState.Health), ttf, color.White),
+		widget.TextOpts.Insets(widget.Insets{
+			Top:    0,
+			Left:   10,
+			Right:  0,
+			Bottom: 0,
+		}),
+	)
+	go func() {
+		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
+		for {
+			if ctx.Err() != nil {
+				return
+			}
+			<-ticker.C
+			health.Label = fmt.Sprintf("Health: %d", s.PlayerMapState.Health)
+		}
+	}()
+
+	money := widget.NewText(
+		widget.TextOpts.Text(fmt.Sprintf("Money: %d", s.PlayerMapState.Money), ttf, color.White),
+		widget.TextOpts.Insets(widget.Insets{
+			Top:    0,
+			Left:   10,
+			Right:  0,
+			Bottom: 0,
+		}),
+	)
+
+	go func() {
+		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
+		for {
+			if ctx.Err() != nil {
+				return
+			}
+			<-ticker.C
+			money.Label = fmt.Sprintf("Money: %d", s.PlayerMapState.Money)
+		}
+	}()
+
+	// menu on the right side
+	menu := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewStackedLayout()),
+	)
+
+	scrollContainer := s.scrollCont(widgets)
+	menuTower := s.newTowerMenuUI(ctx, widgets)
+
+	menu.AddChild(scrollContainer)
+	menu.AddChild(menuTower)
+
+	root.AddChild(health)
+	root.AddChild(money)
+	root.AddChild(menu)
+
+	return root
+}
+
+func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+	mapContainer := widget.NewContainer(
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.MinSize(1500, 0)),
+		widget.ContainerOpts.Layout(widget.NewStackedLayout()),
+	)
+
+	buttonContainer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+	)
+
+	speedContainer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+	)
+
+	waveContainer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+	)
+
+	waveText := widget.NewText(
+		widget.TextOpts.Text("", loaders.FontTrueType(64), color.White),
+		widget.TextOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+			HorizontalPosition: 0,
+			VerticalPosition:   widget.AnchorLayoutPositionEnd,
+			StretchHorizontal:  false,
+			StretchVertical:    false,
+		})),
+	)
+
+	go func() {
+		t := time.NewTicker(time.Second / time.Duration(ebiten.TPS()))
+		for {
+			if ctx.Err() != nil {
+				return
+			}
+			<-t.C
+			if s.CurrentWave < 0 || s.CurrentWave >= len(s.GameRule) {
+				waveText.Label = ""
+				continue
+			}
+			waveText.Label = fmt.Sprintf("Wave: %d/%d", s.CurrentWave+1, len(s.GameRule))
+		}
+	}()
+
+	waveContainer.AddChild(waveText)
+
+	backButton := widget.NewButton(
+		widget.ButtonOpts.Image(&widget.ButtonImage{
+			Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
+		}),
+		widget.ButtonOpts.Text("<", loaders.FontTrueType(80), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
+			s.State = Paused
+		}),
+		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+			HorizontalPosition: widget.AnchorLayoutPositionEnd,
+			VerticalPosition:   0,
+			StretchHorizontal:  false,
+			StretchVertical:    false,
+		})),
+	)
+	buttonContainer.AddChild(backButton)
+
+	var speedButton *widget.Button
+	speedButton = widget.NewButton(
+		widget.ButtonOpts.Image(&widget.ButtonImage{
+			Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
+		}),
+		widget.ButtonOpts.Text("<<", loaders.FontTrueType(60), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
+			if s.speedUp {
+				ebiten.SetTPS(60)
+				s.speedUp = false
+				speedButton.Image = &widget.ButtonImage{
+					Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
+				}
+				return
+			}
+
+			ebiten.SetTPS(180)
+			s.speedUp = true
+			speedButton.Image = &widget.ButtonImage{
+				Idle: image2.NewNineSliceColor(colornames.Greenyellow),
+			}
+		}),
+		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+			HorizontalPosition: widget.AnchorLayoutPositionEnd,
+			VerticalPosition:   widget.AnchorLayoutPositionEnd,
+			StretchHorizontal:  false,
+			StretchVertical:    false,
+		})),
+	)
+	speedContainer.AddChild(speedButton)
+
+	mapContainer.AddChild(waveContainer)
+	mapContainer.AddChild(buttonContainer)
+	mapContainer.AddChild(speedContainer)
+
+	return mapContainer
+}
+
+func (s *GameState) showTowerMenu() {
+	menu := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container).Children()
+	menu[0].(*widget.Container).GetWidget().Visibility = widget.Visibility_Show // tower menu
+	menu[1].(*widget.Container).GetWidget().Visibility = widget.Visibility_Hide // tower info
+}
+
+func (s *GameState) showTowerInfoMenu() {
+	menu := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container).Children()
+	menu[0].(*widget.Container).GetWidget().Visibility = widget.Visibility_Hide // tower menu
+	menu[1].(*widget.Container).GetWidget().Visibility = widget.Visibility_Show // tower info
+}
+
+func (s *GameState) updateTowerUI(t *ingame.Tower) {
+	menuCont := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container).Children()[1].(*widget.Container).Children()
+
+	info := menuCont[0].(*widget.Container)
+	text0, text1 := info.Children()[0].(*widget.Text), info.Children()[1].(*widget.Text)
+	text0.Label = t.Name
+	text1.Label = fmt.Sprintf("Level %d", t.UpgradesBought+1)
+
+	//upgrades := menuCont[1].(*widget.Container)
+	//tuning := menuCont[2].(*widget.Container)
+	//sell := menuCont[3].(*widget.Container)
+}
+
+func (s *GameState) newTowerMenuUI(ctx context.Context, widgets general.Widgets) *widget.Container {
+	root := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, false, false}),
+		)),
+	)
+	root.GetWidget().Visibility = widget.Visibility_Hide
+
+	info := s.textContainer(widgets)
+	upgrades := s.upgradesContainer(widgets)
+	tuning := s.tuningContainer(widgets)
+	sell := s.sellContainer(widgets)
+
+	root.AddChild(info)
+	root.AddChild(upgrades)
+	root.AddChild(tuning)
+	root.AddChild(sell)
+
+	return root
+}
+
+func (s *GameState) textContainer(widgets general.Widgets) *widget.Container {
+	root := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true}),
+		)),
+	)
+
+	name := widget.NewText(
+		widget.TextOpts.Text("NAME", loaders.FontTrueType(64), color.White),
+	)
+
+	level := widget.NewText(
+		widget.TextOpts.Text("LEVEL", loaders.FontTrueType(64), color.White),
+	)
+
+	root.AddChild(name)
+	root.AddChild(level)
+
+	return root
+}
+
+func (s *GameState) upgradesContainer(widgets general.Widgets) *widget.Container {
+	root := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true}),
+		)),
+	)
+
+	return root
+}
+
+func (s *GameState) tuningContainer(widgets general.Widgets) *widget.Container {
+	root := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true}),
+		)),
+	)
+
+	return root
+}
+
+func (s *GameState) sellContainer(widgets general.Widgets) *widget.Container {
+	root := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true}),
+		)),
+	)
 
 	return root
 }

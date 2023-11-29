@@ -1,10 +1,12 @@
 package ingame
 
 import (
+	"image/color"
 	"math"
 	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 
 	"github.com/gopher-co/td-game/models/config"
 	"github.com/gopher-co/td-game/models/general"
@@ -61,6 +63,8 @@ type Tower struct {
 
 	// UpgradesBought is a number of upgrades bought.
 	UpgradesBought int
+
+	Chosen bool
 }
 
 // NewTower creates a new entity of Tower.
@@ -125,6 +129,23 @@ func (t *Tower) Launch() *Projectile {
 	return p
 }
 
+func (t *Tower) Upgrade(complete map[int]struct{}) {
+	if t.UpgradesBought == len(t.Upgrades) {
+		return
+	}
+
+	upg := t.Upgrades[t.UpgradesBought]
+	if _, ok := complete[upg.OpenLevel]; !ok {
+		return
+	}
+
+	t.SpeedAttack += upg.DeltaSpeedAttack
+	t.Damage += upg.DeltaDamage
+	t.Radius += upg.DeltaRadius
+
+	t.UpgradesBought++
+}
+
 // Update updates the tower.
 func (t *Tower) Update() {
 	t.State.CoolDown = max(t.State.CoolDown-1, 0)
@@ -132,6 +153,10 @@ func (t *Tower) Update() {
 
 // Draw draws the tower.
 func (t *Tower) Draw(screen *ebiten.Image) {
+	if t.Chosen {
+		vector.DrawFilledCircle(screen, t.State.Pos.X, t.State.Pos.Y, t.Radius, color.RGBA{0, 0, 0, 0x20}, true)
+	}
+
 	geom := ebiten.GeoM{}
 	geom.Translate(float64(t.State.Pos.X-float32(t.Image.Bounds().Dx()/2)), float64(t.State.Pos.Y-float32(t.Image.Bounds().Dy()/2)))
 	screen.DrawImage(t.Image, &ebiten.DrawImageOptions{GeoM: geom})
@@ -227,6 +252,14 @@ func checkCollision(p, p1, p2 general.Point) bool {
 	AD := general.Point{D.X - A.X, D.Y - A.Y}
 	return 0 < sc(AM, AB) && sc(AM, AB) < sc(AB, AB) &&
 		0 < sc(AM, AD) && sc(AM, AD) < sc(AD, AD)
+}
+
+func (t *Tower) IsClicked() bool {
+	cx, cy := ebiten.CursorPosition()
+	x1, x2 := int(t.State.Pos.X-config.TowerImageWidth/2), int(t.State.Pos.X+config.TowerImageWidth/2)
+	y1, y2 := int(t.State.Pos.Y-config.TowerImageWidth/2), int(t.State.Pos.Y+config.TowerImageWidth/2)
+
+	return cx >= x1 && cx <= x2 && cy >= y1 && cy <= y2 // inside the square
 }
 
 func (t *Tower) initUpgrades(cfg []config.Upgrade) {
