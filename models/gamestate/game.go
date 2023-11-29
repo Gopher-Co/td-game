@@ -129,8 +129,10 @@ func (s *GameState) Update() error {
 					s.showTowerInfoMenu()
 				} else {
 					t.Chosen = false
-					s.showTowerMenu()
 				}
+			}
+			if b {
+				s.showTowerMenu()
 			}
 		}
 	}
