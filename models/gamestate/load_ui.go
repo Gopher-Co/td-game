@@ -85,7 +85,13 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
 		}),
-		widget.ButtonOpts.Text("<", loaders.FontTrueType(80), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.TextPadding(widget.Insets{
+			Top:    5,
+			Left:   10,
+			Right:  10,
+			Bottom: 5,
+		}),
+		widget.ButtonOpts.Text("| |", loaders.FontTrueType(70), &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
 			s.State = Paused
 		}),
@@ -103,7 +109,7 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
 		}),
-		widget.ButtonOpts.Text("<<", loaders.FontTrueType(60), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text(">>", loaders.FontTrueType(60), &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
 			if s.speedUp {
 				ebiten.SetTPS(60)

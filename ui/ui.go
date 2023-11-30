@@ -2,6 +2,7 @@
 package ui
 
 import (
+	"fmt"
 	"image/color"
 	"image/png"
 	"os"
@@ -17,32 +18,37 @@ var (
 
 // InitImage initializes an image.
 func InitImage(s string) (*ebiten.Image, error) {
-	return initColor(s)
-}
-
-// initColor initializes an image with a color.
-func initColor(s string) (*ebiten.Image, error) {
-	clr, err := colorx.ParseHexColor(s)
-	if err != nil {
-		return nil, err
+	img, err := InitColor(s)
+	if err == nil {
+		return img, nil
 	}
 
-	img := ebiten.NewImage(ebiten.WindowSize())
+	return InitPNG(s)
+}
+
+// InitColor initializes an image with a color.
+func InitColor(s string) (*ebiten.Image, error) {
+	clr, err := colorx.ParseHexColor(s)
+	if err != nil {
+		return nil, fmt.Errorf("invalid color %s: %w", s, err)
+	}
+
+	img := ebiten.NewImage(1, 1)
 	img.Fill(clr)
 
 	return img, nil
 }
 
-// initPNG initializes an image with a PNG file.
-func initPNG(s string) (*ebiten.Image, error) {
-	f, err := os.Open(s)
+// InitPNG initializes an image with a PNG file.
+func InitPNG(s string) (*ebiten.Image, error) {
+	f, err := os.Open(s + ".png")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("open png image failed: %w", err)
 	}
 
 	img, err := png.Decode(f)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("png decode failed: %w", err)
 	}
 
 	return ebiten.NewImageFromImage(img), nil

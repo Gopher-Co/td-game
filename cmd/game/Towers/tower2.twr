@@ -2,26 +2,26 @@
   "name": "#000",
   "upgrades": [
   {
-  "price": 120,
-  "delta_damage": 20,
-  "delta_radius": 20.0,
-  "delta_speed_attack": 5,
+  "price": 80,
+  "delta_damage": 0,
+  "delta_radius": 30.0,
+  "delta_speed_attack": 0,
   "open_level": 0
 },
 {
-    "price": 60,
-    "delta_damage": 20,
-    "delta_radius": 20.0,
+    "price": 360,
+    "delta_damage": 3,
+    "delta_radius": 0,
     "delta_speed_attack": 5,
     "open_level": 0
 }
   ],
-  "price": 160,
+  "price": 360,
   "type": 1,
-  "initial_damage": 1,
-  "initial_radius": 250,
-  "initial_speed_attack": 15,
-  "init_projectile_speed": 15,
+  "initial_damage": 2,
+  "initial_radius": 150,
+  "initial_speed_attack": 36,
+  "init_projectile_speed": 10,
   "projectile_config": {
     "name": "#413245"
   },

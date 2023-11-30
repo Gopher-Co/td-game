@@ -108,7 +108,7 @@ func (t *Tower) Launch() *Projectile {
 	if t.Sold || t.State.CoolDown != 0 || t.State.Aim == nil {
 		return nil
 	}
-	t.State.CoolDown = t.SpeedAttack
+	t.State.CoolDown = (20 * 60) / t.SpeedAttack // N projectiles in 20 seconds (if TPS=60)
 
 	p := &Projectile{
 		Pos:         t.State.Pos,
