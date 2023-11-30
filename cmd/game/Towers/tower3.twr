@@ -1,11 +1,11 @@
 {
-  "name": "#e0983a",
+  "name": "#123654",
   "upgrades": [],
   "price": 160,
   "type": 1,
   "initial_damage": 1,
   "initial_radius": 250,
-  "initial_speed_attack": 15,
+  "initial_speed_attack": 1,
   "init_projectile_speed": 15,
   "projectile_config": {
     "name": "#413245"

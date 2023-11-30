@@ -52,7 +52,7 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 
 		button := widget.NewButton(
 			widget.ButtonOpts.Image(&widget.ButtonImage{
-				Idle: image2.NewNineSliceSimple(v.Image(), 0, 1),
+				Idle: image2.NewNineSliceSimple(v.Image(), 64, 64),
 			}),
 			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{
 				MaxWidth:           100,

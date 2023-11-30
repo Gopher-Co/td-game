@@ -3,23 +3,23 @@
   "upgrades": [
       {
         "price": 120,
-        "delta_damage": 20,
+        "delta_damage": 1,
         "delta_radius": 20.0,
-        "delta_speed_attack": 5,
+        "delta_speed_attack": 1,
         "open_level": 0
       },
       {
-          "price": 20,
-          "delta_damage": 20,
-          "delta_radius": 20.0,
+          "price": 220,
+          "delta_damage": 0,
+          "delta_radius": 0,
           "delta_speed_attack": 5,
           "open_level": 0
       },
       {
-          "price": 20,
-          "delta_damage": 20,
-          "delta_radius": 20.0,
-          "delta_speed_attack": 5,
+          "price": 520,
+          "delta_damage": 3,
+          "delta_radius": 50.0,
+          "delta_speed_attack": 0,
           "open_level": 0
       },
       {

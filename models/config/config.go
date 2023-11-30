@@ -1,11 +1,14 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/icza/gox/imagex/colorx"
 
 	"github.com/gopher-co/td-game/models/general"
+	"github.com/gopher-co/td-game/ui"
 )
 
 const (
@@ -116,20 +119,26 @@ type Tower struct {
 
 // InitImage initializes image from the temporary state of the entity.
 func (c *Tower) InitImage() error {
-	if err := c.ProjectileConfig.InitImage(); err != nil {
-		return err
-	}
-
 	clr, err := colorx.ParseHexColor(c.Name)
-	if err != nil {
-		return err
+	if err == nil {
+		img := ebiten.NewImage(TowerImageWidth, TowerImageWidth)
+		vector.DrawFilledRect(img, 0, 0, TowerImageWidth, TowerImageWidth, clr, true)
+		c.image = img
+
+		return nil
+	}
+	png, err := ui.InitPNG(c.Name)
+	if err == nil {
+		img := ebiten.NewImage(TowerImageWidth, TowerImageWidth)
+		geom := ebiten.GeoM{}
+		geom.Scale(float64(TowerImageWidth)/float64(png.Bounds().Dx()), float64(TowerImageWidth)/float64(png.Bounds().Dy()))
+		img.DrawImage(png, &ebiten.DrawImageOptions{GeoM: geom})
+		c.image = img
+
+		return nil
 	}
 
-	img := ebiten.NewImage(TowerImageWidth, TowerImageWidth)
-	vector.DrawFilledRect(img, 0, 0, TowerImageWidth, TowerImageWidth, clr, true)
-	c.image = img
-
-	return nil
+	return fmt.Errorf("image init failed: %w", err)
 }
 
 // Image returns image.

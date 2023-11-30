@@ -28,7 +28,7 @@ func (m *MenuState) loadMainMenuUI(widgets general.Widgets) *ebitenui.UI {
 	geom.Scale(1280./float64(mainMenuImg.Bounds().Dx()), 720./float64(mainMenuImg.Bounds().Dy()))
 	img.DrawImage(widgets[ui.MenuMainImage], &ebiten.DrawImageOptions{GeoM: geom})
 
-	menuBackground := image.NewNineSlice(bgImg, [3]int{0, bgImg.Bounds().Dx(), 0}, [3]int{0, bgImg.Bounds().Dy(), 0})
+	menuBackground := image.NewNineSliceSimple(bgImg, 0, 1)
 
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
@@ -84,7 +84,7 @@ func (m *MenuState) btn(widgets general.Widgets) *widget.Container {
 			widget.GridLayoutOpts.Spacing(0, 50),
 			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, false, false}),
 		)),
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceSimple(widgets[ui.MenuLeftSidebarImage], 0, 10)),
+		widget.ContainerOpts.BackgroundImage(image.NewNineSliceSimple(widgets[ui.MenuLeftSidebarImage], 0, 1)),
 	)
 
 	fnt := loaders.FontTrueType(72)
@@ -96,7 +96,7 @@ func (m *MenuState) btn(widgets general.Widgets) *widget.Container {
 	btn1 := widget.NewButton(
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(600, 100)),
 		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle: image.NewNineSlice(widgets[ui.MenuButtonPlayImage], [3]int{0, 1300, 0}, [3]int{0, 800, 0}),
+			Idle: image.NewNineSliceSimple(widgets[ui.MenuButtonPlayImage], 0, 1),
 		}),
 		widget.ButtonOpts.Text("PLAY!", fnt, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
@@ -107,14 +107,14 @@ func (m *MenuState) btn(widgets general.Widgets) *widget.Container {
 	btn2 := widget.NewButton(
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(600, 100)),
 		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle: image.NewNineSlice(widgets[ui.MenuButtonReplaysImage], [3]int{0, 1300, 0}, [3]int{0, 800, 0}),
+			Idle: image.NewNineSliceSimple(widgets[ui.MenuButtonReplaysImage], 0, 1),
 		}),
 		widget.ButtonOpts.Text("Replays", fnt, &widget.ButtonTextColor{Idle: color.White}),
 	)
 	btn3 := widget.NewButton(
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(600, 100)),
 		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle: image.NewNineSlice(widgets[ui.MenuButtonExitImage], [3]int{0, 1300, 0}, [3]int{0, 800, 0}),
+			Idle: image.NewNineSliceSimple(widgets[ui.MenuButtonExitImage], 0, 1),
 		}),
 		widget.ButtonOpts.Text("Exit", fnt, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
@@ -228,16 +228,16 @@ func (m *MenuState) loadScrollingLevels(_ general.Widgets) *widget.Container {
 	root.AddChild(scrollContainer)
 
 	pageSizeFunc := func() int {
-		return int(math.Round(float64(scrollContainer.ContentRect().Dx()) / float64(content.GetWidget().Rect.Dx()) * 1000))
+		return int(math.Round(float64(scrollContainer.ContentRect().Dx()) / float64(content.GetWidget().Rect.Dx()) * 100))
 	}
 
 	vSlider := widget.NewSlider(
 		widget.SliderOpts.Direction(widget.DirectionHorizontal),
-		widget.SliderOpts.MinMax(0, 1000),
+		widget.SliderOpts.MinMax(0, 100),
 		widget.SliderOpts.PageSizeFunc(pageSizeFunc),
 		//On change update scroll location based on the Slider's value
 		widget.SliderOpts.ChangedHandler(func(args *widget.SliderChangedEventArgs) {
-			scrollContainer.ScrollLeft = float64(args.Slider.Current) / 1000
+			scrollContainer.ScrollLeft = float64(args.Slider.Current) / 100
 		}),
 		widget.SliderOpts.Images(
 			// Set the track images
