@@ -1,9 +1,9 @@
 package gamestate
 
 import (
+	"context"
 	"fmt"
 	"image/color"
-	"math"
 	"time"
 
 	"github.com/ebitenui/ebitenui"
@@ -13,11 +13,12 @@ import (
 	"golang.org/x/image/colornames"
 
 	"github.com/gopher-co/td-game/models/general"
+	"github.com/gopher-co/td-game/models/ingame"
 	"github.com/gopher-co/td-game/ui/loaders"
 )
 
 // loadGameUI loads UI of the game.
-func (s *GameState) loadGameUI(widgets general.Widgets) *ebitenui.UI {
+func (s *GameState) loadGameUI(ctx context.Context, widgets general.Widgets) *ebitenui.UI {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(2),
@@ -25,6 +26,17 @@ func (s *GameState) loadGameUI(widgets general.Widgets) *ebitenui.UI {
 		)),
 	)
 
+	mapContainer := s.loadMapContainer(ctx, widgets)
+
+	towerMenuContainer := s.loadTowerMenuContainer(ctx, widgets)
+
+	root.AddChild(mapContainer)
+	root.AddChild(towerMenuContainer)
+
+	return &ebitenui.UI{Container: root}
+}
+
+func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
 	mapContainer := widget.NewContainer(
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.MinSize(1500, 0)),
 		widget.ContainerOpts.Layout(widget.NewStackedLayout()),
@@ -37,6 +49,37 @@ func (s *GameState) loadGameUI(widgets general.Widgets) *ebitenui.UI {
 	speedContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
+
+	waveContainer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+	)
+
+	waveText := widget.NewText(
+		widget.TextOpts.Text("", loaders.FontTrueType(64), color.White),
+		widget.TextOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+			HorizontalPosition: 0,
+			VerticalPosition:   widget.AnchorLayoutPositionEnd,
+			StretchHorizontal:  false,
+			StretchVertical:    false,
+		})),
+	)
+
+	go func() {
+		t := time.NewTicker(time.Second / time.Duration(ebiten.TPS()))
+		for {
+			if ctx.Err() != nil {
+				return
+			}
+			<-t.C
+			if s.CurrentWave < 0 || s.CurrentWave >= len(s.GameRule) {
+				waveText.Label = ""
+				continue
+			}
+			waveText.Label = fmt.Sprintf("Wave: %d/%d", s.CurrentWave+1, len(s.GameRule))
+		}
+	}()
+
+	waveContainer.AddChild(waveText)
 
 	backButton := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{
@@ -86,174 +129,63 @@ func (s *GameState) loadGameUI(widgets general.Widgets) *ebitenui.UI {
 	)
 	speedContainer.AddChild(speedButton)
 
+	mapContainer.AddChild(waveContainer)
 	mapContainer.AddChild(buttonContainer)
 	mapContainer.AddChild(speedContainer)
 
-	towerMenuContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(1),
-			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true}),
-		)),
-		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{})),
-		widget.ContainerOpts.BackgroundImage(image2.NewNineSliceColor(colornames.Blueviolet)),
-	)
-	ttf := loaders.FontTrueType(40)
-	health := widget.NewText(
-		widget.TextOpts.Text(fmt.Sprintf("Health: %d", s.PlayerMapState.Health), ttf, color.White),
-		widget.TextOpts.Insets(widget.Insets{
-			Top:    0,
-			Left:   10,
-			Right:  0,
-			Bottom: 0,
-		}),
-	)
-	go func() {
-		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
-		for {
-			<-ticker.C
-			health.Label = fmt.Sprintf("Health: %d", s.PlayerMapState.Health)
-		}
-	}()
-
-	money := widget.NewText(
-		widget.TextOpts.Text(fmt.Sprintf("Money: %d", s.PlayerMapState.Money), ttf, color.White),
-		widget.TextOpts.Insets(widget.Insets{
-			Top:    0,
-			Left:   10,
-			Right:  0,
-			Bottom: 0,
-		}),
-	)
-
-	go func() {
-		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
-		for {
-			<-ticker.C
-			money.Label = fmt.Sprintf("Money: %d", s.PlayerMapState.Money)
-		}
-	}()
-
-	scrollContainer := s.scrollCont(widgets)
-
-	towerMenuContainer.AddChild(health)
-	towerMenuContainer.AddChild(money)
-	towerMenuContainer.AddChild(scrollContainer)
-
-	root.AddChild(mapContainer)
-	root.AddChild(towerMenuContainer)
-
-	return &ebitenui.UI{Container: root}
+	return mapContainer
 }
 
-// scrollCont creates a scroll container.
-func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
-	root := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(2),
-			widget.GridLayoutOpts.Stretch([]bool{true, false}, []bool{true}),
-		)),
-	)
+var cMenu, cInfo *widget.Container
 
-	content := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Spacing(20),
-		)),
-	)
+func (s *GameState) showTowerMenu() {
+	menu := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container)
+	menu.RemoveChildren()
+	menu.AddChild(cMenu)
+}
 
-	for _, v := range s.TowersToBuy {
-		v := v
-		cont := widget.NewContainer(
-			widget.ContainerOpts.Layout(widget.NewGridLayout(
-				widget.GridLayoutOpts.Columns(1),
-				widget.GridLayoutOpts.Stretch([]bool{false}, []bool{true, false}),
-				widget.GridLayoutOpts.Padding(widget.Insets{
-					Top:    10,
-					Left:   10,
-					Right:  10,
-					Bottom: 10,
-				}),
-			)),
-			widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-				Position: widget.RowLayoutPositionCenter,
-			})),
-		)
+func (s *GameState) showTowerInfoMenu() {
+	menu := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container)
+	menu.RemoveChildren()
+	menu.AddChild(cInfo)
+}
 
-		button := widget.NewButton(
-			widget.ButtonOpts.Image(&widget.ButtonImage{
-				Idle: image2.NewNineSliceSimple(v.Image(), 0, 1),
-			}),
-			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{
-				MaxWidth:           100,
-				MaxHeight:          100,
-				HorizontalPosition: 0,
-				VerticalPosition:   0,
-			})),
-			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(200, 100)),
-			widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
-				if s.PlayerMapState.Money >= v.Price {
-					s.tookTower = v
-				}
-			}),
-		)
-		text := widget.NewText(
-			widget.TextOpts.Text(v.Name, loaders.FontTrueType(20), color.White),
-		)
+func (s *GameState) updateTowerUI(t *ingame.Tower) {
+	menuCont := cInfo.Children()
 
-		cont.AddChild(button)
-		cont.AddChild(text)
+	info := menuCont[0].(*widget.Container)
+	text0 := info.Children()[0].(*widget.Text)
+	text0.Label = t.Name
 
-		content.AddChild(cont)
+	upgrades := menuCont[1].(*widget.Container)
+	text1, btn := upgrades.Children()[0].(*widget.Text), upgrades.Children()[1].(*widget.Button)
+	text1.Label = fmt.Sprintf("Level %d", t.UpgradesBought+1)
+
+	if t.UpgradesBought >= len(t.Upgrades) {
+		btn.Text().Label = "SOLD OUT"
+	} else {
+		btn.Text().Label = fmt.Sprintf("UPGRADE ($%d)", t.Upgrades[t.UpgradesBought].Price)
 	}
 
-	scrollContainer := widget.NewScrollContainer(
-		widget.ScrollContainerOpts.StretchContentWidth(),
-		widget.ScrollContainerOpts.Content(content),
-		widget.ScrollContainerOpts.Image(&widget.ScrollContainerImage{
-			Idle: image2.NewNineSliceColor(color.NRGBA{R: 0x13, G: 0x1a, B: 0x22, A: 0xff}),
-			Mask: image2.NewNineSliceColor(color.NRGBA{R: 0x13, G: 0x1a, B: 0x22, A: 0xff}),
-		}),
-	)
-
-	root.AddChild(scrollContainer)
-
-	pageSizeFunc := func() int {
-		return int(math.Round(float64(scrollContainer.ContentRect().Dy()) / float64(content.GetWidget().Rect.Dy()) * 1000))
+	if t.UpgradesBought >= len(t.Upgrades) || s.PlayerMapState.Money < t.Upgrades[t.UpgradesBought].Price {
+		btn.GetWidget().Disabled = true
+	} else {
+		btn.GetWidget().Disabled = false
 	}
 
-	vSlider := widget.NewSlider(
-		widget.SliderOpts.Direction(widget.DirectionVertical),
-		widget.SliderOpts.MinMax(0, 1000),
-		widget.SliderOpts.PageSizeFunc(pageSizeFunc),
-		//On change update scroll location based on the Slider's value
-		widget.SliderOpts.ChangedHandler(func(args *widget.SliderChangedEventArgs) {
-			scrollContainer.ScrollTop = float64(args.Slider.Current) / 1000
-		}),
-		widget.SliderOpts.Images(
-			// Set the track images
-			&widget.SliderTrackImage{
-				Idle:  image2.NewNineSliceColor(color.NRGBA{R: 100, G: 100, B: 100, A: 255}),
-				Hover: image2.NewNineSliceColor(color.NRGBA{R: 100, G: 100, B: 100, A: 255}),
-			},
-			// Set the handle images
-			&widget.ButtonImage{
-				Idle:    image2.NewNineSliceColor(color.NRGBA{R: 255, G: 100, B: 100, A: 255}),
-				Hover:   image2.NewNineSliceColor(color.NRGBA{R: 255, G: 100, B: 100, A: 255}),
-				Pressed: image2.NewNineSliceColor(color.NRGBA{R: 255, G: 100, B: 100, A: 255}),
-			},
-		),
-	)
-
-	scrollContainer.GetWidget().ScrolledEvent.AddHandler(func(args interface{}) {
-		a := args.(*widget.WidgetScrolledEventArgs)
-		p := pageSizeFunc() / 3
-		if p < 1 {
-			p = 1
+	tuning := menuCont[2].(*widget.Container)
+	turnButton := tuning.Children()[0].(*widget.Button)
+	if s.chosenTower.State.IsTurnedOn {
+		turnButton.Text().Label = "ON"
+		turnButton.Image = &widget.ButtonImage{
+			Idle: image2.NewNineSliceColor(colornames.Lawngreen),
 		}
-		vSlider.Current -= int(math.Round(a.Y * float64(p)))
-	})
+	} else {
+		turnButton.Text().Label = "OFF"
+		turnButton.Image = &widget.ButtonImage{
+			Idle: image2.NewNineSliceColor(colornames.Indianred),
+		}
+	}
 
-	root.AddChild(vSlider)
-
-	return root
+	//sell := menuCont[3].(*widget.Container)
 }

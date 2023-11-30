@@ -1,6 +1,21 @@
 {
-  "name": "#083472",
-  "upgrades": [],
+  "name": "#000",
+  "upgrades": [
+  {
+  "price": 120,
+  "delta_damage": 20,
+  "delta_radius": 20.0,
+  "delta_speed_attack": 5,
+  "open_level": 0
+},
+{
+    "price": 60,
+    "delta_damage": 20,
+    "delta_radius": 20.0,
+    "delta_speed_attack": 5,
+    "open_level": 0
+}
+  ],
   "price": 160,
   "type": 1,
   "initial_damage": 1,

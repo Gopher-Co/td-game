@@ -1,10 +1,13 @@
 package ingame
 
 import (
+	"cmp"
+	"image/color"
 	"math"
 	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 
 	"github.com/gopher-co/td-game/models/config"
 	"github.com/gopher-co/td-game/models/general"
@@ -61,6 +64,10 @@ type Tower struct {
 
 	// UpgradesBought is a number of upgrades bought.
 	UpgradesBought int
+
+	Chosen bool
+
+	Sold bool
 }
 
 // NewTower creates a new entity of Tower.
@@ -98,7 +105,7 @@ func NewTower(config *config.Tower, pos general.Point, path Path) *Tower {
 
 // Launch launches a projectile from the tower.
 func (t *Tower) Launch() *Projectile {
-	if t.State.CoolDown != 0 || t.State.Aim == nil {
+	if t.Sold || t.State.CoolDown != 0 || t.State.Aim == nil {
 		return nil
 	}
 	t.State.CoolDown = t.SpeedAttack
@@ -125,13 +132,44 @@ func (t *Tower) Launch() *Projectile {
 	return p
 }
 
+func (t *Tower) Upgrade(complete map[int]struct{}) bool {
+	if t.UpgradesBought == len(t.Upgrades) {
+		return false
+	}
+
+	upg := t.Upgrades[t.UpgradesBought]
+	if upg.OpenLevel > 0 {
+		if _, ok := complete[upg.OpenLevel]; !ok {
+			return false
+		}
+	}
+
+	t.SpeedAttack += upg.DeltaSpeedAttack
+	t.Damage += upg.DeltaDamage
+	t.Radius += upg.DeltaRadius
+
+	t.UpgradesBought++
+
+	return true
+}
+
 // Update updates the tower.
 func (t *Tower) Update() {
+	if t.Sold {
+		return
+	}
 	t.State.CoolDown = max(t.State.CoolDown-1, 0)
 }
 
 // Draw draws the tower.
 func (t *Tower) Draw(screen *ebiten.Image) {
+	if t.Sold {
+		return
+	}
+	if t.Chosen {
+		vector.DrawFilledCircle(screen, t.State.Pos.X, t.State.Pos.Y, t.Radius, color.RGBA{0, 0, 0, 0x20}, true)
+	}
+
 	geom := ebiten.GeoM{}
 	geom.Translate(float64(t.State.Pos.X-float32(t.Image.Bounds().Dx()/2)), float64(t.State.Pos.Y-float32(t.Image.Bounds().Dy()/2)))
 	screen.DrawImage(t.Image, &ebiten.DrawImageOptions{GeoM: geom})
@@ -139,7 +177,14 @@ func (t *Tower) Draw(screen *ebiten.Image) {
 
 // TakeAim takes aim at the enemy.
 func (t *Tower) TakeAim(e1 []*Enemy) {
-	t.takeAimFirst(e1)
+	switch t.State.AimType {
+	case First:
+		t.takeAimFirst(e1)
+	case Strongest:
+		t.takeAimStrong(e1)
+	case Weakest:
+		t.takeAimWeak(e1)
+	}
 }
 
 // takeAimFirst takes aim at the first enemy.
@@ -167,6 +212,46 @@ func (t *Tower) takeAimFirst(e1 []*Enemy) {
 			return -1
 		}
 		return 0
+	})
+
+	t.State.Aim = e
+}
+
+// takeAimWeak takes aim at the weak enemy.
+func (t *Tower) takeAimWeak(e1 []*Enemy) {
+	enemies := slices.Clone(e1)
+	enemies = slices.DeleteFunc(enemies, func(e *Enemy) bool {
+		tx, ty, ex, ey := t.State.Pos.X, t.State.Pos.Y, e.State.Pos.X, e.State.Pos.Y
+		return e.State.Dead || (tx-ex)*(tx-ex)+(ty-ey)*(ty-ey) > t.Radius*t.Radius
+	})
+
+	if len(enemies) == 0 {
+		t.State.Aim = nil
+		return
+	}
+
+	e := slices.MaxFunc(enemies, func(a, b *Enemy) int {
+		return cmp.Compare(b.State.Health, a.State.Health)
+	})
+
+	t.State.Aim = e
+}
+
+// takeAimStrong takes aim at the strong enemy.
+func (t *Tower) takeAimStrong(e1 []*Enemy) {
+	enemies := slices.Clone(e1)
+	enemies = slices.DeleteFunc(enemies, func(e *Enemy) bool {
+		tx, ty, ex, ey := t.State.Pos.X, t.State.Pos.Y, e.State.Pos.X, e.State.Pos.Y
+		return e.State.Dead || (tx-ex)*(tx-ex)+(ty-ey)*(ty-ey) > t.Radius*t.Radius
+	})
+
+	if len(enemies) == 0 {
+		t.State.Aim = nil
+		return
+	}
+
+	e := slices.MaxFunc(enemies, func(a, b *Enemy) int {
+		return cmp.Compare(a.State.Health, b.State.Health)
 	})
 
 	t.State.Aim = e
@@ -229,12 +314,22 @@ func checkCollision(p, p1, p2 general.Point) bool {
 		0 < sc(AM, AD) && sc(AM, AD) < sc(AD, AD)
 }
 
+func (t *Tower) IsClicked() bool {
+	cx, cy := ebiten.CursorPosition()
+	x1, x2 := int(t.State.Pos.X-config.TowerImageWidth/2), int(t.State.Pos.X+config.TowerImageWidth/2)
+	y1, y2 := int(t.State.Pos.Y-config.TowerImageWidth/2), int(t.State.Pos.Y+config.TowerImageWidth/2)
+
+	return cx >= x1 && cx <= x2 && cy >= y1 && cy <= y2 // inside the square
+}
+
 func (t *Tower) initUpgrades(cfg []config.Upgrade) {
 	ups := make([]*Upgrade, len(cfg))
 
 	for i := 0; i < len(ups); i++ {
 		ups[i] = NewUpgrade(&cfg[i])
 	}
+
+	t.Upgrades = ups
 }
 
 // TowerState is a struct that represents the state of a tower.

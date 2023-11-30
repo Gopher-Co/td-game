@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -21,7 +20,6 @@ import (
 // Game implements ebiten.Game interface.
 type Game struct {
 	s       general.State
-	UI      *ebitenui.UI
 	fscreen bool
 }
 
@@ -37,7 +35,6 @@ func (g *Game) Update() error {
 			g.s = menustate.New(Levels, general.Widgets(UI))
 		case *menustate.MenuState:
 			ms := g.s.(*menustate.MenuState)
-			log.Println(ms.Next)
 			g.s = gamestate.New(Levels[ms.Next], Maps, Enemies, Towers, general.Widgets(UI))
 		default:
 			panic(fmt.Sprintf("type %T must be handled", g.s))
