@@ -1,6 +1,35 @@
 {
-  "name": "#e0983a",
-  "upgrades": [],
+  "name": "#ffffff",
+  "upgrades": [
+      {
+        "price": 120,
+        "delta_damage": 20,
+        "delta_radius": 20.0,
+        "delta_speed_attack": 5,
+        "open_level": 0
+      },
+      {
+          "price": 20,
+          "delta_damage": 20,
+          "delta_radius": 20.0,
+          "delta_speed_attack": 5,
+          "open_level": 0
+      },
+      {
+          "price": 20,
+          "delta_damage": 20,
+          "delta_radius": 20.0,
+          "delta_speed_attack": 5,
+          "open_level": 0
+      },
+      {
+        "price": 20,
+        "delta_damage": 20,
+        "delta_radius": 20.0,
+        "delta_speed_attack": 5,
+        "open_level": 0
+    }
+  ],
   "price": 160,
   "type": 1,
   "initial_damage": 1,

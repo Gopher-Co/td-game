@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"log"
 	"runtime"
 	"slices"
 
@@ -122,8 +121,8 @@ func (s *GameState) Update() error {
 			b := true
 			for _, t := range ts {
 				if b && t.IsClicked() {
-					log.Println(t.Name)
 					t.Chosen = true
+					s.chosenTower = t
 					b = !b
 					s.updateTowerUI(t)
 					s.showTowerInfoMenu()

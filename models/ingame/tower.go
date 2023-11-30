@@ -1,6 +1,7 @@
 package ingame
 
 import (
+	"cmp"
 	"image/color"
 	"math"
 	"slices"
@@ -129,14 +130,16 @@ func (t *Tower) Launch() *Projectile {
 	return p
 }
 
-func (t *Tower) Upgrade(complete map[int]struct{}) {
+func (t *Tower) Upgrade(complete map[int]struct{}) bool {
 	if t.UpgradesBought == len(t.Upgrades) {
-		return
+		return false
 	}
 
 	upg := t.Upgrades[t.UpgradesBought]
-	if _, ok := complete[upg.OpenLevel]; !ok {
-		return
+	if upg.OpenLevel > 0 {
+		if _, ok := complete[upg.OpenLevel]; !ok {
+			return false
+		}
 	}
 
 	t.SpeedAttack += upg.DeltaSpeedAttack
@@ -144,6 +147,8 @@ func (t *Tower) Upgrade(complete map[int]struct{}) {
 	t.Radius += upg.DeltaRadius
 
 	t.UpgradesBought++
+
+	return true
 }
 
 // Update updates the tower.
@@ -164,7 +169,14 @@ func (t *Tower) Draw(screen *ebiten.Image) {
 
 // TakeAim takes aim at the enemy.
 func (t *Tower) TakeAim(e1 []*Enemy) {
-	t.takeAimFirst(e1)
+	switch t.State.AimType {
+	case First:
+		t.takeAimFirst(e1)
+	case Strongest:
+		t.takeAimStrong(e1)
+	case Weakest:
+		t.takeAimWeak(e1)
+	}
 }
 
 // takeAimFirst takes aim at the first enemy.
@@ -192,6 +204,46 @@ func (t *Tower) takeAimFirst(e1 []*Enemy) {
 			return -1
 		}
 		return 0
+	})
+
+	t.State.Aim = e
+}
+
+// takeAimWeak takes aim at the weak enemy.
+func (t *Tower) takeAimWeak(e1 []*Enemy) {
+	enemies := slices.Clone(e1)
+	enemies = slices.DeleteFunc(enemies, func(e *Enemy) bool {
+		tx, ty, ex, ey := t.State.Pos.X, t.State.Pos.Y, e.State.Pos.X, e.State.Pos.Y
+		return e.State.Dead || (tx-ex)*(tx-ex)+(ty-ey)*(ty-ey) > t.Radius*t.Radius
+	})
+
+	if len(enemies) == 0 {
+		t.State.Aim = nil
+		return
+	}
+
+	e := slices.MaxFunc(enemies, func(a, b *Enemy) int {
+		return cmp.Compare(b.State.Health, a.State.Health)
+	})
+
+	t.State.Aim = e
+}
+
+// takeAimStrong takes aim at the strong enemy.
+func (t *Tower) takeAimStrong(e1 []*Enemy) {
+	enemies := slices.Clone(e1)
+	enemies = slices.DeleteFunc(enemies, func(e *Enemy) bool {
+		tx, ty, ex, ey := t.State.Pos.X, t.State.Pos.Y, e.State.Pos.X, e.State.Pos.Y
+		return e.State.Dead || (tx-ex)*(tx-ex)+(ty-ey)*(ty-ey) > t.Radius*t.Radius
+	})
+
+	if len(enemies) == 0 {
+		t.State.Aim = nil
+		return
+	}
+
+	e := slices.MaxFunc(enemies, func(a, b *Enemy) int {
+		return cmp.Compare(a.State.Health, b.State.Health)
 	})
 
 	t.State.Aim = e
@@ -268,6 +320,8 @@ func (t *Tower) initUpgrades(cfg []config.Upgrade) {
 	for i := 0; i < len(ups); i++ {
 		ups[i] = NewUpgrade(&cfg[i])
 	}
+
+	t.Upgrades = ups
 }
 
 // TowerState is a struct that represents the state of a tower.

@@ -208,9 +208,10 @@ func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.
 
 	scrollContainer := s.scrollCont(widgets)
 	menuTower := s.newTowerMenuUI(ctx, widgets)
+	cMenu = scrollContainer
+	cInfo = menuTower
 
 	menu.AddChild(scrollContainer)
-	menu.AddChild(menuTower)
 
 	root.AddChild(health)
 	root.AddChild(money)
@@ -319,27 +320,43 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 	return mapContainer
 }
 
+var cMenu, cInfo *widget.Container
+
 func (s *GameState) showTowerMenu() {
-	menu := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container).Children()
-	menu[0].(*widget.Container).GetWidget().Visibility = widget.Visibility_Show // tower menu
-	menu[1].(*widget.Container).GetWidget().Visibility = widget.Visibility_Hide // tower info
+	menu := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container)
+	menu.RemoveChildren()
+	menu.AddChild(cMenu)
 }
 
 func (s *GameState) showTowerInfoMenu() {
-	menu := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container).Children()
-	menu[0].(*widget.Container).GetWidget().Visibility = widget.Visibility_Hide // tower menu
-	menu[1].(*widget.Container).GetWidget().Visibility = widget.Visibility_Show // tower info
+	menu := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container)
+	menu.RemoveChildren()
+	menu.AddChild(cInfo)
 }
 
 func (s *GameState) updateTowerUI(t *ingame.Tower) {
-	menuCont := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container).Children()[1].(*widget.Container).Children()
+	menuCont := cInfo.Children()
 
 	info := menuCont[0].(*widget.Container)
-	text0, text1 := info.Children()[0].(*widget.Text), info.Children()[1].(*widget.Text)
+	text0 := info.Children()[0].(*widget.Text)
 	text0.Label = t.Name
+
+	upgrades := menuCont[1].(*widget.Container)
+	text1, btn := upgrades.Children()[0].(*widget.Text), upgrades.Children()[1].(*widget.Button)
 	text1.Label = fmt.Sprintf("Level %d", t.UpgradesBought+1)
 
-	//upgrades := menuCont[1].(*widget.Container)
+	if t.UpgradesBought >= len(t.Upgrades) {
+		btn.Text().Label = "SOLD OUT"
+	} else {
+		btn.Text().Label = fmt.Sprintf("UPGRADE ($%d)", t.Upgrades[t.UpgradesBought].Price)
+	}
+
+	if t.UpgradesBought >= len(t.Upgrades) || s.PlayerMapState.Money < t.Upgrades[t.UpgradesBought].Price {
+		btn.GetWidget().Disabled = true
+	} else {
+		btn.GetWidget().Disabled = false
+	}
+
 	//tuning := menuCont[2].(*widget.Container)
 	//sell := menuCont[3].(*widget.Container)
 }
@@ -351,10 +368,11 @@ func (s *GameState) newTowerMenuUI(ctx context.Context, widgets general.Widgets)
 			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, false, false}),
 		)),
 	)
-	root.GetWidget().Visibility = widget.Visibility_Hide
+
+	cInfo = root
 
 	info := s.textContainer(widgets)
-	upgrades := s.upgradesContainer(widgets)
+	upgrades := s.upgradesContainer(ctx, widgets)
 	tuning := s.tuningContainer(widgets)
 	sell := s.sellContainer(widgets)
 
@@ -370,7 +388,7 @@ func (s *GameState) textContainer(widgets general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
-			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true}),
+			widget.GridLayoutOpts.Stretch([]bool{false}, []bool{false}),
 		)),
 	)
 
@@ -378,23 +396,83 @@ func (s *GameState) textContainer(widgets general.Widgets) *widget.Container {
 		widget.TextOpts.Text("NAME", loaders.FontTrueType(64), color.White),
 	)
 
-	level := widget.NewText(
-		widget.TextOpts.Text("LEVEL", loaders.FontTrueType(64), color.White),
-	)
-
 	root.AddChild(name)
-	root.AddChild(level)
 
 	return root
 }
 
-func (s *GameState) upgradesContainer(widgets general.Widgets) *widget.Container {
+func (s *GameState) upgradesContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
-			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true}),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, false}),
 		)),
 	)
+
+	var checkBlock func()
+
+	btn := widget.NewButton(
+		widget.ButtonOpts.Image(&widget.ButtonImage{
+			Idle:     image2.NewNineSliceColor(color.RGBA{0x99, 0xe7, 0xa9, 0xff}),
+			Hover:    image2.NewNineSliceColor(color.RGBA{0xa9, 0xee, 0xae, 0xff}),
+			Pressed:  image2.NewNineSliceColor(color.RGBA{0x89, 0xd7, 0x99, 0xff}),
+			Disabled: image2.NewNineSliceColor(color.RGBA{0x66, 0x05, 0x28, 0xff}),
+		}),
+		widget.ButtonOpts.Text("UPGRADE", loaders.FontTrueType(32), &widget.ButtonTextColor{
+			Idle:     color.White,
+			Disabled: color.Black,
+		}),
+		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(0, 100)),
+		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
+			t := s.chosenTower
+			if t.Upgrade(map[int]struct{}{1: {}}) {
+				price := t.Upgrades[t.UpgradesBought-1].Price
+				s.PlayerMapState.Money -= price
+			}
+			checkBlock()
+		}),
+	)
+
+	level := widget.NewText(
+		widget.TextOpts.Text("Level", loaders.FontTrueType(64), color.White),
+	)
+
+	checkBlock = func() {
+		level.Label = fmt.Sprintf("Level %d", s.chosenTower.UpgradesBought+1)
+		if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) {
+			btn.Text().Label = "SOLD OUT"
+		} else {
+			btn.Text().Label = fmt.Sprintf("UPGRADE ($%d)", s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price)
+		}
+
+		if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) ||
+			s.PlayerMapState.Money < s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price {
+			btn.GetWidget().Disabled = true
+		}
+	}
+
+	go func() {
+		t := time.NewTicker(time.Second / time.Duration(ebiten.TPS()))
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-t.C:
+			}
+
+			if s.chosenTower == nil || s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) {
+				continue
+			}
+			if s.PlayerMapState.Money < s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price {
+				btn.GetWidget().Disabled = true
+			} else {
+				btn.GetWidget().Disabled = false
+			}
+		}
+	}()
+
+	root.AddChild(level)
+	root.AddChild(btn)
 
 	return root
 }
