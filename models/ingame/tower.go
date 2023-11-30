@@ -66,6 +66,8 @@ type Tower struct {
 	UpgradesBought int
 
 	Chosen bool
+
+	Sold bool
 }
 
 // NewTower creates a new entity of Tower.
@@ -103,7 +105,7 @@ func NewTower(config *config.Tower, pos general.Point, path Path) *Tower {
 
 // Launch launches a projectile from the tower.
 func (t *Tower) Launch() *Projectile {
-	if t.State.CoolDown != 0 || t.State.Aim == nil {
+	if t.Sold || t.State.CoolDown != 0 || t.State.Aim == nil {
 		return nil
 	}
 	t.State.CoolDown = t.SpeedAttack
@@ -153,11 +155,17 @@ func (t *Tower) Upgrade(complete map[int]struct{}) bool {
 
 // Update updates the tower.
 func (t *Tower) Update() {
+	if t.Sold {
+		return
+	}
 	t.State.CoolDown = max(t.State.CoolDown-1, 0)
 }
 
 // Draw draws the tower.
 func (t *Tower) Draw(screen *ebiten.Image) {
+	if t.Sold {
+		return
+	}
 	if t.Chosen {
 		vector.DrawFilledCircle(screen, t.State.Pos.X, t.State.Pos.Y, t.Radius, color.RGBA{0, 0, 0, 0x20}, true)
 	}

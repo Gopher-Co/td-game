@@ -45,6 +45,9 @@ func (m *Map) Update() {
 	}
 
 	for _, v := range m.Towers {
+		if v.Sold || !v.State.IsTurnedOn {
+			continue
+		}
 		v.Update()
 		v.TakeAim(m.Enemies)
 		if p := v.Launch(); p != nil {
@@ -69,6 +72,9 @@ func (m *Map) Draw(screen *ebiten.Image) {
 	}
 
 	for _, t := range m.Towers {
+		if t.Sold {
+			continue
+		}
 		t.Draw(screen)
 	}
 
