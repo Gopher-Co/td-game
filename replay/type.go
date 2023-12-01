@@ -56,6 +56,12 @@ func (a *Action) UnmarshalJSON(b []byte) error {
 			return err
 		}
 		a.Info = info
+	case SellTower:
+		info := InfoSellTower{}
+		if err := json.Unmarshal(infob, &info); err != nil {
+			return err
+		}
+		a.Info = info
 	case UpgradeTower:
 		info := InfoUpgradeTower{}
 		if err := json.Unmarshal(infob, &info); err != nil {
