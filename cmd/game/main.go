@@ -71,7 +71,6 @@ func main() {
 
 	// load levels
 	lcfgs, err := io.LoadLevelConfigs()
-
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -116,7 +115,7 @@ func main() {
 	// LEVEL LOADING
 	game := &Game{s: menustate.New(Levels, general.Widgets(UI))}
 
-	//gs := models.New(global.GlobalLevels["Level 1"], global.GlobalMaps, global.GlobalEnemies, global.GlobalTowers, nil)
+	// gs := models.New(global.GlobalLevels["Level 1"], global.GlobalMaps, global.GlobalEnemies, global.GlobalTowers, nil)
 	go func() {
 		for {
 			time.Sleep(time.Second)
@@ -132,7 +131,7 @@ func main() {
 		}
 	}()
 	// SIMULATE SOME STATE
-	//gs.Map.Towers = append(gs.Map.Towers, models.NewTower(global.GlobalTowers["#e0983a"], models.Point{300, 350}, gs.Map.Path))
+	// gs.Map.Towers = append(gs.Map.Towers, models.NewTower(global.GlobalTowers["#e0983a"], models.Point{300, 350}, gs.Map.Path))
 
 	log.Println("Starting game...")
 	if err := ebiten.RunGame(game); err != nil {

@@ -45,7 +45,6 @@ func ReadConfigs[T any](dirName, ext string) ([]T, error) {
 
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}

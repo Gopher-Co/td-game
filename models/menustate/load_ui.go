@@ -52,7 +52,7 @@ func (m *MenuState) loadMainMenuUI(widgets general.Widgets) *ebitenui.UI {
 				Bottom: 0,
 			}),
 		)),
-		//widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(colornames.Red)),
+		// widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(colornames.Red)),
 	)
 
 	logoImage := widget.NewGraphic(
@@ -180,7 +180,7 @@ func (m *MenuState) loadScrollingLevels(_ general.Widgets) *widget.Container {
 	sort.Strings(levels)
 	ttf72 := loaders.FontTrueType(72)
 	ttf36 := loaders.FontTrueType(36)
-	//blackImg := image.NewNineSliceColor(color.Black)
+	// blackImg := image.NewNineSliceColor(color.Black)
 	for _, k := range levels {
 		k := k
 
@@ -235,7 +235,7 @@ func (m *MenuState) loadScrollingLevels(_ general.Widgets) *widget.Container {
 		widget.SliderOpts.Direction(widget.DirectionHorizontal),
 		widget.SliderOpts.MinMax(0, 100),
 		widget.SliderOpts.PageSizeFunc(pageSizeFunc),
-		//On change update scroll location based on the Slider's value
+		// On change update scroll location based on the Slider's value
 		widget.SliderOpts.ChangedHandler(func(args *widget.SliderChangedEventArgs) {
 			scrollContainer.ScrollLeft = float64(args.Slider.Current) / 100
 		}),

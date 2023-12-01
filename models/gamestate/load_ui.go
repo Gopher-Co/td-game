@@ -193,5 +193,5 @@ func (s *GameState) updateTowerUI(t *ingame.Tower) {
 		}
 	}
 
-	//sell := menuCont[3].(*widget.Container)
+	// sell := menuCont[3].(*widget.Container)
 }

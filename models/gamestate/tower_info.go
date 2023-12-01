@@ -84,11 +84,7 @@ func (s *GameState) upgradesContainer(ctx context.Context, widgets general.Widge
 		}),
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(0, 100)),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			t := s.chosenTower
-			if t.Upgrade(map[int]struct{}{1: {}}) {
-				price := t.Upgrades[t.UpgradesBought-1].Price
-				s.PlayerMapState.Money -= price
-			}
+			s.upgradeTowerHandler()
 			checkBlock()
 		}),
 	)
@@ -219,7 +215,7 @@ func (s *GameState) tuningContainer(ctx context.Context, widgets general.Widgets
 			btn := args.Button
 
 			if s.chosenTower.State.IsTurnedOn {
-				s.chosenTower.State.IsTurnedOn = false
+				s.turnOffTowerHandler()
 				btn.Text().Label = "OFF"
 				btn.Image = &widget.ButtonImage{
 					Idle: image2.NewNineSliceColor(colornames.Indianred),
@@ -227,7 +223,7 @@ func (s *GameState) tuningContainer(ctx context.Context, widgets general.Widgets
 				return
 			}
 
-			s.chosenTower.State.IsTurnedOn = true
+			s.turnOnTowerHandler()
 			btn.Text().Label = "ON"
 			btn.Image = &widget.ButtonImage{
 				Idle: image2.NewNineSliceColor(colornames.Lawngreen),
@@ -271,7 +267,7 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 			Pressed: image2.NewNineSliceColor(color.RGBA{0x6a, 0x16, 0xc2, 0xff}),
 		}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			s.chosenTower.State.AimType = ingame.First
+			s.tuneFirstTowerHandler()
 		}),
 	)
 
@@ -295,7 +291,7 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 			Pressed: image2.NewNineSliceColor(color.RGBA{0x6a, 0x16, 0xc2, 0xff}),
 		}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			s.chosenTower.State.AimType = ingame.Strongest
+			s.tuneStrongTowerHandler()
 		}),
 	)
 
@@ -319,7 +315,7 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 			Pressed: image2.NewNineSliceColor(color.RGBA{0x6a, 0x16, 0xc2, 0xff}),
 		}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			s.chosenTower.State.AimType = ingame.Weakest
+			s.tuneWeakTowerHandler()
 		}),
 	)
 
@@ -373,18 +369,8 @@ func (s *GameState) sellContainer(widgets general.Widgets) *widget.Container {
 			Idle: color.White,
 		}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			t := s.chosenTower
-			p := t.Price
-			for i := 0; i < t.UpgradesBought; i++ {
-				p += t.Upgrades[i].Price
-			}
-
-			p = p * 4 / 5
-			s.PlayerMapState.Money += p
-
-			t.Sold = true
+			s.sellTowerHandler()
 			s.showTowerMenu()
-			s.chosenTower = nil
 		}),
 		widget.ButtonOpts.TextPadding(widget.Insets{Top: 10, Bottom: 10}),
 	)

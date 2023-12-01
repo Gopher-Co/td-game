@@ -1,7 +1,7 @@
 package replay_test
 
 import (
-	"encoding/json"
+	"bytes"
 	"reflect"
 	"testing"
 
@@ -9,7 +9,7 @@ import (
 )
 
 func TestActions(t *testing.T) {
-	rep := replay.Replay{Actions: []replay.Action{
+	rep := replay.Watcher{Actions: []replay.Action{
 		{
 			F:    1,
 			Type: replay.PutTower,
@@ -33,14 +33,13 @@ func TestActions(t *testing.T) {
 		},
 	}}
 
-	var err error
-	var b []byte
-	if b, err = json.Marshal(rep); err != nil {
+	buf := new(bytes.Buffer)
+	if err := rep.Write(buf); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	actualRep := replay.Replay{[]replay.Action{{Info: replay.InfoPutTower{}}, {Info: replay.InfoSellTower{}}}}
-	if err := json.Unmarshal(b, &actualRep); err != nil {
+	actualRep := replay.Watcher{}
+	if err := actualRep.Read(buf); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 

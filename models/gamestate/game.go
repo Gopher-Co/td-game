@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"log"
+	"os"
 	"runtime"
 	"slices"
+	"time"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -17,6 +20,7 @@ import (
 	"github.com/gopher-co/td-game/models/config"
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/models/ingame"
+	"github.com/gopher-co/td-game/replay"
 )
 
 // CurrentState is an enum that represents the current state of the game.
@@ -72,6 +76,8 @@ type GameState struct {
 	speedUp bool
 
 	cancel context.CancelFunc
+
+	rw *replay.Watcher
 }
 
 // New creates a new entity of GameState.
@@ -93,6 +99,7 @@ func New(
 			Health: 100,
 			Money:  650,
 		},
+		rw: &replay.Watcher{Actions: make([]replay.Action, 0, 2500)},
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -112,53 +119,28 @@ func (s *GameState) Update() error {
 		return nil
 	}
 
+	s.Time++
+
 	// if clicked on tower
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
-		x, _ := ebiten.CursorPosition()
-		if x <= 1500 {
-			ts := slices.Clone(s.Map.Towers)
-			slices.Reverse(ts)
-			b := true
-			for _, t := range ts {
-				if b && t.IsClicked() {
-					t.Chosen = true
-					s.chosenTower = t
-					b = !b
-					s.updateTowerUI(t)
-					s.showTowerInfoMenu()
-				} else {
-					t.Chosen = false
-				}
-			}
-			if b {
-				s.showTowerMenu()
-			}
-		}
+		s.rightSidebarHandle()
 	}
-
-	s.UI.Update()
 
 	// put tower on the map
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) && s.tookTower != nil {
-		x, y := ebiten.CursorPosition()
-		pos := general.Point{general.Coord(x), general.Coord(y)}
-
-		if x < 1500 && s.PlayerMapState.Money >= s.tookTower.Price {
-			if t := ingame.NewTower(s.tookTower, pos, s.Map.Path); t != nil {
-				s.PlayerMapState.Money -= s.tookTower.Price
-				s.tookTower = nil
-				s.Map.Towers = append(s.Map.Towers, t)
-			}
-		}
+		s.putTowerHandler()
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton2) {
 		s.tookTower = nil
 	}
+
+	s.UI.Update()
 
 	if s.State == NextWaveReady {
 		return nil
 	}
 
 	s.Map.Update()
+
 	wave := s.GameRule[s.CurrentWave]
 	if wave.Ended() && !s.Map.AreThereAliveEnemies() {
 		s.setStateAfterWave()
@@ -168,6 +150,7 @@ func (s *GameState) Update() error {
 		}
 		return nil
 	}
+
 	s.updateRunning(wave)
 
 	return nil
@@ -203,16 +186,29 @@ func (s *GameState) setStateAfterWave() {
 }
 
 func (s *GameState) setStateAfterEnd() {
+	defer runtime.GC()
+
+	ebiten.SetTPS(60)
 	c := s.UI.Container.Children()
 	for k := range c {
 		c[k] = nil
 	}
+
 	s.UI.Container = nil
 	s.UI = nil
 	s.cancel()
 	s.cancel = nil
-	ebiten.SetTPS(60)
-	runtime.GC()
+
+	f, err := os.OpenFile("./Replays/replay_"+time.Now().Truncate(0).Format("2006-01-02T15_04_05")+".json", os.O_CREATE|os.O_WRONLY|os.O_SYNC, 0o666)
+	if err != nil {
+		log.Println("replay file wasn't created:", err)
+		return
+	}
+
+	if err := s.rw.Write(f); err != nil {
+		log.Println("couldn't save replay:", err)
+		return
+	}
 }
 
 func (s *GameState) updateRunning(wave *ingame.Wave) {
@@ -246,4 +242,137 @@ func (s *GameState) drawTookImageBeforeCursor(screen *ebiten.Image) {
 	geom := ebiten.GeoM{}
 	geom.Translate(float64(cx-ix/2), float64(cy-iy/2))
 	screen.DrawImage(img, &ebiten.DrawImageOptions{GeoM: geom})
+}
+
+func (s *GameState) rightSidebarHandle() {
+	x, _ := ebiten.CursorPosition()
+	if x <= 1500 {
+		ts := slices.Clone(s.Map.Towers)
+		slices.Reverse(ts)
+		b := true
+		for _, t := range ts {
+			if b && t.IsClicked() {
+				t.Chosen = true
+				s.chosenTower = t
+				b = !b
+				s.updateTowerUI(t)
+				s.showTowerInfoMenu()
+			} else {
+				t.Chosen = false
+			}
+		}
+		if b {
+			s.showTowerMenu()
+		}
+	}
+}
+
+func (s *GameState) putTowerHandler() bool {
+	tt := s.tookTower
+	s.tookTower = nil
+
+	x, y := ebiten.CursorPosition()
+	pos := general.Point{general.Coord(x), general.Coord(y)}
+
+	if x < 1500 && s.PlayerMapState.Money >= tt.Price {
+		if t := ingame.NewTower(tt, pos, s.Map.Path); t != nil {
+			s.PlayerMapState.Money -= tt.Price
+			s.Map.Towers = append(s.Map.Towers, t)
+
+			s.rw.Append(s.Time, replay.PutTower, replay.InfoPutTower{
+				Name: tt.Name,
+				X:    x,
+				Y:    y,
+			})
+
+			return true
+		}
+	}
+	return false
+}
+
+func (s *GameState) sellTowerHandler() {
+	t := s.chosenTower
+	p := t.Price
+	for i := 0; i < t.UpgradesBought; i++ {
+		p += t.Upgrades[i].Price
+	}
+
+	p = p * 7 / 10
+	s.PlayerMapState.Money += p
+
+	t.Sold = true
+	s.chosenTower = nil
+
+	s.rw.Append(s.Time, replay.SellTower, replay.InfoSellTower{
+		Index: s.findTowerIndex(t),
+	})
+}
+
+func (s *GameState) upgradeTowerHandler() {
+	t := s.chosenTower
+	if !t.Upgrade(map[int]struct{}{1: {}}) {
+		return
+	}
+
+	price := t.Upgrades[t.UpgradesBought-1].Price
+	s.PlayerMapState.Money -= price
+
+	s.rw.Append(s.Time, replay.UpgradeTower, replay.InfoUpgradeTower{
+		Index: s.findTowerIndex(t),
+	})
+}
+
+func (s *GameState) turnOnTowerHandler() {
+	t := s.chosenTower
+	t.State.IsTurnedOn = true
+
+	s.rw.Append(s.Time, replay.TurnOn, replay.InfoTurnOnTower{
+		Index: s.findTowerIndex(t),
+	})
+}
+
+func (s *GameState) turnOffTowerHandler() {
+	t := s.chosenTower
+	t.State.IsTurnedOn = false
+
+	s.rw.Append(s.Time, replay.TurnOff, replay.InfoTurnOffTower{
+		Index: s.findTowerIndex(t),
+	})
+}
+
+func (s *GameState) tuneFirstTowerHandler() {
+	t := s.chosenTower
+	t.State.AimType = ingame.First
+
+	s.rw.Append(s.Time, replay.TuneFirst, replay.InfoTuneFirst{
+		Index: s.findTowerIndex(t),
+	})
+}
+
+func (s *GameState) tuneStrongTowerHandler() {
+	t := s.chosenTower
+	t.State.AimType = ingame.Strongest
+
+	s.rw.Append(s.Time, replay.TuneStrong, replay.InfoTuneStrong{
+		Index: s.findTowerIndex(t),
+	})
+}
+
+func (s *GameState) tuneWeakTowerHandler() {
+	t := s.chosenTower
+	t.State.AimType = ingame.Weakest
+
+	s.rw.Append(s.Time, replay.TuneWeak, replay.InfoTuneWeak{
+		Index: s.findTowerIndex(t),
+	})
+}
+
+func (s *GameState) findTowerIndex(t *ingame.Tower) int {
+	for k, v := range s.Map.Towers {
+		if v == t {
+			return k
+		}
+	}
+	return -1
 }

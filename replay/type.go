@@ -3,6 +3,7 @@ package replay
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"strconv"
 
 	"github.com/gopher-co/td-game/models/general"
@@ -106,9 +107,9 @@ func (a *Action) UnmarshalJSON(b []byte) error {
 }
 
 type InfoPutTower struct {
-	Name string        `json:"name"`
-	X    general.Coord `json:"x"`
-	Y    general.Coord `json:"y"`
+	Name string `json:"name"`
+	X    int    `json:"x"`
+	Y    int    `json:"y"`
 }
 
 type InfoSellTower struct {
@@ -139,6 +140,24 @@ type InfoTuneWeak struct {
 	Index int `json:"index"`
 }
 
-type Replay struct {
+type Watcher struct {
 	Actions []Action `json:"actions"`
+}
+
+func (wt *Watcher) Append(f general.Frames, at ActionType, info any) {
+	wt.Actions = append(wt.Actions, Action{
+		F:    f,
+		Type: at,
+		Info: info,
+	})
+}
+
+func (wt *Watcher) Write(w io.Writer) error {
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "\t")
+	return enc.Encode(*wt)
+}
+
+func (wt *Watcher) Read(r io.Reader) error {
+	return json.NewDecoder(r).Decode(wt)
 }
