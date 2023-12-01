@@ -1,15 +1,14 @@
 package menustate
 
 import (
+	"fmt"
 	"image/color"
 	"math"
-	"os"
 	"sort"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/colornames"
 
 	"github.com/gopher-co/td-game/models/general"
@@ -17,120 +16,7 @@ import (
 	"github.com/gopher-co/td-game/ui/loaders"
 )
 
-// loadMainMenuUI loads the main menu UI.
-func (m *MenuState) loadMainMenuUI(widgets general.Widgets) *ebitenui.UI {
-	mainMenuImg := widgets[ui.MenuMainImage]
-	bgImg := widgets[ui.MenuBackgroundImage]
-
-	img := ebiten.NewImage(1280, 720)
-	geom := ebiten.GeoM{}
-	geom.Scale(1280./float64(mainMenuImg.Bounds().Dx()), 720./float64(mainMenuImg.Bounds().Dy()))
-	img.DrawImage(widgets[ui.MenuMainImage], &ebiten.DrawImageOptions{GeoM: geom})
-
-	menuBackground := image.NewNineSliceSimple(bgImg, 0, 1)
-
-	root := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(2),
-			widget.GridLayoutOpts.Stretch([]bool{false, true}, []bool{true}),
-			widget.GridLayoutOpts.Spacing(0, 0),
-		)),
-		widget.ContainerOpts.BackgroundImage(menuBackground),
-	)
-
-	buttons := m.btn(widgets)
-
-	logo := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(1),
-			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false}),
-			widget.GridLayoutOpts.Padding(widget.Insets{
-				Top:    250,
-				Left:   0,
-				Right:  0,
-				Bottom: 0,
-			}),
-		)),
-	)
-
-	logoImage := widget.NewGraphic(
-		widget.GraphicOpts.Image(img),
-		widget.GraphicOpts.WidgetOpts(widget.WidgetOpts.LayoutData(
-			widget.GridLayoutData{
-				HorizontalPosition: widget.GridLayoutPositionCenter,
-			},
-		)),
-	)
-	logo.AddChild(logoImage)
-	root.AddChild(buttons)
-	root.AddChild(logo)
-
-	return &ebitenui.UI{Container: root}
-}
-
-// btn returns the buttons.
-func (m *MenuState) btn(widgets general.Widgets) *widget.Container {
-	buttons := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(1),
-			widget.GridLayoutOpts.Padding(widget.Insets{
-				Top:    50,
-				Left:   10,
-				Right:  10,
-				Bottom: 0,
-			}),
-			widget.GridLayoutOpts.Spacing(0, 50),
-			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, false, false}),
-		)),
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceSimple(widgets[ui.MenuLeftSidebarImage], 0, 1)),
-	)
-
-	fnt := loaders.FontTrueType(72)
-
-	text := widget.NewText(
-		widget.TextOpts.Text("Go Build,\nGo Defend!", fnt, color.White),
-	)
-
-	btn1 := widget.NewButton(
-		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(600, 100)),
-		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle: image.NewNineSliceSimple(widgets[ui.MenuButtonPlayImage], 0, 1),
-		}),
-		widget.ButtonOpts.Text("PLAY!", fnt, &widget.ButtonTextColor{Idle: color.White}),
-		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
-			m.UI = m.loadLevelMenuUI(widgets)
-		}),
-	)
-	btn2 := widget.NewButton(
-		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(600, 100)),
-		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle: image.NewNineSliceSimple(widgets[ui.MenuButtonReplaysImage], 0, 1),
-		}),
-		widget.ButtonOpts.Text("Replays", fnt, &widget.ButtonTextColor{Idle: color.White}),
-		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
-			m.UI = m.loadReplaysMenuUI(widgets)
-		}),
-	)
-	btn3 := widget.NewButton(
-		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(600, 100)),
-		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle: image.NewNineSliceSimple(widgets[ui.MenuButtonExitImage], 0, 1),
-		}),
-		widget.ButtonOpts.Text("Exit", fnt, &widget.ButtonTextColor{Idle: color.White}),
-		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
-			os.Exit(0)
-		}),
-	)
-
-	buttons.AddChild(text)
-	buttons.AddChild(btn1)
-	buttons.AddChild(btn2)
-	buttons.AddChild(btn3)
-	return buttons
-}
-
-// loadLevelMenuUI loads the level menu UI.
-func (m *MenuState) loadLevelMenuUI(widgets general.Widgets) *ebitenui.UI {
+func (m *MenuState) loadReplaysMenuUI(widgets general.Widgets) *ebitenui.UI {
 	bgImg := widgets[ui.MenuBackgroundImage]
 	menuBackground := image.NewNineSliceSimple(bgImg, 0, 1)
 
@@ -152,13 +38,12 @@ func (m *MenuState) loadLevelMenuUI(widgets general.Widgets) *ebitenui.UI {
 	)
 
 	root.AddChild(backBtn)
-	root.AddChild(m.loadScrollingLevels(widgets))
+	root.AddChild(m.loadScrollingReplays(widgets))
 
 	return &ebitenui.UI{Container: root}
 }
 
-// loadScrollingLevels loads the scrolling levels.
-func (m *MenuState) loadScrollingLevels(_ general.Widgets) *widget.Container {
+func (m *MenuState) loadScrollingReplays(_ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -181,8 +66,8 @@ func (m *MenuState) loadScrollingLevels(_ general.Widgets) *widget.Container {
 	ttf72 := loaders.FontTrueType(72)
 	ttf36 := loaders.FontTrueType(36)
 	// blackImg := image.NewNineSliceColor(color.Black)
-	for _, k := range levels {
-		k := k
+	for k, v := range m.Replays {
+		v := v
 
 		cont := widget.NewContainer(
 			widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.MinSize(400, 900)),
@@ -192,21 +77,21 @@ func (m *MenuState) loadScrollingLevels(_ general.Widgets) *widget.Container {
 			)),
 		)
 		text1 := widget.NewText(
-			widget.TextOpts.Text("aboba", ttf72, color.White),
+			widget.TextOpts.Text("Replay", ttf72, color.White),
 		)
 		text2 := widget.NewText(
 			widget.TextOpts.MaxWidth(400),
-			widget.TextOpts.Text(m.Levels[k].LevelName, ttf36, color.White),
+			widget.TextOpts.Text(fmt.Sprintf("Level: %s\nTimestamp: %s", v.Name, v.Time), ttf36, color.White),
 		)
 		btn := widget.NewButton(
 			widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(colornames.Beige)}),
-			widget.ButtonOpts.Text("Play", ttf72, &widget.ButtonTextColor{Idle: color.Black}),
+			widget.ButtonOpts.Text("Watch", ttf72, &widget.ButtonTextColor{Idle: color.Black}),
 			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{
 				VerticalPosition: widget.GridLayoutPositionEnd,
 			})),
 			widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 				m.Ended = true
-				m.Next = k
+				m.NextReplay = k
 			}),
 		)
 

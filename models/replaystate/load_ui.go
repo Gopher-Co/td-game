@@ -1,4 +1,4 @@
-package gamestate
+package replaystate
 
 import (
 	"context"
@@ -13,12 +13,10 @@ import (
 	"golang.org/x/image/colornames"
 
 	"github.com/gopher-co/td-game/models/general"
-	"github.com/gopher-co/td-game/models/ingame"
 	"github.com/gopher-co/td-game/ui/loaders"
 )
 
-// loadGameUI loads UI of the game.
-func (s *GameState) loadGameUI(ctx context.Context, widgets general.Widgets) *ebitenui.UI {
+func (r *ReplayState) loadUI(ctx context.Context, widgets general.Widgets) *ebitenui.UI {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(2),
@@ -26,9 +24,9 @@ func (s *GameState) loadGameUI(ctx context.Context, widgets general.Widgets) *eb
 		)),
 	)
 
-	mapContainer := s.loadMapContainer(ctx, widgets)
+	mapContainer := r.loadMapContainer(ctx, widgets)
 
-	towerMenuContainer := s.loadTowerMenuContainer(ctx, widgets)
+	towerMenuContainer := r.loadTowerMenuContainer(ctx, widgets)
 
 	root.AddChild(mapContainer)
 	root.AddChild(towerMenuContainer)
@@ -36,7 +34,7 @@ func (s *GameState) loadGameUI(ctx context.Context, widgets general.Widgets) *eb
 	return &ebitenui.UI{Container: root}
 }
 
-func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+func (r *ReplayState) loadMapContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
 	mapContainer := widget.NewContainer(
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.MinSize(1500, 0)),
 		widget.ContainerOpts.Layout(widget.NewStackedLayout()),
@@ -71,11 +69,11 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 				return
 			}
 			<-t.C
-			if s.CurrentWave < 0 || s.CurrentWave >= len(s.GameRule) {
+			if r.CurrentWave < 0 || r.CurrentWave >= len(r.GameRule) {
 				waveText.Label = ""
 				continue
 			}
-			waveText.Label = fmt.Sprintf("Wave: %d/%d", s.CurrentWave+1, len(s.GameRule))
+			waveText.Label = fmt.Sprintf("Wave: %d/%d", r.CurrentWave+1, len(r.GameRule))
 		}
 	}()
 
@@ -93,7 +91,7 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 		}),
 		widget.ButtonOpts.Text("| |", loaders.FontTrueType(70), &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
-			s.State = Paused
+			r.State = Paused
 		}),
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 			HorizontalPosition: widget.AnchorLayoutPositionEnd,
@@ -111,9 +109,9 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 		}),
 		widget.ButtonOpts.Text(">>", loaders.FontTrueType(60), &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
-			if s.speedUp {
+			if r.speedUp {
 				ebiten.SetTPS(60)
-				s.speedUp = false
+				r.speedUp = false
 				speedButton.Image = &widget.ButtonImage{
 					Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
 				}
@@ -121,7 +119,7 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 			}
 
 			ebiten.SetTPS(180)
-			s.speedUp = true
+			r.speedUp = true
 			speedButton.Image = &widget.ButtonImage{
 				Idle: image2.NewNineSliceColor(colornames.Greenyellow),
 			}
@@ -142,54 +140,69 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 	return mapContainer
 }
 
-var cMenu, cInfo *widget.Container
+func (r *ReplayState) loadTowerMenuContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+	root := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true}),
+		)),
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{})),
+		widget.ContainerOpts.BackgroundImage(image2.NewNineSliceColor(colornames.Blueviolet)),
+	)
+	ttf := loaders.FontTrueType(40)
+	health := widget.NewText(
+		widget.TextOpts.Text(fmt.Sprintf("Health: %d", r.PlayerMapState.Health), ttf, color.White),
+		widget.TextOpts.Insets(widget.Insets{
+			Top:    0,
+			Left:   10,
+			Right:  0,
+			Bottom: 0,
+		}),
+	)
+	go func() {
+		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+			}
 
-func (s *GameState) showTowerMenu() {
-	menu := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container)
-	menu.RemoveChildren()
-	menu.AddChild(cMenu)
-}
-
-func (s *GameState) showTowerInfoMenu() {
-	menu := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container)
-	menu.RemoveChildren()
-	menu.AddChild(cInfo)
-}
-
-func (s *GameState) updateTowerUI(t *ingame.Tower) {
-	menuCont := cInfo.Children()
-
-	info := menuCont[0].(*widget.Container)
-	text0 := info.Children()[0].(*widget.Text)
-	text0.Label = t.Name
-
-	upgrades := menuCont[1].(*widget.Container)
-	text1, btn := upgrades.Children()[0].(*widget.Text), upgrades.Children()[1].(*widget.Button)
-	text1.Label = fmt.Sprintf("Level %d", t.UpgradesBought+1)
-
-	if t.UpgradesBought >= len(t.Upgrades) {
-		btn.Text().Label = "SOLD OUT"
-	} else {
-		btn.Text().Label = fmt.Sprintf("UPGRADE ($%d)", t.Upgrades[t.UpgradesBought].Price)
-	}
-
-	if t.UpgradesBought >= len(t.Upgrades) || s.PlayerMapState.Money < t.Upgrades[t.UpgradesBought].Price {
-		btn.GetWidget().Disabled = true
-	} else {
-		btn.GetWidget().Disabled = false
-	}
-
-	tuning := menuCont[2].(*widget.Container)
-	turnButton := tuning.Children()[0].(*widget.Button)
-	if s.chosenTower.State.IsTurnedOn {
-		turnButton.Text().Label = "ON"
-		turnButton.Image = &widget.ButtonImage{
-			Idle: image2.NewNineSliceColor(colornames.Lawngreen),
+			health.Label = fmt.Sprintf("Health: %d", r.PlayerMapState.Health)
 		}
-	} else {
-		turnButton.Text().Label = "OFF"
-		turnButton.Image = &widget.ButtonImage{
-			Idle: image2.NewNineSliceColor(colornames.Indianred),
+	}()
+
+	money := widget.NewText(
+		widget.TextOpts.Text(fmt.Sprintf("Money: %d", r.PlayerMapState.Money), ttf, color.White),
+		widget.TextOpts.Insets(widget.Insets{
+			Top:    0,
+			Left:   10,
+			Right:  0,
+			Bottom: 0,
+		}),
+	)
+
+	go func() {
+		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+			}
+
+			money.Label = fmt.Sprintf("Money: %d", r.PlayerMapState.Money)
 		}
-	}
+	}()
+
+	// menu on the right side
+	menu := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewStackedLayout()),
+	)
+
+	root.AddChild(health)
+	root.AddChild(money)
+	root.AddChild(menu)
+
+	return root
 }

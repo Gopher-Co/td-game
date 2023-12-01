@@ -151,10 +151,12 @@ func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.
 	go func() {
 		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
 		for {
-			if ctx.Err() != nil {
+			select {
+			case <-ctx.Done():
 				return
+			case <-ticker.C:
 			}
-			<-ticker.C
+
 			health.Label = fmt.Sprintf("Health: %d", s.PlayerMapState.Health)
 		}
 	}()
@@ -172,10 +174,12 @@ func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.
 	go func() {
 		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
 		for {
-			if ctx.Err() != nil {
+			select {
+			case <-ctx.Done():
 				return
+			case <-ticker.C:
 			}
-			<-ticker.C
+
 			money.Label = fmt.Sprintf("Money: %d", s.PlayerMapState.Money)
 		}
 	}()

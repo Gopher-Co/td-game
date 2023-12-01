@@ -2,7 +2,6 @@ package gamestate
 
 import (
 	"context"
-	"fmt"
 	"image"
 	"image/color"
 	"log"
@@ -13,7 +12,6 @@ import (
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 
@@ -77,7 +75,7 @@ type GameState struct {
 
 	cancel context.CancelFunc
 
-	rw *replay.Watcher
+	Watcher *replay.Watcher
 }
 
 // New creates a new entity of GameState.
@@ -99,7 +97,14 @@ func New(
 			Health: 100,
 			Money:  650,
 		},
-		rw: &replay.Watcher{Actions: make([]replay.Action, 0, 2500)},
+		Watcher: &replay.Watcher{
+			Name: config.LevelName,
+			InitPlayerMapState: ingame.PlayerMapState{
+				Health: 100,
+				Money:  650,
+			},
+			Actions: make([]replay.Action, 0, 2500),
+		},
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -128,7 +133,12 @@ func (s *GameState) Update() error {
 
 	// put tower on the map
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) && s.tookTower != nil {
-		s.putTowerHandler()
+		t := s.putTowerHandler(s.tookTower)
+		s.Watcher.Append(s.Time, replay.PutTower, replay.InfoPutTower{
+			Name: t.Name,
+			X:    int(t.State.Pos.X),
+			Y:    int(t.State.Pos.Y),
+		})
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton2) {
 		s.tookTower = nil
 	}
@@ -166,11 +176,9 @@ func (s *GameState) Draw(screen *ebiten.Image) {
 	if s.Ended == true {
 		return
 	}
+
 	subScreen := screen.SubImage(image.Rect(0, 0, 1500, 1080))
 	s.Map.Draw(subScreen.(*ebiten.Image))
-	if s.CurrentWave >= 0 {
-		ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Wave %d", s.CurrentWave+1), 0, 1900)
-	}
 
 	if s.tookTower != nil {
 		s.drawTookImageBeforeCursor(screen)
@@ -199,13 +207,22 @@ func (s *GameState) setStateAfterEnd() {
 	s.cancel()
 	s.cancel = nil
 
-	f, err := os.OpenFile("./Replays/replay_"+time.Now().Truncate(0).Format("2006-01-02T15_04_05")+".json", os.O_CREATE|os.O_WRONLY|os.O_SYNC, 0o666)
+	// replay save
+	s.Watcher.Append(s.Time, replay.Stop, replay.InfoStop{Null: nil})
+
+	timestamp := time.Now().Truncate(0).Format("2006-01-02T15_04_05")
+
+	f, err := os.OpenFile("./Replays/replay_"+timestamp+".json", os.O_CREATE|os.O_WRONLY|os.O_SYNC, 0o666)
 	if err != nil {
 		log.Println("replay file wasn't created:", err)
 		return
 	}
+	defer func() {
+		_ = f.Close()
+	}()
 
-	if err := s.rw.Write(f); err != nil {
+	s.Watcher.Time = timestamp
+	if err := s.Watcher.Write(f); err != nil {
 		log.Println("couldn't save replay:", err)
 		return
 	}
@@ -267,8 +284,7 @@ func (s *GameState) rightSidebarHandle() {
 	}
 }
 
-func (s *GameState) putTowerHandler() bool {
-	tt := s.tookTower
+func (s *GameState) putTowerHandler(tt *config.Tower) *ingame.Tower {
 	s.tookTower = nil
 
 	x, y := ebiten.CursorPosition()
@@ -279,20 +295,13 @@ func (s *GameState) putTowerHandler() bool {
 			s.PlayerMapState.Money -= tt.Price
 			s.Map.Towers = append(s.Map.Towers, t)
 
-			s.rw.Append(s.Time, replay.PutTower, replay.InfoPutTower{
-				Name: tt.Name,
-				X:    x,
-				Y:    y,
-			})
-
-			return true
+			return t
 		}
 	}
-	return false
+	return nil
 }
 
-func (s *GameState) sellTowerHandler() {
-	t := s.chosenTower
+func (s *GameState) sellTowerHandler(t *ingame.Tower) {
 	p := t.Price
 	for i := 0; i < t.UpgradesBought; i++ {
 		p += t.Upgrades[i].Price
@@ -303,69 +312,35 @@ func (s *GameState) sellTowerHandler() {
 
 	t.Sold = true
 	s.chosenTower = nil
-
-	s.rw.Append(s.Time, replay.SellTower, replay.InfoSellTower{
-		Index: s.findTowerIndex(t),
-	})
 }
 
-func (s *GameState) upgradeTowerHandler() {
-	t := s.chosenTower
+func (s *GameState) upgradeTowerHandler(t *ingame.Tower) {
 	if !t.Upgrade(map[int]struct{}{1: {}}) {
 		return
 	}
 
 	price := t.Upgrades[t.UpgradesBought-1].Price
 	s.PlayerMapState.Money -= price
-
-	s.rw.Append(s.Time, replay.UpgradeTower, replay.InfoUpgradeTower{
-		Index: s.findTowerIndex(t),
-	})
 }
 
-func (s *GameState) turnOnTowerHandler() {
-	t := s.chosenTower
+func (s *GameState) turnOnTowerHandler(t *ingame.Tower) {
 	t.State.IsTurnedOn = true
-
-	s.rw.Append(s.Time, replay.TurnOn, replay.InfoTurnOnTower{
-		Index: s.findTowerIndex(t),
-	})
 }
 
-func (s *GameState) turnOffTowerHandler() {
-	t := s.chosenTower
+func (s *GameState) turnOffTowerHandler(t *ingame.Tower) {
 	t.State.IsTurnedOn = false
-
-	s.rw.Append(s.Time, replay.TurnOff, replay.InfoTurnOffTower{
-		Index: s.findTowerIndex(t),
-	})
 }
 
-func (s *GameState) tuneFirstTowerHandler() {
-	t := s.chosenTower
+func (s *GameState) tuneFirstTowerHandler(t *ingame.Tower) {
 	t.State.AimType = ingame.First
-
-	s.rw.Append(s.Time, replay.TuneFirst, replay.InfoTuneFirst{
-		Index: s.findTowerIndex(t),
-	})
 }
 
-func (s *GameState) tuneStrongTowerHandler() {
-	t := s.chosenTower
+func (s *GameState) tuneStrongTowerHandler(t *ingame.Tower) {
 	t.State.AimType = ingame.Strongest
-
-	s.rw.Append(s.Time, replay.TuneStrong, replay.InfoTuneStrong{
-		Index: s.findTowerIndex(t),
-	})
 }
 
-func (s *GameState) tuneWeakTowerHandler() {
-	t := s.chosenTower
+func (s *GameState) tuneWeakTowerHandler(t *ingame.Tower) {
 	t.State.AimType = ingame.Weakest
-
-	s.rw.Append(s.Time, replay.TuneWeak, replay.InfoTuneWeak{
-		Index: s.findTowerIndex(t),
-	})
 }
 
 func (s *GameState) findTowerIndex(t *ingame.Tower) int {

@@ -26,7 +26,7 @@ func ReadConfigs[T any](dirName, ext string) ([]T, error) {
 		}
 
 		if err != nil {
-			log.Fatalln("couldn't read tower file:", err)
+			log.Fatalln("couldn't read file:", err)
 		}
 		if filepath.Ext(path) != ext {
 			return nil

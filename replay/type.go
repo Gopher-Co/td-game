@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gopher-co/td-game/models/general"
+	"github.com/gopher-co/td-game/models/ingame"
 )
 
 type ActionType int
@@ -20,6 +21,7 @@ const (
 	TuneFirst
 	TuneStrong
 	TuneWeak
+	Stop
 )
 
 type Action struct {
@@ -99,6 +101,12 @@ func (a *Action) UnmarshalJSON(b []byte) error {
 			return err
 		}
 		a.Info = info
+	case Stop:
+		info := InfoStop{}
+		if err := json.Unmarshal(infob, &info); err != nil {
+			return err
+		}
+		a.Info = info
 	default:
 		return err
 	}
@@ -140,8 +148,15 @@ type InfoTuneWeak struct {
 	Index int `json:"index"`
 }
 
+type InfoStop struct {
+	Null any `json:"null"`
+}
+
 type Watcher struct {
-	Actions []Action `json:"actions"`
+	Name               string                `json:"name"`
+	Time               string                `json:"time"`
+	InitPlayerMapState ingame.PlayerMapState `json:"init_player_map_state"`
+	Actions            []Action              `json:"actions"`
 }
 
 func (wt *Watcher) Append(f general.Frames, at ActionType, info any) {
@@ -154,7 +169,6 @@ func (wt *Watcher) Append(f general.Frames, at ActionType, info any) {
 
 func (wt *Watcher) Write(w io.Writer) error {
 	enc := json.NewEncoder(w)
-	enc.SetIndent("", "\t")
 	return enc.Encode(*wt)
 }
 

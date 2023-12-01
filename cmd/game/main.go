@@ -2,8 +2,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"log"
+	"os"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -14,6 +17,7 @@ import (
 	"github.com/gopher-co/td-game/models/gamestate"
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/models/menustate"
+	"github.com/gopher-co/td-game/models/replaystate"
 	"github.com/gopher-co/td-game/ui"
 )
 
@@ -32,10 +36,21 @@ func (g *Game) Update() error {
 	if g.s.End() {
 		switch g.s.(type) {
 		case *gamestate.GameState:
-			g.s = menustate.New(Levels, general.Widgets(UI))
+			Replays = append(Replays, g.s.(*gamestate.GameState).Watcher)
+			g.s = menustate.New(Levels, Replays, general.Widgets(UI))
 		case *menustate.MenuState:
 			ms := g.s.(*menustate.MenuState)
-			g.s = gamestate.New(Levels[ms.Next], Maps, Enemies, Towers, general.Widgets(UI))
+			if ms.Next != "" {
+				g.s = gamestate.New(Levels[ms.Next], Maps, Enemies, Towers, general.Widgets(UI))
+				ms.Next = ""
+			} else if ms.NextReplay != -1 {
+				r := Replays[ms.NextReplay]
+				g.s = replaystate.New(r, Levels[r.Name], Maps, Towers, Enemies, general.Widgets(UI))
+				ms.NextReplay = -1
+			}
+			ms.Ended = false
+		case *replaystate.ReplayState:
+			g.s = menustate.New(Levels, Replays, general.Widgets(UI))
 		default:
 			panic(fmt.Sprintf("type %T must be handled", g.s))
 		}
@@ -43,10 +58,13 @@ func (g *Game) Update() error {
 	return g.s.Update()
 }
 
+var t = time.NewTicker(time.Second / 90)
+
 // Draw draws the game screen by one frame.
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.s.Draw(screen)
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %f\n FPS %f\n", ebiten.ActualTPS(), ebiten.ActualFPS()))
+	<-t.C
 }
 
 // Layout returns the game screen size.
@@ -112,10 +130,20 @@ func main() {
 		}
 	}
 
-	// LEVEL LOADING
-	game := &Game{s: menustate.New(Levels, general.Widgets(UI))}
+	if err := os.Mkdir("Replays", 0o777); err != nil && !errors.Is(err, fs.ErrExist) {
+		log.Fatalln("replays system is broken:", err)
+	}
 
-	// gs := models.New(global.GlobalLevels["Level 1"], global.GlobalMaps, global.GlobalEnemies, global.GlobalTowers, nil)
+	replays, err := io.LoadReplays()
+	if err != nil {
+		log.Fatalln("Replays not loaded:", err)
+	}
+	Replays = replays
+
+	// LEVEL LOADING
+	menu := menustate.New(Levels, Replays, general.Widgets(UI))
+	game := &Game{s: menu}
+
 	go func() {
 		for {
 			time.Sleep(time.Second)
@@ -131,7 +159,6 @@ func main() {
 		}
 	}()
 	// SIMULATE SOME STATE
-	// gs.Map.Towers = append(gs.Map.Towers, models.NewTower(global.GlobalTowers["#e0983a"], models.Point{300, 350}, gs.Map.Path))
 
 	log.Println("Starting game...")
 	if err := ebiten.RunGame(game); err != nil {

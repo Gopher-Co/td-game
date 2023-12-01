@@ -6,23 +6,28 @@ import (
 
 	"github.com/gopher-co/td-game/models/config"
 	"github.com/gopher-co/td-game/models/general"
+	"github.com/gopher-co/td-game/replay"
 )
 
 // MenuState is a struct that represents the state of the menu.
 type MenuState struct {
-	Levels map[string]*config.Level
-	Ended  bool
-	UI     *ebitenui.UI
-	Next   string
+	Replays    []*replay.Watcher
+	Levels     map[string]*config.Level
+	Ended      bool
+	UI         *ebitenui.UI
+	Next       string
+	NextReplay int
 }
 
 // New creates a new entity of MenuState.
-func New(configs map[string]*config.Level, widgets general.Widgets) *MenuState {
+func New(configs map[string]*config.Level, replays []*replay.Watcher, widgets general.Widgets) *MenuState {
 	ms := &MenuState{
-		Levels: configs,
-		Ended:  false,
-		UI:     nil,
-		Next:   "",
+		Levels:     configs,
+		Ended:      false,
+		UI:         nil,
+		Next:       "",
+		Replays:    replays,
+		NextReplay: -1,
 	}
 	ms.loadUI(widgets)
 
