@@ -36,6 +36,7 @@ const (
 
 // GameState is a struct that represents the state of the game.
 type GameState struct {
+	LevelName string
 	// Map is a map of the game.
 	Map *ingame.Map
 
@@ -47,6 +48,8 @@ type GameState struct {
 
 	// Ended is a flag that represents if the game is ended.
 	Ended bool
+
+	Win bool
 
 	// State is a current state of the game.
 	State CurrentState
@@ -86,6 +89,7 @@ func New(
 	w general.Widgets,
 ) *GameState {
 	gs := &GameState{
+		LevelName:   config.LevelName,
 		Map:         ingame.NewMap(maps[config.MapName]),
 		TowersToBuy: tw,
 		EnemyToCall: en,
@@ -123,8 +127,6 @@ func (s *GameState) Update() error {
 		return nil
 	}
 
-	s.Time++
-
 	// if clicked on tower
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
 		s.rightSidebarHandle()
@@ -147,14 +149,22 @@ func (s *GameState) Update() error {
 	if s.State == NextWaveReady {
 		return nil
 	}
+	s.Time++
 
 	s.Map.Update()
+
+	if s.PlayerMapState.Dead() {
+		s.Ended = true
+		s.setStateAfterEnd()
+		return nil
+	}
 
 	wave := s.GameRule[s.CurrentWave]
 	if wave.Ended() && !s.Map.AreThereAliveEnemies() {
 		s.setStateAfterWave()
 		if s.CurrentWave == len(s.GameRule)-1 {
 			s.Ended = true
+			s.Win = true
 			s.setStateAfterEnd()
 		}
 		return nil
@@ -211,7 +221,7 @@ func (s *GameState) setStateAfterEnd() {
 
 	timestamp := time.Now().Truncate(0).Format("2006-01-02T15_04_05")
 	s.Watcher.Time = timestamp
-	if err := replay.Save(timestamp, s.Watcher); err != nil {
+	if err := replay.Save("./Replays/replay_"+timestamp+".json", s.Watcher); err != nil {
 		log.Println("couldn't save replay:", err)
 		return
 	}

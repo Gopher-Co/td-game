@@ -6,6 +6,7 @@ import (
 
 	"github.com/gopher-co/td-game/models/config"
 	"github.com/gopher-co/td-game/models/general"
+	"github.com/gopher-co/td-game/models/ingame"
 	"github.com/gopher-co/td-game/replay"
 )
 
@@ -17,10 +18,11 @@ type MenuState struct {
 	UI         *ebitenui.UI
 	Next       string
 	NextReplay int
+	State      *ingame.PlayerState
 }
 
 // New creates a new entity of MenuState.
-func New(configs map[string]*config.Level, replays []*replay.Watcher, widgets general.Widgets) *MenuState {
+func New(state *ingame.PlayerState, configs map[string]*config.Level, replays []*replay.Watcher, widgets general.Widgets) *MenuState {
 	ms := &MenuState{
 		Levels:     configs,
 		Ended:      false,
@@ -28,6 +30,7 @@ func New(configs map[string]*config.Level, replays []*replay.Watcher, widgets ge
 		Next:       "",
 		Replays:    replays,
 		NextReplay: -1,
+		State:      state,
 	}
 	ms.loadUI(widgets)
 

@@ -36,8 +36,17 @@ func (g *Game) Update() error {
 	if g.s.End() {
 		switch g.s.(type) {
 		case *gamestate.GameState:
-			Replays = append(Replays, g.s.(*gamestate.GameState).Watcher)
-			g.s = menustate.New(Levels, Replays, general.Widgets(UI))
+			gs := g.s.(*gamestate.GameState)
+			Replays = append(Replays, gs.Watcher)
+			if gs.Win {
+				PlayerState.LevelsComplete[Levels[gs.LevelName].Order] = struct{}{}
+				go func() {
+					if err := io.SaveStats(PlayerState); err != nil {
+						log.Println("save unsuccessful")
+					}
+				}()
+			}
+			g.s = menustate.New(PlayerState, Levels, Replays, general.Widgets(UI))
 		case *menustate.MenuState:
 			ms := g.s.(*menustate.MenuState)
 			if ms.Next != "" {
@@ -50,7 +59,7 @@ func (g *Game) Update() error {
 			}
 			ms.Ended = false
 		case *replaystate.ReplayState:
-			g.s = menustate.New(Levels, Replays, general.Widgets(UI))
+			g.s = menustate.New(PlayerState, Levels, Replays, general.Widgets(UI))
 		default:
 			panic(fmt.Sprintf("type %T must be handled", g.s))
 		}
@@ -94,6 +103,7 @@ func main() {
 	}
 
 	for k := range lcfgs {
+		lcfgs[k].Order = k
 		Levels[lcfgs[k].LevelName] = &lcfgs[k]
 	}
 
@@ -140,8 +150,17 @@ func main() {
 	}
 	Replays = replays
 
+	PlayerState, err = io.LoadStats()
+	if err != nil {
+		log.Fatalln("Stats not loaded:", err)
+	}
+
+	if err := PlayerState.Valid(Levels); err != nil {
+		log.Fatalln("Invalid player stats:", err)
+	}
+	log.Println(PlayerState)
 	// LEVEL LOADING
-	menu := menustate.New(Levels, Replays, general.Widgets(UI))
+	menu := menustate.New(PlayerState, Levels, Replays, general.Widgets(UI))
 	game := &Game{s: menu}
 
 	go func() {

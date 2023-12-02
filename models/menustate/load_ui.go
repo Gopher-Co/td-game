@@ -1,6 +1,7 @@
 package menustate
 
 import (
+	"fmt"
 	"image/color"
 	"math"
 	"os"
@@ -134,14 +135,6 @@ func (m *MenuState) loadLevelMenuUI(widgets general.Widgets) *ebitenui.UI {
 	bgImg := widgets[ui.MenuBackgroundImage]
 	menuBackground := image.NewNineSliceSimple(bgImg, 0, 1)
 
-	backBtn := widget.NewButton(
-		widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(colornames.Aqua)}),
-		widget.ButtonOpts.Text("<", loaders.FontTrueType(128), &widget.ButtonTextColor{Idle: color.White}),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			m.UI = m.loadMainMenuUI(widgets)
-		}),
-	)
-
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -151,7 +144,42 @@ func (m *MenuState) loadLevelMenuUI(widgets general.Widgets) *ebitenui.UI {
 		widget.ContainerOpts.BackgroundImage(menuBackground),
 	)
 
-	root.AddChild(backBtn)
+	infoContainer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(2),
+			widget.GridLayoutOpts.Stretch([]bool{false, true}, []bool{true}),
+		)),
+	)
+
+	backBtn := widget.NewButton(
+		widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(colornames.Aqua)}),
+		widget.ButtonOpts.Text("<", loaders.FontTrueType(128), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
+			m.UI = m.loadMainMenuUI(widgets)
+		}),
+		widget.ButtonOpts.TextPadding(widget.Insets{
+			Left:  35,
+			Right: 35,
+		}),
+	)
+
+	text := ""
+	if len(m.State.LevelsComplete) == len(m.Levels) {
+		text = "YAYY! YOU'VE COMPLETED ALL THE LEVELS"
+	} else {
+		text = fmt.Sprintf("Completed %d/%d levels", len(m.State.LevelsComplete), len(m.Levels))
+	}
+
+	textCompleted := widget.NewText(
+		widget.TextOpts.Text(text, loaders.FontTrueType(64), color.White),
+		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
+		widget.TextOpts.ProcessBBCode(true),
+	)
+
+	infoContainer.AddChild(backBtn)
+	infoContainer.AddChild(textCompleted)
+
+	root.AddChild(infoContainer)
 	root.AddChild(m.loadScrollingLevels(widgets))
 
 	return &ebitenui.UI{Container: root}

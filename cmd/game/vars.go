@@ -24,4 +24,6 @@ var (
 	Enemies = make(map[string]*config.Enemy)
 
 	Replays []*replay.Watcher
+
+	PlayerState *ingame.PlayerState
 )
