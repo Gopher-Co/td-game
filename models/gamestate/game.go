@@ -5,7 +5,6 @@ import (
 	"image"
 	"image/color"
 	"log"
-	"os"
 	"runtime"
 	"slices"
 	"time"
@@ -211,18 +210,8 @@ func (s *GameState) setStateAfterEnd() {
 	s.Watcher.Append(s.Time, replay.Stop, replay.InfoStop{Null: nil})
 
 	timestamp := time.Now().Truncate(0).Format("2006-01-02T15_04_05")
-
-	f, err := os.OpenFile("./Replays/replay_"+timestamp+".json", os.O_CREATE|os.O_WRONLY|os.O_SYNC, 0o666)
-	if err != nil {
-		log.Println("replay file wasn't created:", err)
-		return
-	}
-	defer func() {
-		_ = f.Close()
-	}()
-
 	s.Watcher.Time = timestamp
-	if err := s.Watcher.Write(f); err != nil {
+	if err := replay.Save(timestamp, s.Watcher); err != nil {
 		log.Println("couldn't save replay:", err)
 		return
 	}
