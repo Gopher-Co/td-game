@@ -7,10 +7,10 @@ import (
 	"io/fs"
 	"log"
 	"os"
+	"runtime"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
 	"github.com/gopher-co/td-game/io"
@@ -20,6 +20,12 @@ import (
 	"github.com/gopher-co/td-game/models/replaystate"
 	"github.com/gopher-co/td-game/ui"
 )
+
+func printAlloc() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	fmt.Printf("%d KB\n", m.Alloc/1024)
+}
 
 // Game implements ebiten.Game interface.
 type Game struct {
@@ -39,8 +45,8 @@ func (g *Game) Update() error {
 			gs := g.s.(*gamestate.GameState)
 			Replays = append(Replays, gs.Watcher)
 			if gs.Win {
-				PlayerState.LevelsComplete[Levels[gs.LevelName].Order] = struct{}{}
 				go func() {
+					PlayerState.LevelsComplete[Levels[gs.LevelName].Order] = struct{}{}
 					if err := io.SaveStats(PlayerState); err != nil {
 						log.Println("save unsuccessful")
 					}
@@ -50,14 +56,11 @@ func (g *Game) Update() error {
 		case *menustate.MenuState:
 			ms := g.s.(*menustate.MenuState)
 			if ms.Next != "" {
-				g.s = gamestate.New(Levels[ms.Next], Maps, Enemies, Towers, general.Widgets(UI))
-				ms.Next = ""
+				g.s = gamestate.New(Levels[ms.Next], Maps, Enemies, Towers, PlayerState, general.Widgets(UI))
 			} else if ms.NextReplay != -1 {
 				r := Replays[ms.NextReplay]
 				g.s = replaystate.New(r, Levels[r.Name], Maps, Towers, Enemies, general.Widgets(UI))
-				ms.NextReplay = -1
 			}
-			ms.Ended = false
 		case *replaystate.ReplayState:
 			g.s = menustate.New(PlayerState, Levels, Replays, general.Widgets(UI))
 		default:
@@ -72,7 +75,6 @@ var t = time.NewTicker(time.Second / 90)
 // Draw draws the game screen by one frame.
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.s.Draw(screen)
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %f\n FPS %f\n", ebiten.ActualTPS(), ebiten.ActualFPS()))
 	<-t.C
 }
 
@@ -103,7 +105,7 @@ func main() {
 	}
 
 	for k := range lcfgs {
-		lcfgs[k].Order = k
+		lcfgs[k].Order = k + 1
 		Levels[lcfgs[k].LevelName] = &lcfgs[k]
 	}
 
@@ -158,26 +160,9 @@ func main() {
 	if err := PlayerState.Valid(Levels); err != nil {
 		log.Fatalln("Invalid player stats:", err)
 	}
-	log.Println(PlayerState)
 	// LEVEL LOADING
 	menu := menustate.New(PlayerState, Levels, Replays, general.Widgets(UI))
 	game := &Game{s: menu}
-
-	go func() {
-		for {
-			time.Sleep(time.Second)
-			if gs, ok := game.s.(*gamestate.GameState); ok {
-				switch gs.State {
-				case gamestate.NextWaveReady:
-					gs.CurrentWave++
-					fallthrough
-				case gamestate.Paused:
-					gs.State = gamestate.Running
-				}
-			}
-		}
-	}()
-	// SIMULATE SOME STATE
 
 	log.Println("Starting game...")
 	if err := ebiten.RunGame(game); err != nil {

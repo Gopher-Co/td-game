@@ -5,7 +5,6 @@ import (
 	"image"
 	"image/color"
 	"log"
-	"runtime"
 	"slices"
 	"time"
 
@@ -78,6 +77,8 @@ type GameState struct {
 	cancel context.CancelFunc
 
 	Watcher *replay.Watcher
+
+	PlayerState *ingame.PlayerState
 }
 
 // New creates a new entity of GameState.
@@ -86,6 +87,7 @@ func New(
 	maps map[string]*config.Map,
 	en map[string]*config.Enemy,
 	tw map[string]*config.Tower,
+	ps *ingame.PlayerState,
 	w general.Widgets,
 ) *GameState {
 	gs := &GameState{
@@ -108,6 +110,7 @@ func New(
 			},
 			Actions: make([]replay.Action, 0, 2500),
 		},
+		PlayerState: ps,
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -145,11 +148,13 @@ func (s *GameState) Update() error {
 	}
 
 	s.UI.Update()
+	if s.Ended {
+		return nil
+	}
 
 	if s.State == NextWaveReady {
 		return nil
 	}
-	s.Time++
 
 	s.Map.Update()
 
@@ -171,7 +176,7 @@ func (s *GameState) Update() error {
 	}
 
 	s.updateRunning(wave)
-
+	s.Time++
 	return nil
 }
 
@@ -202,19 +207,14 @@ func (s *GameState) setStateAfterWave() {
 	s.Map.Projectiles = []*ingame.Projectile{}
 }
 
-func (s *GameState) setStateAfterEnd() {
-	defer runtime.GC()
-
+func (s *GameState) clear() {
 	ebiten.SetTPS(60)
-	c := s.UI.Container.Children()
-	for k := range c {
-		c[k] = nil
-	}
-
-	s.UI.Container = nil
-	s.UI = nil
 	s.cancel()
 	s.cancel = nil
+}
+
+func (s *GameState) setStateAfterEnd() {
+	s.clear()
 
 	// replay save
 	s.Watcher.Append(s.Time, replay.Stop, replay.InfoStop{Null: nil})
@@ -314,7 +314,7 @@ func (s *GameState) sellTowerHandler(t *ingame.Tower) {
 }
 
 func (s *GameState) upgradeTowerHandler(t *ingame.Tower) {
-	if !t.Upgrade(map[int]struct{}{1: {}}) {
+	if !t.Upgrade(s.PlayerState.LevelsComplete) {
 		return
 	}
 

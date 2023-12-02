@@ -89,9 +89,10 @@ func (r *ReplayState) loadMapContainer(ctx context.Context, widgets general.Widg
 			Right:  10,
 			Bottom: 5,
 		}),
-		widget.ButtonOpts.Text("| |", loaders.FontTrueType(70), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text("Menu", loaders.FontTrueType(70), &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
-			r.State = Paused
+			r.setStateAfterEnd()
+			r.Ended = true
 		}),
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 			HorizontalPosition: widget.AnchorLayoutPositionEnd,

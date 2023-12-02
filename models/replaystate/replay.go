@@ -4,7 +4,6 @@ import (
 	"context"
 	"image"
 	"log"
-	"runtime"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -107,7 +106,6 @@ func (r *ReplayState) Update() error {
 	if r.State == Paused {
 		return nil
 	}
-	r.Time++
 
 	r.Action()
 
@@ -126,7 +124,7 @@ func (r *ReplayState) Update() error {
 	}
 
 	r.updateRunning(wave)
-
+	r.Time++
 	return nil
 }
 
@@ -138,16 +136,7 @@ func (r *ReplayState) setStateAfterWave() {
 }
 
 func (r *ReplayState) setStateAfterEnd() {
-	defer runtime.GC()
-
 	ebiten.SetTPS(60)
-	c := r.UI.Container.Children()
-	for k := range c {
-		c[k] = nil
-	}
-
-	r.UI.Container = nil
-	r.UI = nil
 	r.cancel()
 	r.cancel = nil
 }
@@ -175,27 +164,29 @@ func (r *ReplayState) End() bool {
 }
 
 func (r *ReplayState) Action() {
-	action := r.rw.Actions[r.currAction]
-	if r.Time != action.F {
-		return
+	for {
+		action := r.rw.Actions[r.currAction]
+		if r.Time != action.F {
+			return
+		}
+
+		switch action.Type {
+		case replay.PutTower:
+			info := action.Info.(replay.InfoPutTower)
+			t := r.TowerToBuy[info.Name]
+			r.putTowerHandler(t, general.Point{general.Coord(info.X), general.Coord(info.Y)})
+		case replay.Stop:
+			r.Ended = true
+			return
+		default:
+			log.Fatalln("Not handled type:", action.Type)
+		}
+		r.currAction++
+
 	}
-	log.Println(r.Time)
-	switch action.Type {
-	case replay.PutTower:
-		info := action.Info.(replay.InfoPutTower)
-		t := r.TowerToBuy[info.Name]
-		r.putTowerHandler(t, general.Point{general.Coord(info.X), general.Coord(info.Y)})
-	case replay.Stop:
-		r.Ended = true
-		return
-	default:
-		log.Println("aboba")
-	}
-	r.currAction++
 }
 
 func (r *ReplayState) putTowerHandler(tt *config.Tower, pos general.Point) *ingame.Tower {
-	log.Println("qqq")
 	if pos.X < 1500 && r.PlayerMapState.Money >= tt.Price {
 		if t := ingame.NewTower(tt, pos, r.Map.Path); t != nil {
 			r.PlayerMapState.Money -= tt.Price

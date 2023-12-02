@@ -67,6 +67,7 @@ func (m *MenuState) loadScrollingReplays(_ general.Widgets) *widget.Container {
 	ttf36 := loaders.FontTrueType(36)
 	// blackImg := image.NewNineSliceColor(color.Black)
 	for k, v := range m.Replays {
+		k := k
 		v := v
 
 		cont := widget.NewContainer(
@@ -118,11 +119,11 @@ func (m *MenuState) loadScrollingReplays(_ general.Widgets) *widget.Container {
 
 	vSlider := widget.NewSlider(
 		widget.SliderOpts.Direction(widget.DirectionHorizontal),
-		widget.SliderOpts.MinMax(0, 100),
+		widget.SliderOpts.MinMax(0, 500),
 		widget.SliderOpts.PageSizeFunc(pageSizeFunc),
 		// On change update scroll location based on the Slider's value
 		widget.SliderOpts.ChangedHandler(func(args *widget.SliderChangedEventArgs) {
-			scrollContainer.ScrollLeft = float64(args.Slider.Current) / 100
+			scrollContainer.ScrollLeft = float64(args.Slider.Current) / 500
 		}),
 		widget.SliderOpts.Images(
 			// Set the track images

@@ -209,7 +209,7 @@ func (m *MenuState) loadScrollingLevels(_ general.Widgets) *widget.Container {
 	ttf72 := loaders.FontTrueType(72)
 	ttf36 := loaders.FontTrueType(36)
 	// blackImg := image.NewNineSliceColor(color.Black)
-	for _, k := range levels {
+	for i, k := range levels {
 		k := k
 
 		cont := widget.NewContainer(
@@ -220,7 +220,8 @@ func (m *MenuState) loadScrollingLevels(_ general.Widgets) *widget.Container {
 			)),
 		)
 		text1 := widget.NewText(
-			widget.TextOpts.Text("aboba", ttf72, color.White),
+			widget.TextOpts.Text(fmt.Sprintf("Level %d", i+1), ttf72, color.White),
+			widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionStart),
 		)
 		text2 := widget.NewText(
 			widget.TextOpts.MaxWidth(400),

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"image/color"
+	"strconv"
 	"time"
 
 	image2 "github.com/ebitenui/ebitenui/image"
@@ -99,15 +100,21 @@ func (s *GameState) upgradesContainer(ctx context.Context, widgets general.Widge
 	)
 
 	checkBlock = func() {
+		openLevel := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
+		_, ok := s.PlayerState.LevelsComplete[openLevel]
+
 		level.Label = fmt.Sprintf("Level %d", s.chosenTower.UpgradesBought+1)
 		if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) {
 			btn.Text().Label = "SOLD OUT"
+		} else if !ok && openLevel > 0 {
+			btn.Text().Label = `Complete Level "` + strconv.Itoa(s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel) + `" to unlock`
 		} else {
 			btn.Text().Label = fmt.Sprintf("UPGRADE ($%d)", s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price)
 		}
 
 		if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) ||
-			s.PlayerMapState.Money < s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price {
+			s.PlayerMapState.Money < s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price ||
+			!ok && openLevel > 0 {
 			btn.GetWidget().Disabled = true
 		}
 	}

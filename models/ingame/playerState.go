@@ -13,17 +13,17 @@ type PlayerState struct {
 }
 
 func (ps *PlayerState) Valid(levels map[string]*config.Level) error {
-	mn, mx := 0, len(levels)-1
+	mn, mx := 1, len(levels)
 	for k := range ps.LevelsComplete {
 		mn = min(mn, k)
 		mx = max(mx, k)
 	}
 
-	if mn < 0 {
+	if mn < 1 {
 		return fmt.Errorf("min level is less than zero: %v", mn)
 	}
 
-	if mx > len(levels)-1 {
+	if mx > len(levels) {
 		return fmt.Errorf("incorrect max level: %v", mx)
 	}
 
