@@ -22,7 +22,6 @@ func NewGameRule(config []config.Wave) GameRule {
 
 // Wave is a set of the enemies.
 type Wave struct {
-
 	// Swarms is a set of the enemy swarms.
 	Swarms []*EnemySwarm
 
@@ -71,7 +70,6 @@ func (w *Wave) Ended() bool {
 // Enemies are called in the same interval limited times.
 // EnemySwarm can call only one type of the enemy.
 type EnemySwarm struct {
-
 	// EnemyName is a name of the enemy.
 	EnemyName string
 

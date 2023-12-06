@@ -4,6 +4,7 @@ package main
 import (
 	"github.com/gopher-co/td-game/models/config"
 	"github.com/gopher-co/td-game/models/ingame"
+	"github.com/gopher-co/td-game/replay"
 )
 
 var (
@@ -21,4 +22,8 @@ var (
 
 	// Enemies is a map of enemies used in the game.
 	Enemies = make(map[string]*config.Enemy)
+
+	Replays []*replay.Watcher
+
+	PlayerState *ingame.PlayerState
 )

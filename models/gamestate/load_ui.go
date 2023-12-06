@@ -91,9 +91,10 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 			Right:  10,
 			Bottom: 5,
 		}),
-		widget.ButtonOpts.Text("| |", loaders.FontTrueType(70), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text("Menu", loaders.FontTrueType(70), &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
-			s.State = Paused
+			s.setStateAfterEnd()
+			s.Ended = true
 		}),
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 			HorizontalPosition: widget.AnchorLayoutPositionEnd,
@@ -103,6 +104,52 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 		})),
 	)
 	buttonContainer.AddChild(backButton)
+
+	buttonGroup := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewRowLayout(
+			widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
+		)),
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+			HorizontalPosition: widget.AnchorLayoutPositionEnd,
+			VerticalPosition:   widget.AnchorLayoutPositionEnd,
+			StretchHorizontal:  false,
+			StretchVertical:    false,
+		})),
+	)
+
+	startButton := widget.NewButton(
+		widget.ButtonOpts.Image(&widget.ButtonImage{
+			Idle:     image2.NewNineSliceColor(colornames.Darkgreen),
+			Disabled: image2.NewNineSliceColor(color.RGBA{128, 10, 30, 180}),
+		}),
+		widget.ButtonOpts.Text("Start", loaders.FontTrueType(60), &widget.ButtonTextColor{
+			Idle:     color.White,
+			Disabled: color.RGBA{0xff, 0xff, 0xff, 180},
+		}),
+		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
+			b := args.Button
+			if !b.GetWidget().Disabled {
+				s.State = Running
+				s.CurrentWave++
+				b.GetWidget().Disabled = true
+			}
+		}),
+	)
+
+	go func() {
+		t := time.NewTicker(time.Second / time.Duration(ebiten.TPS()))
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-t.C:
+			}
+
+			if s.State != Running && !s.End() {
+				startButton.GetWidget().Disabled = false
+			}
+		}
+	}()
 
 	var speedButton *widget.Button
 	speedButton = widget.NewButton(
@@ -126,14 +173,12 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 				Idle: image2.NewNineSliceColor(colornames.Greenyellow),
 			}
 		}),
-		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-			HorizontalPosition: widget.AnchorLayoutPositionEnd,
-			VerticalPosition:   widget.AnchorLayoutPositionEnd,
-			StretchHorizontal:  false,
-			StretchVertical:    false,
-		})),
 	)
-	speedContainer.AddChild(speedButton)
+
+	buttonGroup.AddChild(startButton)
+	buttonGroup.AddChild(speedButton)
+
+	speedContainer.AddChild(buttonGroup)
 
 	mapContainer.AddChild(waveContainer)
 	mapContainer.AddChild(buttonContainer)
@@ -192,6 +237,4 @@ func (s *GameState) updateTowerUI(t *ingame.Tower) {
 			Idle: image2.NewNineSliceColor(colornames.Indianred),
 		}
 	}
-
-	//sell := menuCont[3].(*widget.Container)
 }

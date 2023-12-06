@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"slices"
 )
 
 // ReadConfigs reads all files with extension ext from dirName and returns a slice of T.
@@ -26,7 +25,7 @@ func ReadConfigs[T any](dirName, ext string) ([]T, error) {
 		}
 
 		if err != nil {
-			log.Fatalln("couldn't read tower file:", err)
+			log.Fatalln("couldn't read file:", err)
 		}
 		if filepath.Ext(path) != ext {
 			return nil
@@ -36,6 +35,7 @@ func ReadConfigs[T any](dirName, ext string) ([]T, error) {
 		if err != nil {
 			return err
 		}
+		defer func() { _ = f.Close() }()
 
 		if err := json.NewDecoder(f).Decode(&cfg); err != nil {
 			return fmt.Errorf("wrong tower format: %w", err)
@@ -45,10 +45,11 @@ func ReadConfigs[T any](dirName, ext string) ([]T, error) {
 
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
 
-	return slices.Clip(cfgs), nil
+	cfgsCopy := make([]T, len(cfgs))
+	copy(cfgsCopy, cfgs)
+	return cfgsCopy, nil
 }

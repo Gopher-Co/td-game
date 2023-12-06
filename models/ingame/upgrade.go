@@ -7,7 +7,6 @@ import (
 
 // Upgrade is an entity stores useful effects for towers.
 type Upgrade struct {
-
 	// Price is a price of the upgrade.
 	Price int
 

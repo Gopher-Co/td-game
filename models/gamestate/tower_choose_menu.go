@@ -96,7 +96,7 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 		widget.SliderOpts.Direction(widget.DirectionVertical),
 		widget.SliderOpts.MinMax(0, 1000),
 		widget.SliderOpts.PageSizeFunc(pageSizeFunc),
-		//On change update scroll location based on the Slider's value
+		// On change update scroll location based on the Slider's value
 		widget.SliderOpts.ChangedHandler(func(args *widget.SliderChangedEventArgs) {
 			scrollContainer.ScrollTop = float64(args.Slider.Current) / 1000
 		}),
@@ -151,10 +151,12 @@ func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.
 	go func() {
 		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
 		for {
-			if ctx.Err() != nil {
+			select {
+			case <-ctx.Done():
 				return
+			case <-ticker.C:
 			}
-			<-ticker.C
+
 			health.Label = fmt.Sprintf("Health: %d", s.PlayerMapState.Health)
 		}
 	}()
@@ -172,10 +174,12 @@ func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.
 	go func() {
 		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
 		for {
-			if ctx.Err() != nil {
+			select {
+			case <-ctx.Done():
 				return
+			case <-ticker.C:
 			}
-			<-ticker.C
+
 			money.Label = fmt.Sprintf("Money: %d", s.PlayerMapState.Money)
 		}
 	}()

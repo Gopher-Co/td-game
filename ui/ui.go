@@ -11,10 +11,8 @@ import (
 	"github.com/icza/gox/imagex/colorx"
 )
 
-var (
-	// TextColor is a color of the text.
-	TextColor color.Color
-)
+// TextColor is a color of the text.
+var TextColor color.Color
 
 // InitImage initializes an image.
 func InitImage(s string) (*ebiten.Image, error) {

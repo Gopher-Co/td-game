@@ -199,6 +199,9 @@ type Level struct {
 
 	// GameRule is a config for game rule.
 	GameRule GameRule `json:"game_rule"`
+
+	// needed for level numeration
+	Order int `json:"-"`
 }
 
 // GameRule is a config for game rule.
@@ -246,15 +249,19 @@ type Map struct {
 
 // InitImage initializes image from the temporary state of the entity.
 func (c *Map) InitImage() error {
-	clr, err := colorx.ParseHexColor(c.BackgroundColor)
+	img, err := ui.InitColor(c.BackgroundColor)
 	if err != nil {
-		return err
+		img, err = ui.InitPNG(c.BackgroundColor)
+		if err != nil {
+			return fmt.Errorf("couldn't load image for map: %w", err)
+		}
 	}
 
-	img := ebiten.NewImage(1920, 1080)
-	img.Fill(clr)
+	geom := ebiten.GeoM{}
+	geom.Scale(1500./float64(img.Bounds().Dx()), 1080./float64(img.Bounds().Dy()))
 
-	c.image = img
+	c.image = ebiten.NewImage(1500, 1080)
+	c.image.DrawImage(img, &ebiten.DrawImageOptions{GeoM: geom})
 
 	return nil
 }
