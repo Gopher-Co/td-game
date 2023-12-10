@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/color"
 	"log"
+	maps2 "maps"
 	"slices"
 	"time"
 
@@ -83,27 +84,36 @@ type GameState struct {
 
 // New creates a new entity of GameState.
 func New(
-	config *config.Level,
+	level *config.Level,
 	maps map[string]*config.Map,
 	en map[string]*config.Enemy,
 	tw map[string]*config.Tower,
 	ps *ingame.PlayerState,
 	w general.Widgets,
 ) *GameState {
+	tw2 := maps2.Clone(tw)
+	filter(tw2, func(s string, c *config.Tower) bool {
+		if c.OpenLevel == 0 {
+			return false
+		}
+
+		_, ok := ps.LevelsComplete[c.OpenLevel]
+		return !ok
+	})
 	gs := &GameState{
-		LevelName:   config.LevelName,
-		Map:         ingame.NewMap(maps[config.MapName]),
-		TowersToBuy: tw,
+		LevelName:   level.LevelName,
+		Map:         ingame.NewMap(maps[level.MapName]),
+		TowersToBuy: tw2,
 		EnemyToCall: en,
 		State:       NextWaveReady,
 		CurrentWave: -1,
-		GameRule:    ingame.NewGameRule(config.GameRule),
+		GameRule:    ingame.NewGameRule(level.GameRule),
 		PlayerMapState: ingame.PlayerMapState{
 			Health: 100,
 			Money:  650,
 		},
 		Watcher: &replay.Watcher{
-			Name: config.LevelName,
+			Name: level.LevelName,
 			InitPlayerMapState: ingame.PlayerMapState{
 				Health: 100,
 				Money:  650,
@@ -138,11 +148,13 @@ func (s *GameState) Update() error {
 	// put tower on the map
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) && s.tookTower != nil {
 		t := s.putTowerHandler(s.tookTower)
-		s.Watcher.Append(s.Time, replay.PutTower, replay.InfoPutTower{
-			Name: t.Name,
-			X:    int(t.State.Pos.X),
-			Y:    int(t.State.Pos.Y),
-		})
+		if t != nil {
+			s.Watcher.Append(s.Time, replay.PutTower, replay.InfoPutTower{
+				Name: t.Name,
+				X:    int(t.State.Pos.X),
+				Y:    int(t.State.Pos.Y),
+			})
+		}
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton2) {
 		s.tookTower = nil
 	}
@@ -260,6 +272,14 @@ func (s *GameState) drawTookImageBeforeCursor(screen *ebiten.Image) {
 	screen.DrawImage(img, &ebiten.DrawImageOptions{GeoM: geom})
 }
 
+func filter[K comparable, V any, M ~map[K]V](m M, f func(K, V) bool) {
+	for k, v := range m {
+		if f(k, v) {
+			delete(m, k)
+		}
+	}
+}
+
 func (s *GameState) rightSidebarHandle() {
 	x, _ := ebiten.CursorPosition()
 	if x <= 1500 {
@@ -284,13 +304,12 @@ func (s *GameState) rightSidebarHandle() {
 }
 
 func (s *GameState) putTowerHandler(tt *config.Tower) *ingame.Tower {
-	s.tookTower = nil
-
 	x, y := ebiten.CursorPosition()
 	pos := general.Point{general.Coord(x), general.Coord(y)}
 
 	if x < 1500 && s.PlayerMapState.Money >= tt.Price {
 		if t := ingame.NewTower(tt, pos, s.Map.Path); t != nil {
+			s.tookTower = nil
 			s.PlayerMapState.Money -= tt.Price
 			s.Map.Towers = append(s.Map.Towers, t)
 

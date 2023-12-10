@@ -8,7 +8,7 @@
           "enemy_name": "#ab0ba0",
           "timeout": 180,
           "interval": 10,
-          "max_calls": 1000
+          "max_calls": 10
         },
         {
           "enemy_name": "#ab0ba0",
@@ -18,7 +18,7 @@
         },
         {
           "enemy_name": "#0ab0ba",
-          "timeout": 1000,
+          "timeout": 100,
           "interval": 20,
           "max_calls": 20
         }

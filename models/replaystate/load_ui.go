@@ -52,8 +52,11 @@ func (r *ReplayState) loadMapContainer(ctx context.Context, widgets general.Widg
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 
+	ttf64 := loaders.FontTrueType(64)
+	defer ttf64.Close()
+
 	waveText := widget.NewText(
-		widget.TextOpts.Text("", loaders.FontTrueType(64), color.White),
+		widget.TextOpts.Text("", ttf64, color.White),
 		widget.TextOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 			HorizontalPosition: 0,
 			VerticalPosition:   widget.AnchorLayoutPositionEnd,
@@ -89,7 +92,7 @@ func (r *ReplayState) loadMapContainer(ctx context.Context, widgets general.Widg
 			Right:  10,
 			Bottom: 5,
 		}),
-		widget.ButtonOpts.Text("Menu", loaders.FontTrueType(70), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text("Menu", ttf64, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
 			r.setStateAfterEnd()
 			r.Ended = true
@@ -108,7 +111,7 @@ func (r *ReplayState) loadMapContainer(ctx context.Context, widgets general.Widg
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
 		}),
-		widget.ButtonOpts.Text(">>", loaders.FontTrueType(60), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text(">>", ttf64, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
 			if r.speedUp {
 				ebiten.SetTPS(60)
@@ -150,9 +153,12 @@ func (r *ReplayState) loadTowerMenuContainer(ctx context.Context, widgets genera
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{})),
 		widget.ContainerOpts.BackgroundImage(image2.NewNineSliceColor(colornames.Blueviolet)),
 	)
-	ttf := loaders.FontTrueType(40)
+
+	ttf40 := loaders.FontTrueType(40)
+	defer ttf40.Close()
+
 	health := widget.NewText(
-		widget.TextOpts.Text(fmt.Sprintf("Health: %d", r.PlayerMapState.Health), ttf, color.White),
+		widget.TextOpts.Text(fmt.Sprintf("Health: %d", r.PlayerMapState.Health), ttf40, color.White),
 		widget.TextOpts.Insets(widget.Insets{
 			Top:    0,
 			Left:   10,
@@ -174,7 +180,7 @@ func (r *ReplayState) loadTowerMenuContainer(ctx context.Context, widgets genera
 	}()
 
 	money := widget.NewText(
-		widget.TextOpts.Text(fmt.Sprintf("Money: %d", r.PlayerMapState.Money), ttf, color.White),
+		widget.TextOpts.Text(fmt.Sprintf("Money: %d", r.PlayerMapState.Money), ttf40, color.White),
 		widget.TextOpts.Insets(widget.Insets{
 			Top:    0,
 			Left:   10,

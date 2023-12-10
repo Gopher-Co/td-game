@@ -1,20 +1,20 @@
 {
   "name": "#000",
   "upgrades": [
-  {
-  "price": 80,
-  "delta_damage": 0,
-  "delta_radius": 30.0,
-  "delta_speed_attack": 0,
-  "open_level": 0
-},
-{
-    "price": 360,
-    "delta_damage": 3,
-    "delta_radius": 0,
-    "delta_speed_attack": 5,
-    "open_level": 0
-}
+    {
+      "price": 80,
+      "delta_damage": 0,
+      "delta_radius": 30.0,
+      "delta_speed_attack": 0,
+      "open_level": 0
+    },
+    {
+      "price": 360,
+      "delta_damage": 3,
+      "delta_radius": 0,
+      "delta_speed_attack": 5,
+      "open_level": 0
+    }
   ],
   "price": 360,
   "type": 1,

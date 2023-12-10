@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/fs"
 	"log"
+	_ "net/http/pprof"
 	"os"
 	"runtime"
 	"time"
@@ -20,6 +21,8 @@ import (
 	"github.com/gopher-co/td-game/models/replaystate"
 	"github.com/gopher-co/td-game/ui"
 )
+
+var pprof = func() {}
 
 func printAlloc() {
 	var m runtime.MemStats
@@ -163,6 +166,9 @@ func main() {
 	// LEVEL LOADING
 	menu := menustate.New(PlayerState, Levels, Replays, general.Widgets(UI))
 	game := &Game{s: menu}
+
+	// pprof
+	pprof()
 
 	log.Println("Starting game...")
 	if err := ebiten.RunGame(game); err != nil {

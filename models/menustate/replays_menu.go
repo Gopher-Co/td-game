@@ -19,10 +19,12 @@ import (
 func (m *MenuState) loadReplaysMenuUI(widgets general.Widgets) *ebitenui.UI {
 	bgImg := widgets[ui.MenuBackgroundImage]
 	menuBackground := image.NewNineSliceSimple(bgImg, 0, 1)
+	ttf128 := loaders.FontTrueType(128)
+	defer ttf128.Close()
 
 	backBtn := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(colornames.Aqua)}),
-		widget.ButtonOpts.Text("<", loaders.FontTrueType(128), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text("<", ttf128, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			m.UI = m.loadMainMenuUI(widgets)
 		}),
@@ -63,8 +65,13 @@ func (m *MenuState) loadScrollingReplays(_ general.Widgets) *widget.Container {
 		levels = append(levels, k)
 	}
 	sort.Strings(levels)
+
 	ttf72 := loaders.FontTrueType(72)
+	defer ttf72.Close()
+
 	ttf36 := loaders.FontTrueType(36)
+	defer ttf36.Close()
+
 	// blackImg := image.NewNineSliceColor(color.Black)
 	for k, v := range m.Replays {
 		k := k

@@ -32,12 +32,13 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 		)),
 	)
 
+	ttf20 := loaders.FontTrueType(20)
 	for _, v := range s.TowersToBuy {
 		v := v
 		cont := widget.NewContainer(
 			widget.ContainerOpts.Layout(widget.NewGridLayout(
 				widget.GridLayoutOpts.Columns(1),
-				widget.GridLayoutOpts.Stretch([]bool{false}, []bool{true, false}),
+				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false}),
 				widget.GridLayoutOpts.Padding(widget.Insets{
 					Top:    10,
 					Left:   10,
@@ -66,9 +67,16 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 					s.tookTower = v
 				}
 			}),
+			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{
+				HorizontalPosition: widget.GridLayoutPositionCenter,
+				MaxWidth:           64,
+				MaxHeight:          64,
+			})),
 		)
+
 		text := widget.NewText(
-			widget.TextOpts.Text(v.Name, loaders.FontTrueType(20), color.White),
+			widget.TextOpts.Text(fmt.Sprintf("%s $%d", v.Name, v.Price), ttf20, color.White),
+			widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionStart),
 		)
 
 		cont.AddChild(button)
@@ -76,6 +84,7 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 
 		content.AddChild(cont)
 	}
+	defer ttf20.Close()
 
 	scrollContainer := widget.NewScrollContainer(
 		widget.ScrollContainerOpts.StretchContentWidth(),
@@ -138,9 +147,12 @@ func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{})),
 		widget.ContainerOpts.BackgroundImage(image2.NewNineSliceColor(colornames.Blueviolet)),
 	)
-	ttf := loaders.FontTrueType(40)
+
+	ttf40 := loaders.FontTrueType(40)
+	defer ttf40.Close()
+
 	health := widget.NewText(
-		widget.TextOpts.Text(fmt.Sprintf("Health: %d", s.PlayerMapState.Health), ttf, color.White),
+		widget.TextOpts.Text(fmt.Sprintf("Health: %d", s.PlayerMapState.Health), ttf40, color.White),
 		widget.TextOpts.Insets(widget.Insets{
 			Top:    0,
 			Left:   10,
@@ -162,7 +174,7 @@ func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.
 	}()
 
 	money := widget.NewText(
-		widget.TextOpts.Text(fmt.Sprintf("Money: %d", s.PlayerMapState.Money), ttf, color.White),
+		widget.TextOpts.Text(fmt.Sprintf("Money: %d", s.PlayerMapState.Money), ttf40, color.White),
 		widget.TextOpts.Insets(widget.Insets{
 			Top:    0,
 			Left:   10,

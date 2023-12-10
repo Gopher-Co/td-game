@@ -54,8 +54,11 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 
+	ttf64 := loaders.FontTrueType(64)
+	defer ttf64.Close()
+
 	waveText := widget.NewText(
-		widget.TextOpts.Text("", loaders.FontTrueType(64), color.White),
+		widget.TextOpts.Text("", ttf64, color.White),
 		widget.TextOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 			HorizontalPosition: 0,
 			VerticalPosition:   widget.AnchorLayoutPositionEnd,
@@ -91,7 +94,7 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 			Right:  10,
 			Bottom: 5,
 		}),
-		widget.ButtonOpts.Text("Menu", loaders.FontTrueType(70), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text("Menu", ttf64, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
 			s.setStateAfterEnd()
 			s.Ended = true
@@ -122,7 +125,7 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 			Idle:     image2.NewNineSliceColor(colornames.Darkgreen),
 			Disabled: image2.NewNineSliceColor(color.RGBA{128, 10, 30, 180}),
 		}),
-		widget.ButtonOpts.Text("Start", loaders.FontTrueType(60), &widget.ButtonTextColor{
+		widget.ButtonOpts.Text("Start", ttf64, &widget.ButtonTextColor{
 			Idle:     color.White,
 			Disabled: color.RGBA{0xff, 0xff, 0xff, 180},
 		}),
@@ -156,7 +159,7 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
 		}),
-		widget.ButtonOpts.Text(">>", loaders.FontTrueType(60), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text(">>", ttf64, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
 			if s.speedUp {
 				ebiten.SetTPS(60)

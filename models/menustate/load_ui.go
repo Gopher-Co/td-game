@@ -151,9 +151,12 @@ func (m *MenuState) loadLevelMenuUI(widgets general.Widgets) *ebitenui.UI {
 		)),
 	)
 
+	ttf128 := loaders.FontTrueType(128)
+	defer ttf128.Close()
+
 	backBtn := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(colornames.Aqua)}),
-		widget.ButtonOpts.Text("<", loaders.FontTrueType(128), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text("<", ttf128, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			m.UI = m.loadMainMenuUI(widgets)
 		}),
@@ -170,8 +173,10 @@ func (m *MenuState) loadLevelMenuUI(widgets general.Widgets) *ebitenui.UI {
 		text = fmt.Sprintf("Completed %d/%d levels", len(m.State.LevelsComplete), len(m.Levels))
 	}
 
+	ttf64 := loaders.FontTrueType(64)
+	defer ttf64.Close()
 	textCompleted := widget.NewText(
-		widget.TextOpts.Text(text, loaders.FontTrueType(64), color.White),
+		widget.TextOpts.Text(text, ttf64, color.White),
 		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
 		widget.TextOpts.ProcessBBCode(true),
 	)
