@@ -13,7 +13,7 @@ import (
 	"golang.org/x/image/colornames"
 
 	"github.com/gopher-co/td-game/models/general"
-	"github.com/gopher-co/td-game/ui/loaders"
+	"github.com/gopher-co/td-game/ui/font"
 )
 
 // scrollCont creates a scroll container.
@@ -32,7 +32,6 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 		)),
 	)
 
-	ttf20 := loaders.FontTrueType(20)
 	for _, v := range s.TowersToBuy {
 		v := v
 		cont := widget.NewContainer(
@@ -75,7 +74,7 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 		)
 
 		text := widget.NewText(
-			widget.TextOpts.Text(fmt.Sprintf("%s $%d", v.Name, v.Price), ttf20, color.White),
+			widget.TextOpts.Text(fmt.Sprintf("%s $%d", v.Name, v.Price), font.TTF20, color.White),
 			widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionStart),
 		)
 
@@ -84,7 +83,6 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 
 		content.AddChild(cont)
 	}
-	defer ttf20.Close()
 
 	scrollContainer := widget.NewScrollContainer(
 		widget.ScrollContainerOpts.StretchContentWidth(),
@@ -148,11 +146,8 @@ func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.
 		widget.ContainerOpts.BackgroundImage(image2.NewNineSliceColor(colornames.Blueviolet)),
 	)
 
-	ttf40 := loaders.FontTrueType(40)
-	defer ttf40.Close()
-
 	health := widget.NewText(
-		widget.TextOpts.Text(fmt.Sprintf("Health: %d", s.PlayerMapState.Health), ttf40, color.White),
+		widget.TextOpts.Text(fmt.Sprintf("Health: %d", s.PlayerMapState.Health), font.TTF40, color.White),
 		widget.TextOpts.Insets(widget.Insets{
 			Top:    0,
 			Left:   10,
@@ -174,7 +169,7 @@ func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.
 	}()
 
 	money := widget.NewText(
-		widget.TextOpts.Text(fmt.Sprintf("Money: %d", s.PlayerMapState.Money), ttf40, color.White),
+		widget.TextOpts.Text(fmt.Sprintf("Money: %d", s.PlayerMapState.Money), font.TTF40, color.White),
 		widget.TextOpts.Insets(widget.Insets{
 			Top:    0,
 			Left:   10,

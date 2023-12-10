@@ -15,7 +15,7 @@ import (
 
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/ui"
-	"github.com/gopher-co/td-game/ui/loaders"
+	"github.com/gopher-co/td-game/ui/font"
 )
 
 // loadMainMenuUI loads the main menu UI.
@@ -86,10 +86,8 @@ func (m *MenuState) btn(widgets general.Widgets) *widget.Container {
 		widget.ContainerOpts.BackgroundImage(image.NewNineSliceSimple(widgets[ui.MenuLeftSidebarImage], 0, 1)),
 	)
 
-	fnt := loaders.FontTrueType(72)
-
 	text := widget.NewText(
-		widget.TextOpts.Text("Go Build,\nGo Defend!", fnt, color.White),
+		widget.TextOpts.Text("Go Build,\nGo Defend!", font.TTF72, color.White),
 	)
 
 	btn1 := widget.NewButton(
@@ -97,7 +95,7 @@ func (m *MenuState) btn(widgets general.Widgets) *widget.Container {
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle: image.NewNineSliceSimple(widgets[ui.MenuButtonPlayImage], 0, 1),
 		}),
-		widget.ButtonOpts.Text("PLAY!", fnt, &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text("PLAY!", font.TTF72, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
 			m.UI = m.loadLevelMenuUI(widgets)
 		}),
@@ -107,17 +105,18 @@ func (m *MenuState) btn(widgets general.Widgets) *widget.Container {
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle: image.NewNineSliceSimple(widgets[ui.MenuButtonReplaysImage], 0, 1),
 		}),
-		widget.ButtonOpts.Text("Replays", fnt, &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text("Replays", font.TTF72, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
 			m.UI = m.loadReplaysMenuUI(widgets)
 		}),
 	)
+
 	btn3 := widget.NewButton(
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(600, 100)),
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle: image.NewNineSliceSimple(widgets[ui.MenuButtonExitImage], 0, 1),
 		}),
-		widget.ButtonOpts.Text("Exit", fnt, &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text("Exit", font.TTF72, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
 			os.Exit(0)
 		}),
@@ -151,12 +150,11 @@ func (m *MenuState) loadLevelMenuUI(widgets general.Widgets) *ebitenui.UI {
 		)),
 	)
 
-	ttf128 := loaders.FontTrueType(128)
-	defer ttf128.Close()
+	//defer font.TTF128.Close()
 
 	backBtn := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(colornames.Aqua)}),
-		widget.ButtonOpts.Text("<", ttf128, &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text("<", font.TTF128, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			m.UI = m.loadMainMenuUI(widgets)
 		}),
@@ -173,10 +171,9 @@ func (m *MenuState) loadLevelMenuUI(widgets general.Widgets) *ebitenui.UI {
 		text = fmt.Sprintf("Completed %d/%d levels", len(m.State.LevelsComplete), len(m.Levels))
 	}
 
-	ttf64 := loaders.FontTrueType(64)
-	defer ttf64.Close()
+	//defer font.TTF64.Close()
 	textCompleted := widget.NewText(
-		widget.TextOpts.Text(text, ttf64, color.White),
+		widget.TextOpts.Text(text, font.TTF64, color.White),
 		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
 		widget.TextOpts.ProcessBBCode(true),
 	)
@@ -211,8 +208,7 @@ func (m *MenuState) loadScrollingLevels(_ general.Widgets) *widget.Container {
 		levels = append(levels, k)
 	}
 	sort.Strings(levels)
-	ttf72 := loaders.FontTrueType(72)
-	ttf36 := loaders.FontTrueType(36)
+
 	// blackImg := image.NewNineSliceColor(color.Black)
 	for i, k := range levels {
 		k := k
@@ -225,16 +221,16 @@ func (m *MenuState) loadScrollingLevels(_ general.Widgets) *widget.Container {
 			)),
 		)
 		text1 := widget.NewText(
-			widget.TextOpts.Text(fmt.Sprintf("Level %d", i+1), ttf72, color.White),
+			widget.TextOpts.Text(fmt.Sprintf("Level %d", i+1), font.TTF72, color.White),
 			widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionStart),
 		)
 		text2 := widget.NewText(
 			widget.TextOpts.MaxWidth(400),
-			widget.TextOpts.Text(m.Levels[k].LevelName, ttf36, color.White),
+			widget.TextOpts.Text(m.Levels[k].LevelName, font.TTF36, color.White),
 		)
 		btn := widget.NewButton(
 			widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(colornames.Beige)}),
-			widget.ButtonOpts.Text("Play", ttf72, &widget.ButtonTextColor{Idle: color.Black}),
+			widget.ButtonOpts.Text("Play", font.TTF72, &widget.ButtonTextColor{Idle: color.Black}),
 			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{
 				VerticalPosition: widget.GridLayoutPositionEnd,
 			})),

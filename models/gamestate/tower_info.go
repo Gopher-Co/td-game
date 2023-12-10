@@ -15,7 +15,7 @@ import (
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/models/ingame"
 	"github.com/gopher-co/td-game/replay"
-	"github.com/gopher-co/td-game/ui/loaders"
+	"github.com/gopher-co/td-game/ui/font"
 )
 
 func (s *GameState) newTowerMenuUI(ctx context.Context, widgets general.Widgets) *widget.Container {
@@ -52,10 +52,8 @@ func (s *GameState) textContainer(widgets general.Widgets) *widget.Container {
 		)),
 	)
 
-	ttf64 := loaders.FontTrueType(64)
-	defer ttf64.Close()
 	name := widget.NewText(
-		widget.TextOpts.Text("NAME", ttf64, color.White),
+		widget.TextOpts.Text("NAME", font.TTF64, color.White),
 		widget.TextOpts.MaxWidth(400),
 		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionStart),
 	)
@@ -75,9 +73,6 @@ func (s *GameState) upgradesContainer(ctx context.Context, widgets general.Widge
 
 	var checkBlock func()
 
-	ttf32 := loaders.FontTrueType(32)
-	ttf48 := loaders.FontTrueType(48)
-
 	btn := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle:     image2.NewNineSliceColor(color.RGBA{0x99, 0xe7, 0xa9, 0xff}),
@@ -85,7 +80,7 @@ func (s *GameState) upgradesContainer(ctx context.Context, widgets general.Widge
 			Pressed:  image2.NewNineSliceColor(color.RGBA{0x89, 0xd7, 0x99, 0xff}),
 			Disabled: image2.NewNineSliceColor(color.RGBA{0x66, 0x05, 0x28, 0xff}),
 		}),
-		widget.ButtonOpts.Text("UPGRADE", ttf32, &widget.ButtonTextColor{
+		widget.ButtonOpts.Text("UPGRADE", font.TTF32, &widget.ButtonTextColor{
 			Idle:     color.White,
 			Disabled: color.Black,
 		}),
@@ -101,7 +96,7 @@ func (s *GameState) upgradesContainer(ctx context.Context, widgets general.Widge
 	)
 
 	level := widget.NewText(
-		widget.TextOpts.Text("Level", ttf48, color.White),
+		widget.TextOpts.Text("Level", font.TTF48, color.White),
 	)
 
 	checkBlock = func() {
@@ -178,22 +173,20 @@ func (s *GameState) textUpgradeInfo() *widget.Container {
 		)),
 	)
 
-	ttf40 := loaders.FontTrueType(40)
-	defer ttf40.Close()
 	textDamage := widget.NewText(
-		widget.TextOpts.Text(fmt.Sprintf(`Damage: %d[color=00FF00]+0[/color]`, 0), ttf40, color.White),
+		widget.TextOpts.Text(fmt.Sprintf(`Damage: %d[color=00FF00]+0[/color]`, 0), font.TTF40, color.White),
 		widget.TextOpts.ProcessBBCode(true),
 	)
 	textRadius := widget.NewText(
-		widget.TextOpts.Text(fmt.Sprintf(`Radius: %.0f[color=FF0000]+0[/color]`, 0.), ttf40, color.White),
+		widget.TextOpts.Text(fmt.Sprintf(`Radius: %.0f[color=FF0000]+0[/color]`, 0.), font.TTF40, color.White),
 		widget.TextOpts.ProcessBBCode(true),
 	)
 	textSpeed := widget.NewText(
-		widget.TextOpts.Text(fmt.Sprintf(`Speed: %.0f[color=FF0000]+0[/color]`, 0.), ttf40, color.White),
+		widget.TextOpts.Text(fmt.Sprintf(`Speed: %.0f[color=FF0000]+0[/color]`, 0.), font.TTF40, color.White),
 		widget.TextOpts.ProcessBBCode(true),
 	)
 	textProjSpeed := widget.NewText(
-		widget.TextOpts.Text(fmt.Sprintf(`ProjSpeed: %.0f[color=AAAAAA]+0[/color]`, 0.), ttf40, color.White),
+		widget.TextOpts.Text(fmt.Sprintf(`ProjSpeed: %.0f[color=AAAAAA]+0[/color]`, 0.), font.TTF40, color.White),
 		widget.TextOpts.ProcessBBCode(true),
 	)
 
@@ -223,13 +216,11 @@ func (s *GameState) tuningContainer(ctx context.Context, widgets general.Widgets
 		)),
 	)
 
-	ttf54 := loaders.FontTrueType(54)
-	defer ttf54.Close()
 	btnTurn := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle: image2.NewNineSliceColor(colornames.Lawngreen),
 		}),
-		widget.ButtonOpts.Text("ON", ttf54, &widget.ButtonTextColor{
+		widget.ButtonOpts.Text("ON", font.TTF54, &widget.ButtonTextColor{
 			Idle: color.White,
 		}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
@@ -267,7 +258,6 @@ func (s *GameState) tuningContainer(ctx context.Context, widgets general.Widgets
 }
 
 func (s *GameState) radio(ctx context.Context) *widget.Container {
-	ttf40 := loaders.FontTrueType(40)
 
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
@@ -288,7 +278,7 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 			Position: widget.RowLayoutPositionCenter,
 			Stretch:  true,
 		})),
-		widget.ButtonOpts.Text("First", ttf40, &widget.ButtonTextColor{
+		widget.ButtonOpts.Text("First", font.TTF40, &widget.ButtonTextColor{
 			Idle: color.White,
 		}),
 		widget.ButtonOpts.Image(&widget.ButtonImage{
@@ -316,7 +306,7 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 			Position: widget.RowLayoutPositionCenter,
 			Stretch:  true,
 		})),
-		widget.ButtonOpts.Text("Strong", ttf40, &widget.ButtonTextColor{
+		widget.ButtonOpts.Text("Strong", font.TTF40, &widget.ButtonTextColor{
 			Idle: color.White,
 		}),
 		widget.ButtonOpts.Image(&widget.ButtonImage{
@@ -344,7 +334,7 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 			Position: widget.RowLayoutPositionCenter,
 			Stretch:  true,
 		})),
-		widget.ButtonOpts.Text("Weak", ttf40, &widget.ButtonTextColor{
+		widget.ButtonOpts.Text("Weak", font.TTF40, &widget.ButtonTextColor{
 			Idle: color.White,
 		}),
 		widget.ButtonOpts.Image(&widget.ButtonImage{
@@ -403,12 +393,11 @@ func (s *GameState) sellContainer(widgets general.Widgets) *widget.Container {
 		)),
 	)
 
-	ttf64 := loaders.FontTrueType(64)
 	btnSell := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle: image2.NewNineSliceColor(color.RGBA{0xff, 0x66, 0x66, 0xff}),
 		}),
-		widget.ButtonOpts.Text("SELL", ttf64, &widget.ButtonTextColor{
+		widget.ButtonOpts.Text("SELL", font.TTF64, &widget.ButtonTextColor{
 			Idle: color.White,
 		}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
