@@ -62,6 +62,7 @@ type Strength struct {
 	DecDmg int `json:"dec_dmg"`
 }
 
+// Weakness is a config for weakness.
 type Weakness struct {
 	T      general.TypeAttack `json:"type"`
 	IncDmg int                `json:"inc_dmg"`
