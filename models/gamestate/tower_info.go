@@ -217,6 +217,7 @@ func insertValues(c *widget.Text, v, deltav int, s string) {
 	}
 }
 
+// tuningContainer creates a container that contains the tuning of the tower.
 func (s *GameState) tuningContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
