@@ -84,6 +84,7 @@ type GameState struct {
 	// cancel is a function that cancels the context.
 	cancel context.CancelFunc
 
+	// Watcher is a watcher of the game.
 	Watcher *replay.Watcher
 
 	PlayerState *ingame.PlayerState
