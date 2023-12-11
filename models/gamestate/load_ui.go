@@ -122,11 +122,11 @@ func (s *GameState) loadMapContainer(ctx context.Context, _ general.Widgets) *wi
 	startButton := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle:     image2.NewNineSliceColor(colornames.Darkgreen),
-			Disabled: image2.NewNineSliceColor(color.RGBA{128, 10, 30, 180}),
+			Disabled: image2.NewNineSliceColor(color.RGBA{R: 128, G: 10, B: 30, A: 180}),
 		}),
 		widget.ButtonOpts.Text("Start", font.TTF64, &widget.ButtonTextColor{
 			Idle:     color.White,
-			Disabled: color.RGBA{0xff, 0xff, 0xff, 180},
+			Disabled: color.RGBA{R: 0xff, G: 0xff, B: 0xff, A: 180},
 		}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			b := args.Button
