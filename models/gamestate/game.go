@@ -236,6 +236,7 @@ func (s *GameState) clear() {
 	s.cancel = nil
 }
 
+// setStateAfterEnd sets the state after the end of the game.
 func (s *GameState) setStateAfterEnd() {
 	s.clear()
 
