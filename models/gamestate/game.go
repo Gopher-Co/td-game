@@ -87,6 +87,7 @@ type GameState struct {
 	// Watcher is a watcher of the game.
 	Watcher *replay.Watcher
 
+	// PlayerState is a state of the player.
 	PlayerState *ingame.PlayerState
 }
 
