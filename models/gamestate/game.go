@@ -337,6 +337,7 @@ func (s *GameState) putTowerHandler(tt *config.Tower) *ingame.Tower {
 	return nil
 }
 
+// sellTowerHandler handles the selling of the tower.
 func (s *GameState) sellTowerHandler(t *ingame.Tower) {
 	p := t.Price
 	for i := 0; i < t.UpgradesBought; i++ {
