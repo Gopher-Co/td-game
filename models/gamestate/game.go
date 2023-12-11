@@ -287,6 +287,7 @@ func (s *GameState) drawTookImageBeforeCursor(screen *ebiten.Image) {
 	screen.DrawImage(img, &ebiten.DrawImageOptions{GeoM: geom})
 }
 
+// filter filters the map m by the function f.
 func filter[K comparable, V any, M ~map[K]V](m M, f func(K, V) bool) {
 	for k, v := range m {
 		if f(k, v) {
