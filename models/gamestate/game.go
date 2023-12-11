@@ -320,6 +320,7 @@ func (s *GameState) rightSidebarHandle() {
 	}
 }
 
+// putTowerHandler handles the putting of the tower.
 func (s *GameState) putTowerHandler(tt *config.Tower) *ingame.Tower {
 	x, y := ebiten.CursorPosition()
 	pos := general.Point{general.Coord(x), general.Coord(y)}
