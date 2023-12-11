@@ -395,6 +395,7 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 	return root
 }
 
+// sellContainer creates a container that contains the sell button.
 func (s *GameState) sellContainer(widgets general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
