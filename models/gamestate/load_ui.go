@@ -205,6 +205,7 @@ func (s *GameState) showTowerInfoMenu() {
 	menu.AddChild(cInfo)
 }
 
+// updateTowerUI updates the tower UI.
 func (s *GameState) updateTowerUI(t *ingame.Tower) {
 	menuCont := cInfo.Children()
 
