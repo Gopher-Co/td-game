@@ -134,6 +134,7 @@ func (t *Tower) Launch() *Projectile {
 	return p
 }
 
+// Upgrade upgrades the tower.
 func (t *Tower) Upgrade(complete map[int]struct{}) bool {
 
 	if t.UpgradesBought == len(t.Upgrades) {
