@@ -68,6 +68,7 @@ type Tower struct {
 	// Chosen is a flag that shows if the tower is chosen.
 	Chosen bool
 
+	// Sold is a flag that shows if the tower is sold.
 	Sold bool
 }
 
