@@ -372,6 +372,7 @@ func (s *GameState) turnOffTowerHandler(t *ingame.Tower) {
 }
 
 // tuneFirstTowerHandler handles the tuning of the tower.
+// It sets the tower to aim at the first enemy.
 func (s *GameState) tuneFirstTowerHandler(t *ingame.Tower) {
 	t.State.AimType = ingame.First
 }
