@@ -72,6 +72,7 @@ type GameState struct {
 	// PlayerMapState is a state of the player on the map.
 	PlayerMapState ingame.PlayerMapState
 
+	// tookTower is a tower that was taken from the right sidebar.
 	tookTower *config.Tower
 
 	chosenTower *ingame.Tower
