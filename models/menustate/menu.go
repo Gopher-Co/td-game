@@ -12,13 +12,26 @@ import (
 
 // MenuState is a struct that represents the state of the menu.
 type MenuState struct {
-	Replays    []*replay.Watcher
-	Levels     map[string]*config.Level
-	Ended      bool
-	UI         *ebitenui.UI
-	Next       string
+	// Replays is a list of replays.
+	Replays []*replay.Watcher
+
+	// Levels is a list of levels.
+	Levels map[string]*config.Level
+
+	// Ended is true if the menu is ended.
+	Ended bool
+
+	// UI is a UI of the menu.
+	UI *ebitenui.UI
+
+	// Next is a name of the next level.
+	Next string
+
+	// NextReplay is an index of the next replay.
 	NextReplay int
-	State      *ingame.PlayerState
+
+	// State is a state of the player.
+	State *ingame.PlayerState
 }
 
 // New creates a new entity of MenuState.
