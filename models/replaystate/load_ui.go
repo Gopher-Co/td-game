@@ -36,7 +36,7 @@ func (r *ReplayState) loadUI(ctx context.Context, widgets general.Widgets) *ebit
 }
 
 // loadMapContainer loads the map container.
-func (r *ReplayState) loadMapContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+func (r *ReplayState) loadMapContainer(ctx context.Context, _ general.Widgets) *widget.Container {
 	mapContainer := widget.NewContainer(
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.MinSize(1500, 0)),
 		widget.ContainerOpts.Layout(widget.NewStackedLayout()),
@@ -144,7 +144,7 @@ func (r *ReplayState) loadMapContainer(ctx context.Context, widgets general.Widg
 }
 
 // loadTowerMenuContainer loads the tower menu container.
-func (r *ReplayState) loadTowerMenuContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+func (r *ReplayState) loadTowerMenuContainer(ctx context.Context, _ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
