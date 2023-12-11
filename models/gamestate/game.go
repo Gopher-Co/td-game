@@ -36,7 +36,9 @@ const (
 
 // GameState is a struct that represents the state of the game.
 type GameState struct {
+	// LevelName is a name of the level.
 	LevelName string
+
 	// Map is a map of the game.
 	Map *ingame.Map
 
