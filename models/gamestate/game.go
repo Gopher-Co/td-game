@@ -75,6 +75,7 @@ type GameState struct {
 	// tookTower is a tower that was taken from the right sidebar.
 	tookTower *config.Tower
 
+	// chosenTower is a tower that was chosen from the map.
 	chosenTower *ingame.Tower
 
 	speedUp bool
