@@ -43,7 +43,7 @@ func (s *GameState) newTowerMenuUI(ctx context.Context, widgets general.Widgets)
 }
 
 // textContainer creates a container that contains the name of the tower.
-func (s *GameState) textContainer(widgets general.Widgets) *widget.Container {
+func (s *GameState) textContainer(_ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -66,7 +66,7 @@ func (s *GameState) textContainer(widgets general.Widgets) *widget.Container {
 }
 
 // upgradesContainer creates a container that contains the upgrades of the tower.
-func (s *GameState) upgradesContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+func (s *GameState) upgradesContainer(ctx context.Context, _ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -218,7 +218,7 @@ func insertValues(c *widget.Text, v, deltav int, s string) {
 }
 
 // tuningContainer creates a container that contains the tuning of the tower.
-func (s *GameState) tuningContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+func (s *GameState) tuningContainer(ctx context.Context, _ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -396,7 +396,7 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 }
 
 // sellContainer creates a container that contains the sell button.
-func (s *GameState) sellContainer(widgets general.Widgets) *widget.Container {
+func (s *GameState) sellContainer(_ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
