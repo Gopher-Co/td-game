@@ -296,6 +296,7 @@ func filter[K comparable, V any, M ~map[K]V](m M, f func(K, V) bool) {
 	}
 }
 
+// rightSidebarHandle handles the right sidebar.
 func (s *GameState) rightSidebarHandle() {
 	x, _ := ebiten.CursorPosition()
 	if x <= 1500 {
