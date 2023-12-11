@@ -191,6 +191,7 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 
 var cMenu, cInfo *widget.Container
 
+// showTowerMenu shows the tower menu.
 func (s *GameState) showTowerMenu() {
 	menu := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container)
 	menu.RemoveChildren()
