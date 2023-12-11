@@ -100,7 +100,7 @@ func (s *GameState) upgradesContainer(ctx context.Context, widgets general.Widge
 	)
 
 	checkBlock = func() {
-		openLevel := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought-1].OpenLevel
+		openLevel := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
 		_, ok := s.PlayerState.LevelsComplete[openLevel]
 
 		level.Label = fmt.Sprintf("Level %d", s.chosenTower.UpgradesBought+1)
@@ -150,7 +150,11 @@ func (s *GameState) upgradesContainer(ctx context.Context, widgets general.Widge
 			insertValues(c[2].(*widget.Text), s.chosenTower.SpeedAttack, u.DeltaSpeedAttack, "Speed")
 			insertValues(c[3].(*widget.Text), int(s.chosenTower.ProjectileVrms), 0, "ProjSpeed")
 
-			if s.PlayerMapState.Money < s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price {
+			openLevel := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
+			_, ok := s.PlayerState.LevelsComplete[openLevel]
+			if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) ||
+				s.PlayerMapState.Money < s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price ||
+				!ok && openLevel > 0 {
 				btn.GetWidget().Disabled = true
 			} else {
 				btn.GetWidget().Disabled = false

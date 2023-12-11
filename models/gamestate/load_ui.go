@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"image/color"
+	"strconv"
 	"time"
 
 	"github.com/ebitenui/ebitenui"
@@ -212,13 +213,20 @@ func (s *GameState) updateTowerUI(t *ingame.Tower) {
 	text1, btn := upgrades.Children()[0].(*widget.Text), upgrades.Children()[1].(*widget.Button)
 	text1.Label = fmt.Sprintf("Level %d", t.UpgradesBought+1)
 
-	if t.UpgradesBought >= len(t.Upgrades) {
+	openLevel := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
+	_, ok := s.PlayerState.LevelsComplete[openLevel]
+
+	if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) {
 		btn.Text().Label = "SOLD OUT"
+	} else if !ok && openLevel > 0 {
+		btn.Text().Label = `Complete Level "` + strconv.Itoa(s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel) + `" to unlock`
 	} else {
-		btn.Text().Label = fmt.Sprintf("UPGRADE ($%d)", t.Upgrades[t.UpgradesBought].Price)
+		btn.Text().Label = fmt.Sprintf("UPGRADE ($%d)", s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price)
 	}
 
-	if t.UpgradesBought >= len(t.Upgrades) || s.PlayerMapState.Money < t.Upgrades[t.UpgradesBought].Price {
+	if t.UpgradesBought >= len(t.Upgrades) ||
+		s.PlayerMapState.Money < t.Upgrades[t.UpgradesBought].Price ||
+		!ok && openLevel > 0 {
 		btn.GetWidget().Disabled = true
 	} else {
 		btn.GetWidget().Disabled = false

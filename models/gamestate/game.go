@@ -265,8 +265,9 @@ func (s *GameState) drawTookImageBeforeCursor(screen *ebiten.Image) {
 	if !ingame.CheckCollisionPath(general.Point{general.Coord(cx), general.Coord(cy)}, s.Map.Path) {
 		vector.DrawFilledCircle(screen, float32(cx), float32(cy), s.tookTower.InitRadius, color.RGBA{0, 0, 0, 0x20}, true)
 	} else {
-		vector.DrawFilledCircle(screen, float32(cx), float32(cy), s.tookTower.InitRadius, color.RGBA{0xff, 0, 0, 0x20}, true)
+		//vector.DrawFilledCircle(screen, float32(cx), float32(cy), s.tookTower.InitRadius, color.RGBA{0xff, 0, 0, 0x20}, true)
 	}
+
 	geom := ebiten.GeoM{}
 	geom.Translate(float64(cx-ix/2), float64(cy-iy/2))
 	screen.DrawImage(img, &ebiten.DrawImageOptions{GeoM: geom})

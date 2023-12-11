@@ -109,6 +109,6 @@ func (p Path) Draw(screen *ebiten.Image) {
 // drawLine draws a line between two points.
 func drawLine(screen *ebiten.Image, p1, p2 general.Point) {
 	x1, y1, x2, y2 := p1.X, p1.Y, p2.X, p2.Y
-	vector.DrawFilledCircle(screen, x2, y2, config.PathWidth/2, color.RGBA{R: 12, G: 23, B: 34, A: 255}, true)
-	vector.StrokeLine(screen, x1, y1, x2, y2, config.PathWidth, color.RGBA{R: 12, G: 23, B: 34, A: 255}, true)
+	vector.DrawFilledCircle(screen, x2, y2, config.PathWidth/2, color.RGBA{R: 52, G: 63, B: 74, A: 255}, true)
+	vector.StrokeLine(screen, x1, y1, x2, y2, config.PathWidth, color.RGBA{R: 52, G: 63, B: 74, A: 255}, true)
 }

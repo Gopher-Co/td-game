@@ -43,6 +43,7 @@ func InitPNG(s string) (*ebiten.Image, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open png image failed: %w", err)
 	}
+	defer f.Close()
 
 	img, err := png.Decode(f)
 	if err != nil {
