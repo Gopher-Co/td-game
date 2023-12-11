@@ -276,8 +276,8 @@ func (s *GameState) drawTookImageBeforeCursor(screen *ebiten.Image) {
 	cx, cy := ebiten.CursorPosition()
 	ix, iy := img.Bounds().Dx(), img.Bounds().Dy()
 
-	if !ingame.CheckCollisionPath(general.Point{general.Coord(cx), general.Coord(cy)}, s.Map.Path) {
-		vector.DrawFilledCircle(screen, float32(cx), float32(cy), s.tookTower.InitRadius, color.RGBA{0, 0, 0, 0x20}, true)
+	if !ingame.CheckCollisionPath(general.Point{X: general.Coord(cx), Y: general.Coord(cy)}, s.Map.Path) {
+		vector.DrawFilledCircle(screen, float32(cx), float32(cy), s.tookTower.InitRadius, color.RGBA{A: 0x20}, true)
 	} else {
 		//vector.DrawFilledCircle(screen, float32(cx), float32(cy), s.tookTower.InitRadius, color.RGBA{0xff, 0, 0, 0x20}, true)
 	}
@@ -323,7 +323,7 @@ func (s *GameState) rightSidebarHandle() {
 // putTowerHandler handles the putting of the tower.
 func (s *GameState) putTowerHandler(tt *config.Tower) *ingame.Tower {
 	x, y := ebiten.CursorPosition()
-	pos := general.Point{general.Coord(x), general.Coord(y)}
+	pos := general.Point{X: general.Coord(x), Y: general.Coord(y)}
 
 	if x < 1500 && s.PlayerMapState.Money >= tt.Price {
 		if t := ingame.NewTower(tt, pos, s.Map.Path); t != nil {
