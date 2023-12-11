@@ -172,6 +172,7 @@ func (s *GameState) upgradesContainer(ctx context.Context, widgets general.Widge
 	return root
 }
 
+// textUpgradeInfo creates a container that contains the info about the tower.
 func (s *GameState) textUpgradeInfo() *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
