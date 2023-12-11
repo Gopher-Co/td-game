@@ -270,6 +270,7 @@ func (s *GameState) updateRunning(wave *ingame.Wave) {
 	}
 }
 
+// drawTookImageBeforeCursor draws the image of the tower that was taken from the right sidebar.
 func (s *GameState) drawTookImageBeforeCursor(screen *ebiten.Image) {
 	img := s.tookTower.Image()
 	cx, cy := ebiten.CursorPosition()
