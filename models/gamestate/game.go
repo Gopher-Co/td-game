@@ -366,6 +366,7 @@ func (s *GameState) turnOnTowerHandler(t *ingame.Tower) {
 	t.State.IsTurnedOn = true
 }
 
+// turnOffTowerHandler handles the turning off of the tower.
 func (s *GameState) turnOffTowerHandler(t *ingame.Tower) {
 	t.State.IsTurnedOn = false
 }
