@@ -38,7 +38,7 @@ func (s *GameState) loadGameUI(ctx context.Context, widgets general.Widgets) *eb
 }
 
 // loadMapContainer loads a container that contains the map.
-func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+func (s *GameState) loadMapContainer(ctx context.Context, _ general.Widgets) *widget.Container {
 	mapContainer := widget.NewContainer(
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.MinSize(1500, 0)),
 		widget.ContainerOpts.Layout(widget.NewStackedLayout()),
