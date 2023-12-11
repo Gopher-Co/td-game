@@ -383,6 +383,8 @@ func (s *GameState) tuneStrongTowerHandler(t *ingame.Tower) {
 	t.State.AimType = ingame.Strongest
 }
 
+// tuneWeakTowerHandler handles the tuning of the tower.
+// It sets the tower to aim at the weakest enemy.
 func (s *GameState) tuneWeakTowerHandler(t *ingame.Tower) {
 	t.State.AimType = ingame.Weakest
 }
