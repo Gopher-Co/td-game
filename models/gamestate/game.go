@@ -51,6 +51,7 @@ type GameState struct {
 	// Ended is a flag that represents if the game is ended.
 	Ended bool
 
+	// Win is a flag that represents if the game is won.
 	Win bool
 
 	// State is a current state of the game.
