@@ -222,6 +222,7 @@ func (s *GameState) Draw(screen *ebiten.Image) {
 	s.UI.Draw(screen)
 }
 
+// setStateAfterWave sets the state after the wave.
 func (s *GameState) setStateAfterWave() {
 	s.State = NextWaveReady
 	s.Map.Enemies = []*ingame.Enemy{}
