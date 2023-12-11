@@ -81,6 +81,7 @@ type GameState struct {
 	// speedUp is a flag that represents if the game is speeded up.
 	speedUp bool
 
+	// cancel is a function that cancels the context.
 	cancel context.CancelFunc
 
 	Watcher *replay.Watcher
