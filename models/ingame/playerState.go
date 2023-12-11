@@ -12,6 +12,7 @@ type PlayerState struct {
 	LevelsComplete map[int]struct{} `json:"levels_complete"`
 }
 
+// Valid returns an error if the player's state is not valid.
 func (ps *PlayerState) Valid(levels map[string]*config.Level) error {
 	mn, mx := 1, len(levels)
 	for k := range ps.LevelsComplete {
