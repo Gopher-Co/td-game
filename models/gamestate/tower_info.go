@@ -18,6 +18,7 @@ import (
 	"github.com/gopher-co/td-game/ui/font"
 )
 
+// newTowerMenuUI creates a new tower menu UI.
 func (s *GameState) newTowerMenuUI(ctx context.Context, widgets general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
