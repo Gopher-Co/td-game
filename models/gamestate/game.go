@@ -78,6 +78,7 @@ type GameState struct {
 	// chosenTower is a tower that was chosen from the map.
 	chosenTower *ingame.Tower
 
+	// speedUp is a flag that represents if the game is speeded up.
 	speedUp bool
 
 	cancel context.CancelFunc
