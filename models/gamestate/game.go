@@ -351,6 +351,7 @@ func (s *GameState) sellTowerHandler(t *ingame.Tower) {
 	s.chosenTower = nil
 }
 
+// upgradeTowerHandler handles the upgrading of the tower.
 func (s *GameState) upgradeTowerHandler(t *ingame.Tower) {
 	if !t.Upgrade(s.PlayerState.LevelsComplete) {
 		return
