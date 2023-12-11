@@ -37,6 +37,7 @@ func (s *GameState) loadGameUI(ctx context.Context, widgets general.Widgets) *eb
 	return &ebitenui.UI{Container: root}
 }
 
+// loadMapContainer loads a container that contains the map.
 func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
 	mapContainer := widget.NewContainer(
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.MinSize(1500, 0)),
