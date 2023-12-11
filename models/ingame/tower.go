@@ -65,6 +65,7 @@ type Tower struct {
 	// UpgradesBought is a number of upgrades bought.
 	UpgradesBought int
 
+	// Chosen is a flag that shows if the tower is chosen.
 	Chosen bool
 
 	Sold bool
