@@ -42,6 +42,7 @@ func (s *GameState) newTowerMenuUI(ctx context.Context, widgets general.Widgets)
 	return root
 }
 
+// textContainer creates a container that contains the name of the tower.
 func (s *GameState) textContainer(widgets general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
