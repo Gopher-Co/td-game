@@ -53,6 +53,7 @@ type Enemy struct {
 	image *ebiten.Image
 }
 
+// Strength is a config for strength.
 type Strength struct {
 	T      general.TypeAttack `json:"type"`
 	DecDmg int                `json:"dec_dmg"`
