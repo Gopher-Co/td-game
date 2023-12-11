@@ -26,5 +26,6 @@ var (
 	// Replays is a map of replays used in the game.
 	Replays []*replay.Watcher
 
+	// PlayerState is a state of the player.
 	PlayerState *ingame.PlayerState
 )
