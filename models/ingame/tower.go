@@ -168,7 +168,7 @@ func (t *Tower) Draw(screen *ebiten.Image) {
 		return
 	}
 	if t.Chosen {
-		vector.DrawFilledCircle(screen, t.State.Pos.X, t.State.Pos.Y, t.Radius, color.RGBA{0, 0, 0, 0x20}, true)
+		vector.DrawFilledCircle(screen, t.State.Pos.X, t.State.Pos.Y, t.Radius, color.RGBA{A: 0x20}, true)
 	}
 
 	geom := ebiten.GeoM{}
@@ -261,7 +261,7 @@ func (t *Tower) takeAimStrong(e1 []*Enemy) {
 // CheckCollisionPath checks if the path collides with the tower.
 func CheckCollisionPath(pos general.Point, path Path) bool {
 	for i := 0; i < len(path)-1; i++ {
-		if checkCollision(general.Point{pos.X, pos.Y}, path[i], path[i+1]) {
+		if checkCollision(general.Point{X: pos.X, Y: pos.Y}, path[i], path[i+1]) {
 			return true
 		}
 	}
@@ -300,17 +300,17 @@ func checkCollision(p, p1, p2 general.Point) bool {
 	y1 -= dy
 	y2 += dy
 
-	A := general.Point{general.Coord(x1 - dy), general.Coord(y1 + dx)}
-	B := general.Point{general.Coord(x1 + dy), general.Coord(y1 - dx)}
-	D := general.Point{general.Coord(x2 + dy), general.Coord(y2 - dx)}
+	A := general.Point{X: general.Coord(x1 - dy), Y: general.Coord(y1 + dx)}
+	B := general.Point{X: general.Coord(x1 + dy), Y: general.Coord(y1 - dx)}
+	D := general.Point{X: general.Coord(x2 + dy), Y: general.Coord(y2 - dx)}
 
 	sc := func(p1, p2 general.Point) general.Coord {
 		return p1.X*p2.X + p1.Y*p2.Y
 	}
 
-	AM := general.Point{p.X - A.X, p.Y - A.Y}
-	AB := general.Point{B.X - A.X, B.Y - A.Y}
-	AD := general.Point{D.X - A.X, D.Y - A.Y}
+	AM := general.Point{X: p.X - A.X, Y: p.Y - A.Y}
+	AB := general.Point{X: B.X - A.X, Y: B.Y - A.Y}
+	AD := general.Point{X: D.X - A.X, Y: D.Y - A.Y}
 	return 0 < sc(AM, AB) && sc(AM, AB) < sc(AB, AB) &&
 		0 < sc(AM, AD) && sc(AM, AD) < sc(AD, AD)
 }
