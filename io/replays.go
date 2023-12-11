@@ -6,6 +6,7 @@ import (
 	"github.com/gopher-co/td-game/replay"
 )
 
+// LoadReplays loads replays from the Replays directory.
 func LoadReplays() ([]*replay.Watcher, error) {
 	rs, err := ReadConfigs[replay.Watcher]("./Replays", ".json")
 	if err != nil {
