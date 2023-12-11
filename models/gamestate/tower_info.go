@@ -206,6 +206,7 @@ func (s *GameState) textUpgradeInfo() *widget.Container {
 	return root
 }
 
+// insertValues inserts values into the text.
 func insertValues(c *widget.Text, v, deltav int, s string) {
 	if deltav > 0 {
 		c.Label = fmt.Sprintf("%s: %d[color=00FF00]+%d[/color]", s, v, deltav)
