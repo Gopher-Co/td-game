@@ -175,6 +175,27 @@ func (r *ReplayState) Action() {
 			info := action.Info.(replay.InfoPutTower)
 			t := r.TowerToBuy[info.Name]
 			r.putTowerHandler(t, general.Point{general.Coord(info.X), general.Coord(info.Y)})
+		case replay.UpgradeTower:
+			info := action.Info.(replay.InfoUpgradeTower)
+			r.Map.Towers[info.Index].Upgrade(nil)
+		case replay.TuneWeak:
+			info := action.Info.(replay.InfoTuneWeak)
+			r.Map.Towers[info.Index].State.AimType = ingame.Weakest
+		case replay.TuneStrong:
+			info := action.Info.(replay.InfoTuneStrong)
+			r.Map.Towers[info.Index].State.AimType = ingame.Strongest
+		case replay.TuneFirst:
+			info := action.Info.(replay.InfoTuneFirst)
+			r.Map.Towers[info.Index].State.AimType = ingame.First
+		case replay.TurnOn:
+			info := action.Info.(replay.InfoTurnOnTower)
+			r.Map.Towers[info.Index].State.IsTurnedOn = true
+		case replay.TurnOff:
+			info := action.Info.(replay.InfoTurnOffTower)
+			r.Map.Towers[info.Index].State.IsTurnedOn = false
+		case replay.SellTower:
+			info := action.Info.(replay.InfoSellTower)
+			r.Map.Towers[info.Index].Sold = true
 		case replay.Stop:
 			r.Ended = true
 			return

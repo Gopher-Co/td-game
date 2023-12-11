@@ -13,7 +13,7 @@ import (
 
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/ui"
-	"github.com/gopher-co/td-game/ui/loaders"
+	"github.com/gopher-co/td-game/ui/font"
 )
 
 func (m *MenuState) loadReplaysMenuUI(widgets general.Widgets) *ebitenui.UI {
@@ -22,7 +22,7 @@ func (m *MenuState) loadReplaysMenuUI(widgets general.Widgets) *ebitenui.UI {
 
 	backBtn := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(colornames.Aqua)}),
-		widget.ButtonOpts.Text("<", loaders.FontTrueType(128), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text("<", font.TTF128, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			m.UI = m.loadMainMenuUI(widgets)
 		}),
@@ -63,8 +63,7 @@ func (m *MenuState) loadScrollingReplays(_ general.Widgets) *widget.Container {
 		levels = append(levels, k)
 	}
 	sort.Strings(levels)
-	ttf72 := loaders.FontTrueType(72)
-	ttf36 := loaders.FontTrueType(36)
+
 	// blackImg := image.NewNineSliceColor(color.Black)
 	for k, v := range m.Replays {
 		k := k
@@ -78,15 +77,15 @@ func (m *MenuState) loadScrollingReplays(_ general.Widgets) *widget.Container {
 			)),
 		)
 		text1 := widget.NewText(
-			widget.TextOpts.Text("Replay", ttf72, color.White),
+			widget.TextOpts.Text("Replay", font.TTF72, color.White),
 		)
 		text2 := widget.NewText(
 			widget.TextOpts.MaxWidth(400),
-			widget.TextOpts.Text(fmt.Sprintf("Level: %s\nTimestamp: %s", v.Name, v.Time), ttf36, color.White),
+			widget.TextOpts.Text(fmt.Sprintf("Level: %s\nTimestamp: %s", v.Name, v.Time), font.TTF36, color.White),
 		)
 		btn := widget.NewButton(
 			widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(colornames.Beige)}),
-			widget.ButtonOpts.Text("Watch", ttf72, &widget.ButtonTextColor{Idle: color.Black}),
+			widget.ButtonOpts.Text("Watch", font.TTF72, &widget.ButtonTextColor{Idle: color.Black}),
 			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{
 				VerticalPosition: widget.GridLayoutPositionEnd,
 			})),

@@ -1,46 +1,62 @@
 {
-  "level_name": "Level 1",
+  "level_name": "Tutorial",
   "map_name": "kavo",
   "game_rule": [
     {
       "swarms": [
         {
-          "enemy_name": "#ab0ba0",
-          "timeout": 180,
-          "interval": 10,
-          "max_calls": 100
-        },
-        {
-          "enemy_name": "#ab0ba0",
-          "timeout": 360,
+          "enemy_name": "Duke",
+          "timeout": 0,
           "interval": 60,
-          "max_calls": 100
+          "max_calls": 20
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Duke",
+          "timeout": 0,
+          "interval": 40,
+          "max_calls": 30
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Duke",
+          "timeout": 0,
+          "interval": 60,
+          "max_calls": 10
         },
         {
-          "enemy_name": "#0ab0ba",
-          "timeout": 1000,
-          "interval": 20,
-          "max_calls": 200
+          "enemy_name": "Duke",
+          "timeout": 600,
+          "interval": 40,
+          "max_calls": 15
+        },
+        {
+          "enemy_name": "Duke",
+          "timeout": 1200,
+          "interval": 30,
+          "max_calls": 25
         }
       ]
     },
     {
       "swarms": [
         {
-          "enemy_name": "#ab0ba0",
-          "timeout": 76745674,
-          "interval": 50,
-          "max_calls": 100
-        }
-      ]
-    },
-    {
-      "swarms": [
+          "enemy_name": "Duke",
+          "timeout": 0,
+          "interval": 30,
+          "max_calls": 20
+        },
         {
-          "enemy_name": "#0ab0ba",
-          "timeout": 60000,
-          "interval": 10,
-          "max_calls": 500
+          "enemy_name": "Elephant",
+          "timeout": 300,
+          "interval": 60,
+          "max_calls": 20
         }
       ]
     }

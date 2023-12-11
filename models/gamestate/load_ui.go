@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"image/color"
+	"strconv"
 	"time"
 
 	"github.com/ebitenui/ebitenui"
@@ -14,7 +15,7 @@ import (
 
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/models/ingame"
-	"github.com/gopher-co/td-game/ui/loaders"
+	"github.com/gopher-co/td-game/ui/font"
 )
 
 // loadGameUI loads UI of the game.
@@ -55,7 +56,7 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 	)
 
 	waveText := widget.NewText(
-		widget.TextOpts.Text("", loaders.FontTrueType(64), color.White),
+		widget.TextOpts.Text("", font.TTF64, color.White),
 		widget.TextOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 			HorizontalPosition: 0,
 			VerticalPosition:   widget.AnchorLayoutPositionEnd,
@@ -91,7 +92,7 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 			Right:  10,
 			Bottom: 5,
 		}),
-		widget.ButtonOpts.Text("Menu", loaders.FontTrueType(70), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text("Menu", font.TTF64, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
 			s.setStateAfterEnd()
 			s.Ended = true
@@ -122,7 +123,7 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 			Idle:     image2.NewNineSliceColor(colornames.Darkgreen),
 			Disabled: image2.NewNineSliceColor(color.RGBA{128, 10, 30, 180}),
 		}),
-		widget.ButtonOpts.Text("Start", loaders.FontTrueType(60), &widget.ButtonTextColor{
+		widget.ButtonOpts.Text("Start", font.TTF64, &widget.ButtonTextColor{
 			Idle:     color.White,
 			Disabled: color.RGBA{0xff, 0xff, 0xff, 180},
 		}),
@@ -156,7 +157,7 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
 		}),
-		widget.ButtonOpts.Text(">>", loaders.FontTrueType(60), &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.Text(">>", font.TTF64, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
 			if s.speedUp {
 				ebiten.SetTPS(60)
@@ -212,13 +213,20 @@ func (s *GameState) updateTowerUI(t *ingame.Tower) {
 	text1, btn := upgrades.Children()[0].(*widget.Text), upgrades.Children()[1].(*widget.Button)
 	text1.Label = fmt.Sprintf("Level %d", t.UpgradesBought+1)
 
-	if t.UpgradesBought >= len(t.Upgrades) {
+	openLevel := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
+	_, ok := s.PlayerState.LevelsComplete[openLevel]
+
+	if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) {
 		btn.Text().Label = "SOLD OUT"
+	} else if !ok && openLevel > 0 {
+		btn.Text().Label = `Complete Level "` + strconv.Itoa(s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel) + `" to unlock`
 	} else {
-		btn.Text().Label = fmt.Sprintf("UPGRADE ($%d)", t.Upgrades[t.UpgradesBought].Price)
+		btn.Text().Label = fmt.Sprintf("UPGRADE ($%d)", s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price)
 	}
 
-	if t.UpgradesBought >= len(t.Upgrades) || s.PlayerMapState.Money < t.Upgrades[t.UpgradesBought].Price {
+	if t.UpgradesBought >= len(t.Upgrades) ||
+		s.PlayerMapState.Money < t.Upgrades[t.UpgradesBought].Price ||
+		!ok && openLevel > 0 {
 		btn.GetWidget().Disabled = true
 	} else {
 		btn.GetWidget().Disabled = false

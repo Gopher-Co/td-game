@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"io/fs"
 	"log"
+	_ "net/http/pprof"
 	"os"
-	"runtime"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -21,11 +21,7 @@ import (
 	"github.com/gopher-co/td-game/ui"
 )
 
-func printAlloc() {
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-	fmt.Printf("%d KB\n", m.Alloc/1024)
-}
+var pprof = func() {}
 
 // Game implements ebiten.Game interface.
 type Game struct {
@@ -163,6 +159,9 @@ func main() {
 	// LEVEL LOADING
 	menu := menustate.New(PlayerState, Levels, Replays, general.Widgets(UI))
 	game := &Game{s: menu}
+
+	// pprof
+	pprof()
 
 	log.Println("Starting game...")
 	if err := ebiten.RunGame(game); err != nil {

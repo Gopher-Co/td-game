@@ -1,5 +1,5 @@
 {
-  "name": "#ffffff",
+  "name": "Gopher",
   "upgrades": [
       {
         "price": 120,
@@ -13,7 +13,7 @@
           "delta_damage": 0,
           "delta_radius": 0,
           "delta_speed_attack": 5,
-          "open_level": 2
+          "open_level": 1
       },
       {
           "price": 520,
@@ -39,5 +39,5 @@
   "projectile_config": {
     "name": "#413245"
   },
-  "open_level": 3
+  "open_level": 0
 }

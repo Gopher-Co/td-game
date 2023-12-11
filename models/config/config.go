@@ -66,15 +66,25 @@ type Weakness struct {
 // InitImage initializes image from the temporary state of the entity.
 func (c *Enemy) InitImage() error {
 	clr, err := colorx.ParseHexColor(c.Name)
-	if err != nil {
-		return err
+	if err == nil {
+		img := ebiten.NewImage(EnemyImageWidth, EnemyImageWidth)
+		vector.DrawFilledRect(img, 0, 0, EnemyImageWidth, EnemyImageWidth, clr, true)
+		c.image = img
+
+		return nil
+	}
+	png, err := ui.InitPNG("./assets/" + c.Name)
+	if err == nil {
+		img := ebiten.NewImage(EnemyImageWidth, EnemyImageWidth)
+		geom := ebiten.GeoM{}
+		geom.Scale(float64(EnemyImageWidth)/float64(png.Bounds().Dx()), float64(EnemyImageWidth)/float64(png.Bounds().Dy()))
+		img.DrawImage(png, &ebiten.DrawImageOptions{GeoM: geom})
+		c.image = img
+
+		return nil
 	}
 
-	img := ebiten.NewImage(EnemyImageWidth, EnemyImageWidth)
-	vector.DrawFilledCircle(img, EnemyImageWidth/2, EnemyImageWidth/2, EnemyImageWidth/2, clr, true)
-	c.image = img
-
-	return nil
+	return fmt.Errorf("image init failed: %w", err)
 }
 
 // Image returns image.
@@ -127,7 +137,7 @@ func (c *Tower) InitImage() error {
 
 		return nil
 	}
-	png, err := ui.InitPNG(c.Name)
+	png, err := ui.InitPNG("./assets/" + c.Name)
 	if err == nil {
 		img := ebiten.NewImage(TowerImageWidth, TowerImageWidth)
 		geom := ebiten.GeoM{}
