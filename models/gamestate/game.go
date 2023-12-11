@@ -229,6 +229,7 @@ func (s *GameState) setStateAfterWave() {
 	s.Map.Projectiles = []*ingame.Projectile{}
 }
 
+// clear clears the game state.
 func (s *GameState) clear() {
 	ebiten.SetTPS(60)
 	s.cancel()
