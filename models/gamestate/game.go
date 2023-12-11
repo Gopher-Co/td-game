@@ -251,6 +251,7 @@ func (s *GameState) setStateAfterEnd() {
 	}
 }
 
+// updateRunning updates the state of the game when it is running.
 func (s *GameState) updateRunning(wave *ingame.Wave) {
 	es := wave.CallEnemies()
 	for _, str := range es {
