@@ -361,6 +361,7 @@ func (s *GameState) upgradeTowerHandler(t *ingame.Tower) {
 	s.PlayerMapState.Money -= price
 }
 
+// turnOnTowerHandler handles the turning on of the tower.
 func (s *GameState) turnOnTowerHandler(t *ingame.Tower) {
 	t.State.IsTurnedOn = true
 }
