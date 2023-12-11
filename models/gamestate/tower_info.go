@@ -78,10 +78,10 @@ func (s *GameState) upgradesContainer(ctx context.Context, _ general.Widgets) *w
 
 	btn := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle:     image2.NewNineSliceColor(color.RGBA{0x99, 0xe7, 0xa9, 0xff}),
-			Hover:    image2.NewNineSliceColor(color.RGBA{0xa9, 0xee, 0xae, 0xff}),
-			Pressed:  image2.NewNineSliceColor(color.RGBA{0x89, 0xd7, 0x99, 0xff}),
-			Disabled: image2.NewNineSliceColor(color.RGBA{0x66, 0x05, 0x28, 0xff}),
+			Idle:     image2.NewNineSliceColor(color.RGBA{R: 0x99, G: 0xe7, B: 0xa9, A: 0xff}),
+			Hover:    image2.NewNineSliceColor(color.RGBA{R: 0xa9, G: 0xee, B: 0xae, A: 0xff}),
+			Pressed:  image2.NewNineSliceColor(color.RGBA{R: 0x89, G: 0xd7, B: 0x99, A: 0xff}),
+			Disabled: image2.NewNineSliceColor(color.RGBA{R: 0x66, G: 0x05, B: 0x28, A: 0xff}),
 		}),
 		widget.ButtonOpts.Text("UPGRADE", font.TTF32, &widget.ButtonTextColor{
 			Idle:     color.White,
@@ -293,9 +293,9 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 			Idle: color.White,
 		}),
 		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle:    image2.NewNineSliceColor(color.RGBA{0x7f, 0x27, 0xd7, 0xff}),
-			Hover:   image2.NewNineSliceColor(color.RGBA{0x9a, 0x3b, 0xea, 0xff}),
-			Pressed: image2.NewNineSliceColor(color.RGBA{0x6a, 0x16, 0xc2, 0xff}),
+			Idle:    image2.NewNineSliceColor(color.RGBA{R: 0x7f, G: 0x27, B: 0xd7, A: 0xff}),
+			Hover:   image2.NewNineSliceColor(color.RGBA{R: 0x9a, G: 0x3b, B: 0xea, A: 0xff}),
+			Pressed: image2.NewNineSliceColor(color.RGBA{R: 0x6a, G: 0x16, B: 0xc2, A: 0xff}),
 		}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			s.tuneFirstTowerHandler(s.chosenTower)
@@ -321,9 +321,9 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 			Idle: color.White,
 		}),
 		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle:    image2.NewNineSliceColor(color.RGBA{0x7f, 0x27, 0xd7, 0xff}),
-			Hover:   image2.NewNineSliceColor(color.RGBA{0x9a, 0x3b, 0xea, 0xff}),
-			Pressed: image2.NewNineSliceColor(color.RGBA{0x6a, 0x16, 0xc2, 0xff}),
+			Idle:    image2.NewNineSliceColor(color.RGBA{R: 0x7f, G: 0x27, B: 0xd7, A: 0xff}),
+			Hover:   image2.NewNineSliceColor(color.RGBA{R: 0x9a, G: 0x3b, B: 0xea, A: 0xff}),
+			Pressed: image2.NewNineSliceColor(color.RGBA{R: 0x6a, G: 0x16, B: 0xc2, A: 0xff}),
 		}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			s.tuneStrongTowerHandler(s.chosenTower)
@@ -349,9 +349,9 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 			Idle: color.White,
 		}),
 		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle:    image2.NewNineSliceColor(color.RGBA{0x7f, 0x27, 0xd7, 0xff}),
-			Hover:   image2.NewNineSliceColor(color.RGBA{0x9a, 0x3b, 0xea, 0xff}),
-			Pressed: image2.NewNineSliceColor(color.RGBA{0x6a, 0x16, 0xc2, 0xff}),
+			Idle:    image2.NewNineSliceColor(color.RGBA{R: 0x7f, G: 0x27, B: 0xd7, A: 0xff}),
+			Hover:   image2.NewNineSliceColor(color.RGBA{R: 0x9a, G: 0x3b, B: 0xea, A: 0xff}),
+			Pressed: image2.NewNineSliceColor(color.RGBA{R: 0x6a, G: 0x16, B: 0xc2, A: 0xff}),
 		}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			s.tuneWeakTowerHandler(s.chosenTower)
@@ -407,7 +407,7 @@ func (s *GameState) sellContainer(_ general.Widgets) *widget.Container {
 
 	btnSell := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle: image2.NewNineSliceColor(color.RGBA{0xff, 0x66, 0x66, 0xff}),
+			Idle: image2.NewNineSliceColor(color.RGBA{R: 0xff, G: 0x66, B: 0x66, A: 0xff}),
 		}),
 		widget.ButtonOpts.Text("SELL", font.TTF64, &widget.ButtonTextColor{
 			Idle: color.White,
