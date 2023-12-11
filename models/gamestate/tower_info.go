@@ -267,6 +267,7 @@ func (s *GameState) tuningContainer(ctx context.Context, widgets general.Widgets
 	return root
 }
 
+// radio creates a radio group.
 func (s *GameState) radio(ctx context.Context) *widget.Container {
 
 	root := widget.NewContainer(
