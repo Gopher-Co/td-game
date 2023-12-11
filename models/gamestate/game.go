@@ -389,6 +389,7 @@ func (s *GameState) tuneWeakTowerHandler(t *ingame.Tower) {
 	t.State.AimType = ingame.Weakest
 }
 
+// findTowerIndex finds the index of the tower t in the map of towers.
 func (s *GameState) findTowerIndex(t *ingame.Tower) int {
 	for k, v := range s.Map.Towers {
 		if v == t {
