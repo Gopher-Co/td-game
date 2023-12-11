@@ -174,7 +174,7 @@ func (r *ReplayState) Action() {
 		case replay.PutTower:
 			info := action.Info.(replay.InfoPutTower)
 			t := r.TowerToBuy[info.Name]
-			r.putTowerHandler(t, general.Point{general.Coord(info.X), general.Coord(info.Y)})
+			r.putTowerHandler(t, general.Point{X: general.Coord(info.X), Y: general.Coord(info.Y)})
 		case replay.UpgradeTower:
 			info := action.Info.(replay.InfoUpgradeTower)
 			r.Map.Towers[info.Index].Upgrade(nil)
