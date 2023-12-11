@@ -23,6 +23,7 @@ var (
 	// Enemies is a map of enemies used in the game.
 	Enemies = make(map[string]*config.Enemy)
 
+	// Replays is a map of replays used in the game.
 	Replays []*replay.Watcher
 
 	PlayerState *ingame.PlayerState
