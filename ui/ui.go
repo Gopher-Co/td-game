@@ -3,16 +3,12 @@ package ui
 
 import (
 	"fmt"
-	"image/color"
 	"image/png"
 	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/icza/gox/imagex/colorx"
 )
-
-// TextColor is a color of the text.
-var TextColor color.Color
 
 // InitImage initializes an image.
 func InitImage(s string) (*ebiten.Image, error) {
