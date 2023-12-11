@@ -56,8 +56,10 @@ type Enemy struct {
 // Strength is a config for strength.
 type Strength struct {
 	// T is a type of the strength.
-	T      general.TypeAttack `json:"type"`
-	DecDmg int                `json:"dec_dmg"`
+	T general.TypeAttack `json:"type"`
+
+	// DecDmg is a damage decrement of the strength.
+	DecDmg int `json:"dec_dmg"`
 }
 
 type Weakness struct {
