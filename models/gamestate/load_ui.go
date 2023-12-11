@@ -198,6 +198,7 @@ func (s *GameState) showTowerMenu() {
 	menu.AddChild(cMenu)
 }
 
+// showTowerInfoMenu shows the tower info menu.
 func (s *GameState) showTowerInfoMenu() {
 	menu := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container)
 	menu.RemoveChildren()
