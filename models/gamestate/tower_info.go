@@ -65,6 +65,7 @@ func (s *GameState) textContainer(widgets general.Widgets) *widget.Container {
 	return root
 }
 
+// upgradesContainer creates a container that contains the upgrades of the tower.
 func (s *GameState) upgradesContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
