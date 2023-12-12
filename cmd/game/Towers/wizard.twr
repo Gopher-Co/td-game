@@ -1,0 +1,43 @@
+{
+  "name": "Wizard",
+  "upgrades": [
+    {
+      "price": 400,
+      "delta_damage": 1,
+      "delta_radius": 120.0,
+      "delta_speed_attack": 5,
+      "open_level": 0
+    },
+    {
+      "price": 220,
+      "delta_damage": 0,
+      "delta_radius": 0,
+      "delta_speed_attack": 5,
+      "open_level": 0
+    },
+    {
+      "price": 1520,
+      "delta_damage": 10,
+      "delta_radius": 300.0,
+      "delta_speed_attack": 5,
+      "open_level": 2
+    },
+    {
+      "price": 550,
+      "delta_damage": 1,
+      "delta_radius": 20.0,
+      "delta_speed_attack": 10,
+      "open_level": 2
+    }
+  ],
+  "price": 300,
+  "type": 1,
+  "initial_damage": 3,
+  "initial_radius": 150,
+  "initial_speed_attack": 10,
+  "init_projectile_speed": 25,
+  "projectile_config": {
+    "name": "#413245"
+  },
+  "open_level": 1
+}

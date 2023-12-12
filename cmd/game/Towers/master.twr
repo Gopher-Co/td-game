@@ -1,0 +1,22 @@
+{
+  "name": "Master",
+  "upgrades": [
+    {
+      "price": 300,
+      "delta_damage": 3,
+      "delta_radius": 0,
+      "delta_speed_attack": 0,
+      "open_level": 0
+    }
+  ],
+  "price": 550,
+  "type": 1,
+  "initial_damage": 1,
+  "initial_radius": 75,
+  "initial_speed_attack": 27,
+  "init_projectile_speed": 50,
+  "projectile_config": {
+    "name": "#413245"
+  },
+  "open_level": 1
+}
