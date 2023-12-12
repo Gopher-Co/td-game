@@ -13,16 +13,16 @@ import (
 
 const (
 	// EnemyImageWidth is a width of the enemy image.
-	EnemyImageWidth = 48
+	EnemyImageWidth = 64
 
 	// TowerImageWidth is a width of the tower image.
-	TowerImageWidth = 64
+	TowerImageWidth = 96
 
 	// ProjectileImageWith is a width of the projectile image.
 	ProjectileImageWith = 32
 
 	// PathWidth is a width of the path.
-	PathWidth = 64
+	PathWidth = 48
 )
 
 // Config structures are need to pass then to NewXXX functions.
