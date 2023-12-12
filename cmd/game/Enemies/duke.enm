@@ -1,9 +1,9 @@
 {
   "name": "Duke",
-  "max_health": 2,
+  "max_health": 1,
   "damage": 1,
   "vrms": 1.0,
-  "money_award": 2,
+  "money_award": 1,
   "strengths": [],
   "weaknesses": [{
     "type": 1,
