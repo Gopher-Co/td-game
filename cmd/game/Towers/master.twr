@@ -14,7 +14,7 @@
   "initial_damage": 1,
   "initial_radius": 75,
   "initial_speed_attack": 27,
-  "init_projectile_speed": 50,
+  "init_projectile_speed": 10,
   "projectile_config": {
     "name": "#413245"
   },
