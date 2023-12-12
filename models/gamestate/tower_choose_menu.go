@@ -12,6 +12,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/colornames"
 
+	"github.com/gopher-co/td-game/models/config"
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/ui/font"
 )
