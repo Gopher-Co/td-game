@@ -53,14 +53,22 @@ type Enemy struct {
 	image *ebiten.Image
 }
 
+// Strength is a config for strength.
 type Strength struct {
-	T      general.TypeAttack `json:"type"`
-	DecDmg int                `json:"dec_dmg"`
+	// T is a type of the strength.
+	T general.TypeAttack `json:"type"`
+
+	// DecDmg is a damage decrement of the strength.
+	DecDmg int `json:"dec_dmg"`
 }
 
+// Weakness is a config for weakness.
 type Weakness struct {
-	T      general.TypeAttack `json:"type"`
-	IncDmg int                `json:"inc_dmg"`
+	// T is a type of the weakness.
+	T general.TypeAttack `json:"type"`
+
+	// IncDmg is a damage increment of the weakness.
+	IncDmg int `json:"inc_dmg"`
 }
 
 // InitImage initializes image from the temporary state of the entity.

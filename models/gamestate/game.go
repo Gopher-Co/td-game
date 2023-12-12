@@ -36,7 +36,9 @@ const (
 
 // GameState is a struct that represents the state of the game.
 type GameState struct {
+	// LevelName is a name of the level.
 	LevelName string
+
 	// Map is a map of the game.
 	Map *ingame.Map
 
@@ -49,6 +51,7 @@ type GameState struct {
 	// Ended is a flag that represents if the game is ended.
 	Ended bool
 
+	// Win is a flag that represents if the game is won.
 	Win bool
 
 	// State is a current state of the game.
@@ -69,16 +72,22 @@ type GameState struct {
 	// PlayerMapState is a state of the player on the map.
 	PlayerMapState ingame.PlayerMapState
 
+	// tookTower is a tower that was taken from the right sidebar.
 	tookTower *config.Tower
 
+	// chosenTower is a tower that was chosen from the map.
 	chosenTower *ingame.Tower
 
+	// speedUp is a flag that represents if the game is speeded up.
 	speedUp bool
 
+	// cancel is a function that cancels the context.
 	cancel context.CancelFunc
 
+	// Watcher is a watcher of the game.
 	Watcher *replay.Watcher
 
+	// PlayerState is a state of the player.
 	PlayerState *ingame.PlayerState
 }
 
@@ -213,18 +222,21 @@ func (s *GameState) Draw(screen *ebiten.Image) {
 	s.UI.Draw(screen)
 }
 
+// setStateAfterWave sets the state after the wave.
 func (s *GameState) setStateAfterWave() {
 	s.State = NextWaveReady
 	s.Map.Enemies = []*ingame.Enemy{}
 	s.Map.Projectiles = []*ingame.Projectile{}
 }
 
+// clear clears the game state.
 func (s *GameState) clear() {
 	ebiten.SetTPS(60)
 	s.cancel()
 	s.cancel = nil
 }
 
+// setStateAfterEnd sets the state after the end of the game.
 func (s *GameState) setStateAfterEnd() {
 	s.clear()
 
@@ -239,6 +251,7 @@ func (s *GameState) setStateAfterEnd() {
 	}
 }
 
+// updateRunning updates the state of the game when it is running.
 func (s *GameState) updateRunning(wave *ingame.Wave) {
 	es := wave.CallEnemies()
 	for _, str := range es {
@@ -257,13 +270,14 @@ func (s *GameState) updateRunning(wave *ingame.Wave) {
 	}
 }
 
+// drawTookImageBeforeCursor draws the image of the tower that was taken from the right sidebar.
 func (s *GameState) drawTookImageBeforeCursor(screen *ebiten.Image) {
 	img := s.tookTower.Image()
 	cx, cy := ebiten.CursorPosition()
 	ix, iy := img.Bounds().Dx(), img.Bounds().Dy()
 
-	if !ingame.CheckCollisionPath(general.Point{general.Coord(cx), general.Coord(cy)}, s.Map.Path) {
-		vector.DrawFilledCircle(screen, float32(cx), float32(cy), s.tookTower.InitRadius, color.RGBA{0, 0, 0, 0x20}, true)
+	if !ingame.CheckCollisionPath(general.Point{X: general.Coord(cx), Y: general.Coord(cy)}, s.Map.Path) {
+		vector.DrawFilledCircle(screen, float32(cx), float32(cy), s.tookTower.InitRadius, color.RGBA{A: 0x20}, true)
 	} else {
 		//vector.DrawFilledCircle(screen, float32(cx), float32(cy), s.tookTower.InitRadius, color.RGBA{0xff, 0, 0, 0x20}, true)
 	}
@@ -273,6 +287,7 @@ func (s *GameState) drawTookImageBeforeCursor(screen *ebiten.Image) {
 	screen.DrawImage(img, &ebiten.DrawImageOptions{GeoM: geom})
 }
 
+// filter filters the map m by the function f.
 func filter[K comparable, V any, M ~map[K]V](m M, f func(K, V) bool) {
 	for k, v := range m {
 		if f(k, v) {
@@ -281,6 +296,7 @@ func filter[K comparable, V any, M ~map[K]V](m M, f func(K, V) bool) {
 	}
 }
 
+// rightSidebarHandle handles the right sidebar.
 func (s *GameState) rightSidebarHandle() {
 	x, _ := ebiten.CursorPosition()
 	if x <= 1500 {
@@ -304,9 +320,10 @@ func (s *GameState) rightSidebarHandle() {
 	}
 }
 
+// putTowerHandler handles the putting of the tower.
 func (s *GameState) putTowerHandler(tt *config.Tower) *ingame.Tower {
 	x, y := ebiten.CursorPosition()
-	pos := general.Point{general.Coord(x), general.Coord(y)}
+	pos := general.Point{X: general.Coord(x), Y: general.Coord(y)}
 
 	if x < 1500 && s.PlayerMapState.Money >= tt.Price {
 		if t := ingame.NewTower(tt, pos, s.Map.Path); t != nil {
@@ -320,6 +337,7 @@ func (s *GameState) putTowerHandler(tt *config.Tower) *ingame.Tower {
 	return nil
 }
 
+// sellTowerHandler handles the selling of the tower.
 func (s *GameState) sellTowerHandler(t *ingame.Tower) {
 	p := t.Price
 	for i := 0; i < t.UpgradesBought; i++ {
@@ -333,6 +351,7 @@ func (s *GameState) sellTowerHandler(t *ingame.Tower) {
 	s.chosenTower = nil
 }
 
+// upgradeTowerHandler handles the upgrading of the tower.
 func (s *GameState) upgradeTowerHandler(t *ingame.Tower) {
 	if !t.Upgrade(s.PlayerState.LevelsComplete) {
 		return
@@ -342,26 +361,35 @@ func (s *GameState) upgradeTowerHandler(t *ingame.Tower) {
 	s.PlayerMapState.Money -= price
 }
 
+// turnOnTowerHandler handles the turning on of the tower.
 func (s *GameState) turnOnTowerHandler(t *ingame.Tower) {
 	t.State.IsTurnedOn = true
 }
 
+// turnOffTowerHandler handles the turning off of the tower.
 func (s *GameState) turnOffTowerHandler(t *ingame.Tower) {
 	t.State.IsTurnedOn = false
 }
 
+// tuneFirstTowerHandler handles the tuning of the tower.
+// It sets the tower to aim at the first enemy.
 func (s *GameState) tuneFirstTowerHandler(t *ingame.Tower) {
 	t.State.AimType = ingame.First
 }
 
+// tuneStrongTowerHandler handles the tuning of the tower.
+// It sets the tower to aim at the strongest enemy.
 func (s *GameState) tuneStrongTowerHandler(t *ingame.Tower) {
 	t.State.AimType = ingame.Strongest
 }
 
+// tuneWeakTowerHandler handles the tuning of the tower.
+// It sets the tower to aim at the weakest enemy.
 func (s *GameState) tuneWeakTowerHandler(t *ingame.Tower) {
 	t.State.AimType = ingame.Weakest
 }
 
+// findTowerIndex finds the index of the tower t in the map of towers.
 func (s *GameState) findTowerIndex(t *ingame.Tower) int {
 	for k, v := range s.Map.Towers {
 		if v == t {

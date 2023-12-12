@@ -18,6 +18,7 @@ import (
 	"github.com/gopher-co/td-game/ui/font"
 )
 
+// newTowerMenuUI creates a new tower menu UI.
 func (s *GameState) newTowerMenuUI(ctx context.Context, widgets general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
@@ -41,7 +42,8 @@ func (s *GameState) newTowerMenuUI(ctx context.Context, widgets general.Widgets)
 	return root
 }
 
-func (s *GameState) textContainer(widgets general.Widgets) *widget.Container {
+// textContainer creates a container that contains the name of the tower.
+func (s *GameState) textContainer(_ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -63,7 +65,8 @@ func (s *GameState) textContainer(widgets general.Widgets) *widget.Container {
 	return root
 }
 
-func (s *GameState) upgradesContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+// upgradesContainer creates a container that contains the upgrades of the tower.
+func (s *GameState) upgradesContainer(ctx context.Context, _ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -75,10 +78,10 @@ func (s *GameState) upgradesContainer(ctx context.Context, widgets general.Widge
 
 	btn := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle:     image2.NewNineSliceColor(color.RGBA{0x99, 0xe7, 0xa9, 0xff}),
-			Hover:    image2.NewNineSliceColor(color.RGBA{0xa9, 0xee, 0xae, 0xff}),
-			Pressed:  image2.NewNineSliceColor(color.RGBA{0x89, 0xd7, 0x99, 0xff}),
-			Disabled: image2.NewNineSliceColor(color.RGBA{0x66, 0x05, 0x28, 0xff}),
+			Idle:     image2.NewNineSliceColor(color.RGBA{R: 0x99, G: 0xe7, B: 0xa9, A: 0xff}),
+			Hover:    image2.NewNineSliceColor(color.RGBA{R: 0xa9, G: 0xee, B: 0xae, A: 0xff}),
+			Pressed:  image2.NewNineSliceColor(color.RGBA{R: 0x89, G: 0xd7, B: 0x99, A: 0xff}),
+			Disabled: image2.NewNineSliceColor(color.RGBA{R: 0x66, G: 0x05, B: 0x28, A: 0xff}),
 		}),
 		widget.ButtonOpts.Text("UPGRADE", font.TTF32, &widget.ButtonTextColor{
 			Idle:     color.White,
@@ -169,6 +172,7 @@ func (s *GameState) upgradesContainer(ctx context.Context, widgets general.Widge
 	return root
 }
 
+// textUpgradeInfo creates a container that contains the info about the tower.
 func (s *GameState) textUpgradeInfo() *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
@@ -202,6 +206,7 @@ func (s *GameState) textUpgradeInfo() *widget.Container {
 	return root
 }
 
+// insertValues inserts values into the text.
 func insertValues(c *widget.Text, v, deltav int, s string) {
 	if deltav > 0 {
 		c.Label = fmt.Sprintf("%s: %d[color=00FF00]+%d[/color]", s, v, deltav)
@@ -212,7 +217,8 @@ func insertValues(c *widget.Text, v, deltav int, s string) {
 	}
 }
 
-func (s *GameState) tuningContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+// tuningContainer creates a container that contains the tuning of the tower.
+func (s *GameState) tuningContainer(ctx context.Context, _ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -261,6 +267,7 @@ func (s *GameState) tuningContainer(ctx context.Context, widgets general.Widgets
 	return root
 }
 
+// radio creates a radio group.
 func (s *GameState) radio(ctx context.Context) *widget.Container {
 
 	root := widget.NewContainer(
@@ -286,9 +293,9 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 			Idle: color.White,
 		}),
 		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle:    image2.NewNineSliceColor(color.RGBA{0x7f, 0x27, 0xd7, 0xff}),
-			Hover:   image2.NewNineSliceColor(color.RGBA{0x9a, 0x3b, 0xea, 0xff}),
-			Pressed: image2.NewNineSliceColor(color.RGBA{0x6a, 0x16, 0xc2, 0xff}),
+			Idle:    image2.NewNineSliceColor(color.RGBA{R: 0x7f, G: 0x27, B: 0xd7, A: 0xff}),
+			Hover:   image2.NewNineSliceColor(color.RGBA{R: 0x9a, G: 0x3b, B: 0xea, A: 0xff}),
+			Pressed: image2.NewNineSliceColor(color.RGBA{R: 0x6a, G: 0x16, B: 0xc2, A: 0xff}),
 		}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			s.tuneFirstTowerHandler(s.chosenTower)
@@ -314,9 +321,9 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 			Idle: color.White,
 		}),
 		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle:    image2.NewNineSliceColor(color.RGBA{0x7f, 0x27, 0xd7, 0xff}),
-			Hover:   image2.NewNineSliceColor(color.RGBA{0x9a, 0x3b, 0xea, 0xff}),
-			Pressed: image2.NewNineSliceColor(color.RGBA{0x6a, 0x16, 0xc2, 0xff}),
+			Idle:    image2.NewNineSliceColor(color.RGBA{R: 0x7f, G: 0x27, B: 0xd7, A: 0xff}),
+			Hover:   image2.NewNineSliceColor(color.RGBA{R: 0x9a, G: 0x3b, B: 0xea, A: 0xff}),
+			Pressed: image2.NewNineSliceColor(color.RGBA{R: 0x6a, G: 0x16, B: 0xc2, A: 0xff}),
 		}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			s.tuneStrongTowerHandler(s.chosenTower)
@@ -342,9 +349,9 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 			Idle: color.White,
 		}),
 		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle:    image2.NewNineSliceColor(color.RGBA{0x7f, 0x27, 0xd7, 0xff}),
-			Hover:   image2.NewNineSliceColor(color.RGBA{0x9a, 0x3b, 0xea, 0xff}),
-			Pressed: image2.NewNineSliceColor(color.RGBA{0x6a, 0x16, 0xc2, 0xff}),
+			Idle:    image2.NewNineSliceColor(color.RGBA{R: 0x7f, G: 0x27, B: 0xd7, A: 0xff}),
+			Hover:   image2.NewNineSliceColor(color.RGBA{R: 0x9a, G: 0x3b, B: 0xea, A: 0xff}),
+			Pressed: image2.NewNineSliceColor(color.RGBA{R: 0x6a, G: 0x16, B: 0xc2, A: 0xff}),
 		}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			s.tuneWeakTowerHandler(s.chosenTower)
@@ -388,7 +395,8 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 	return root
 }
 
-func (s *GameState) sellContainer(widgets general.Widgets) *widget.Container {
+// sellContainer creates a container that contains the sell button.
+func (s *GameState) sellContainer(_ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -399,7 +407,7 @@ func (s *GameState) sellContainer(widgets general.Widgets) *widget.Container {
 
 	btnSell := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{
-			Idle: image2.NewNineSliceColor(color.RGBA{0xff, 0x66, 0x66, 0xff}),
+			Idle: image2.NewNineSliceColor(color.RGBA{R: 0xff, G: 0x66, B: 0x66, A: 0xff}),
 		}),
 		widget.ButtonOpts.Text("SELL", font.TTF64, &widget.ButtonTextColor{
 			Idle: color.White,

@@ -14,13 +14,18 @@ import (
 	"github.com/gopher-co/td-game/replay"
 )
 
+// CurrentState is a type that represents the current state of the game.
 type CurrentState int
 
 const (
+	// Paused is a state that represents the game is paused.
 	Paused = CurrentState(iota)
+
+	// Running is a state that represents the game is running.
 	Running
 )
 
+// ReplayState is a struct that represents the state of the game.
 type ReplayState struct {
 	// Map is a map of the game.
 	Map *ingame.Map
@@ -28,6 +33,7 @@ type ReplayState struct {
 	// EnemyToCall is a map of enemies that can be called.
 	EnemyToCall map[string]*config.Enemy
 
+	// TowerToBuy is a map of towers that can be bought.
 	TowerToBuy map[string]*config.Tower
 
 	// Ended is a flag that represents if the game is ended.
@@ -51,15 +57,20 @@ type ReplayState struct {
 	// PlayerMapState is a state of the player on the map.
 	PlayerMapState ingame.PlayerMapState
 
+	// speedUp is a flag that represents if the game is speed up.
 	speedUp bool
 
+	// cancel is a function that cancels the context.
 	cancel context.CancelFunc
 
+	// rw is a watcher of the replay.
 	rw *replay.Watcher
 
+	// currAction is an index of the current action.
 	currAction int
 }
 
+// New creates a new entity of ReplayState.
 func New(
 	w *replay.Watcher,
 	cfg *config.Level,
@@ -87,6 +98,7 @@ func New(
 	return rs
 }
 
+// Draw draws the game.
 func (r *ReplayState) Draw(screen *ebiten.Image) {
 	if r.Ended == true {
 		return
@@ -98,6 +110,7 @@ func (r *ReplayState) Draw(screen *ebiten.Image) {
 	r.UI.Draw(screen)
 }
 
+// Update updates the game.
 func (r *ReplayState) Update() error {
 	if r.Ended {
 		return nil
@@ -128,6 +141,7 @@ func (r *ReplayState) Update() error {
 	return nil
 }
 
+// setStateAfterWave sets the state after the wave.
 func (r *ReplayState) setStateAfterWave() {
 	r.Map.Enemies = []*ingame.Enemy{}
 	r.Map.Projectiles = []*ingame.Projectile{}
@@ -135,12 +149,14 @@ func (r *ReplayState) setStateAfterWave() {
 	r.CurrentWave++
 }
 
+// setStateAfterEnd sets the state after the end of the game.
 func (r *ReplayState) setStateAfterEnd() {
 	ebiten.SetTPS(60)
 	r.cancel()
 	r.cancel = nil
 }
 
+// updateRunning updates the game in the running state.
 func (r *ReplayState) updateRunning(wave *ingame.Wave) {
 	es := wave.CallEnemies()
 	for _, str := range es {
@@ -159,10 +175,12 @@ func (r *ReplayState) updateRunning(wave *ingame.Wave) {
 	}
 }
 
+// End returns true if the game is ended.
 func (r *ReplayState) End() bool {
 	return r.Ended
 }
 
+// Action performs the action.
 func (r *ReplayState) Action() {
 	for {
 		action := r.rw.Actions[r.currAction]
@@ -174,7 +192,7 @@ func (r *ReplayState) Action() {
 		case replay.PutTower:
 			info := action.Info.(replay.InfoPutTower)
 			t := r.TowerToBuy[info.Name]
-			r.putTowerHandler(t, general.Point{general.Coord(info.X), general.Coord(info.Y)})
+			r.putTowerHandler(t, general.Point{X: general.Coord(info.X), Y: general.Coord(info.Y)})
 		case replay.UpgradeTower:
 			info := action.Info.(replay.InfoUpgradeTower)
 			r.Map.Towers[info.Index].Upgrade(nil)
@@ -207,6 +225,7 @@ func (r *ReplayState) Action() {
 	}
 }
 
+// putTowerHandler handles the put tower action.
 func (r *ReplayState) putTowerHandler(tt *config.Tower, pos general.Point) *ingame.Tower {
 	if pos.X < 1500 && r.PlayerMapState.Money >= tt.Price {
 		if t := ingame.NewTower(tt, pos, r.Map.Path); t != nil {

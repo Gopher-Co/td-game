@@ -6,6 +6,7 @@ import (
 	"golang.org/x/image/font/gofont/goregular"
 )
 
+// FontTrueType loads a font from the gofont package.
 func FontTrueType(size float64) font.Face {
 	ttfFont, err := truetype.Parse(goregular.TTF)
 	if err != nil {

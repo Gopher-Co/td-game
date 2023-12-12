@@ -16,6 +16,7 @@ import (
 	"github.com/gopher-co/td-game/ui/font"
 )
 
+// loadUI loads the UI of the replay state.
 func (r *ReplayState) loadUI(ctx context.Context, widgets general.Widgets) *ebitenui.UI {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
@@ -34,7 +35,8 @@ func (r *ReplayState) loadUI(ctx context.Context, widgets general.Widgets) *ebit
 	return &ebitenui.UI{Container: root}
 }
 
-func (r *ReplayState) loadMapContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+// loadMapContainer loads the map container.
+func (r *ReplayState) loadMapContainer(ctx context.Context, _ general.Widgets) *widget.Container {
 	mapContainer := widget.NewContainer(
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.MinSize(1500, 0)),
 		widget.ContainerOpts.Layout(widget.NewStackedLayout()),
@@ -141,7 +143,8 @@ func (r *ReplayState) loadMapContainer(ctx context.Context, widgets general.Widg
 	return mapContainer
 }
 
-func (r *ReplayState) loadTowerMenuContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+// loadTowerMenuContainer loads the tower menu container.
+func (r *ReplayState) loadTowerMenuContainer(ctx context.Context, _ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),

@@ -136,6 +136,7 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 	return root
 }
 
+// loadTowerMenuContainer creates a tower menu container.
 func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(

@@ -16,6 +16,7 @@ import (
 	"github.com/gopher-co/td-game/ui/font"
 )
 
+// loadReplaysMenuUI loads the replays menu UI.
 func (m *MenuState) loadReplaysMenuUI(widgets general.Widgets) *ebitenui.UI {
 	bgImg := widgets[ui.MenuBackgroundImage]
 	menuBackground := image.NewNineSliceSimple(bgImg, 0, 1)
@@ -43,6 +44,7 @@ func (m *MenuState) loadReplaysMenuUI(widgets general.Widgets) *ebitenui.UI {
 	return &ebitenui.UI{Container: root}
 }
 
+// loadScrollingReplays loads the scrolling replays.
 func (m *MenuState) loadScrollingReplays(_ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(

@@ -37,7 +37,8 @@ func (s *GameState) loadGameUI(ctx context.Context, widgets general.Widgets) *eb
 	return &ebitenui.UI{Container: root}
 }
 
-func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+// loadMapContainer loads a container that contains the map.
+func (s *GameState) loadMapContainer(ctx context.Context, _ general.Widgets) *widget.Container {
 	mapContainer := widget.NewContainer(
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.MinSize(1500, 0)),
 		widget.ContainerOpts.Layout(widget.NewStackedLayout()),
@@ -121,11 +122,11 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 	startButton := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle:     image2.NewNineSliceColor(colornames.Darkgreen),
-			Disabled: image2.NewNineSliceColor(color.RGBA{128, 10, 30, 180}),
+			Disabled: image2.NewNineSliceColor(color.RGBA{R: 128, G: 10, B: 30, A: 180}),
 		}),
 		widget.ButtonOpts.Text("Start", font.TTF64, &widget.ButtonTextColor{
 			Idle:     color.White,
-			Disabled: color.RGBA{0xff, 0xff, 0xff, 180},
+			Disabled: color.RGBA{R: 0xff, G: 0xff, B: 0xff, A: 180},
 		}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			b := args.Button
@@ -190,18 +191,21 @@ func (s *GameState) loadMapContainer(ctx context.Context, widgets general.Widget
 
 var cMenu, cInfo *widget.Container
 
+// showTowerMenu shows the tower menu.
 func (s *GameState) showTowerMenu() {
 	menu := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container)
 	menu.RemoveChildren()
 	menu.AddChild(cMenu)
 }
 
+// showTowerInfoMenu shows the tower info menu.
 func (s *GameState) showTowerInfoMenu() {
 	menu := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container)
 	menu.RemoveChildren()
 	menu.AddChild(cInfo)
 }
 
+// updateTowerUI updates the tower UI.
 func (s *GameState) updateTowerUI(t *ingame.Tower) {
 	menuCont := cInfo.Children()
 

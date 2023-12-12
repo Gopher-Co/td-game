@@ -5,6 +5,8 @@ import (
 	"os"
 )
 
+// Save saves the watcher to the file.
+// It returns an error if something went wrong.
 func Save(filename string, w *Watcher) error {
 	f, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_SYNC, 0o666)
 	if err != nil {
