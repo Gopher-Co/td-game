@@ -186,6 +186,8 @@ func (s *GameState) Update() error {
 	}
 
 	wave := s.GameRule[s.CurrentWave]
+	s.updateRunning(wave)
+
 	if wave.Ended() && !s.Map.AreThereAliveEnemies() {
 		s.setStateAfterWave()
 		if s.CurrentWave == len(s.GameRule)-1 {
@@ -196,7 +198,6 @@ func (s *GameState) Update() error {
 		return nil
 	}
 
-	s.updateRunning(wave)
 	s.Time++
 	return nil
 }

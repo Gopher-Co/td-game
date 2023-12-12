@@ -127,6 +127,8 @@ func (r *ReplayState) Update() error {
 	r.Map.Update()
 
 	wave := r.GameRule[r.CurrentWave]
+	r.updateRunning(wave)
+
 	if wave.Ended() && !r.Map.AreThereAliveEnemies() {
 		r.setStateAfterWave()
 		if r.CurrentWave == len(r.GameRule) {
@@ -136,7 +138,6 @@ func (r *ReplayState) Update() error {
 		return nil
 	}
 
-	r.updateRunning(wave)
 	r.Time++
 	return nil
 }
