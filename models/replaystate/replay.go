@@ -127,6 +127,8 @@ func (r *ReplayState) Update() error {
 	r.Map.Update()
 
 	wave := r.GameRule[r.CurrentWave]
+	r.updateRunning(wave)
+
 	if wave.Ended() && !r.Map.AreThereAliveEnemies() {
 		r.setStateAfterWave()
 		if r.CurrentWave == len(r.GameRule) {
@@ -136,7 +138,6 @@ func (r *ReplayState) Update() error {
 		return nil
 	}
 
-	r.updateRunning(wave)
 	r.Time++
 	return nil
 }
@@ -195,7 +196,9 @@ func (r *ReplayState) Action() {
 			r.putTowerHandler(t, general.Point{X: general.Coord(info.X), Y: general.Coord(info.Y)})
 		case replay.UpgradeTower:
 			info := action.Info.(replay.InfoUpgradeTower)
-			r.Map.Towers[info.Index].Upgrade(nil)
+			t := r.Map.Towers[info.Index]
+			t.Upgrade(nil)
+			r.PlayerMapState.Money -= t.Upgrades[t.UpgradesBought-1].Price
 		case replay.TuneWeak:
 			info := action.Info.(replay.InfoTuneWeak)
 			r.Map.Towers[info.Index].State.AimType = ingame.Weakest

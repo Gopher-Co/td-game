@@ -31,7 +31,7 @@
     }
   ],
   "price": 160,
-  "type": 1,
+  "type": 0,
   "initial_damage": 1,
   "initial_radius": 250,
   "initial_speed_attack": 15,

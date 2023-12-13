@@ -62,7 +62,9 @@ func (m *Map) Update() {
 
 // Draw draws the map.
 func (m *Map) Draw(screen *ebiten.Image) {
-	screen.DrawImage(m.Image, nil)
+	geom := ebiten.GeoM{}
+	geom.Scale(float64(1500)/float64(m.Image.Bounds().Dx()), float64(1080)/float64(m.Image.Bounds().Dy()))
+	screen.DrawImage(m.Image, &ebiten.DrawImageOptions{GeoM: geom})
 	m.Path.Draw(screen)
 	for _, p := range m.Projectiles {
 		if p.dead {
@@ -101,9 +103,9 @@ type Path []general.Point
 
 // Draw draws the path.
 func (p Path) Draw(screen *ebiten.Image) {
-	for i := 0; i < len(p)-1; i++ {
-		drawLine(screen, p[i], p[i+1])
-	}
+	//for i := 0; i < len(p)-1; i++ {
+	//	drawLine(screen, p[i], p[i+1])
+	//}
 }
 
 // drawLine draws a line between two points.

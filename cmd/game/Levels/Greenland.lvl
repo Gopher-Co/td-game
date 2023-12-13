@@ -1,0 +1,208 @@
+{
+  "level_name": "2. Problems in Greenland",
+  "map_name": "Lane",
+  "game_rule": [
+    {
+      "swarms": [
+        {
+          "enemy_name": "Duke",
+          "timeout": 0,
+          "interval": 60,
+          "max_calls": 20
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Duke",
+          "timeout": 0,
+          "interval": 50,
+          "max_calls": 30
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Duke",
+          "timeout": 0,
+          "interval": 60,
+          "max_calls": 10
+        },
+        {
+          "enemy_name": "Duke",
+          "timeout": 600,
+          "interval": 50,
+          "max_calls": 15
+        },
+        {
+          "enemy_name": "Duke",
+          "timeout": 1200,
+          "interval": 40,
+          "max_calls": 20
+        },
+        {
+          "enemy_name": "Clojure",
+          "timeout": 1700,
+          "interval": 120,
+          "max_calls": 5
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Duke",
+          "timeout": 0,
+          "interval": 30,
+          "max_calls": 20
+        },
+        {
+          "enemy_name": "Elephant",
+          "timeout": 300,
+          "interval": 60,
+          "max_calls": 20
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Elephant",
+          "timeout": 0,
+          "interval": 40,
+          "max_calls": 15
+        },
+        {
+          "enemy_name": "Elephant",
+          "timeout": 600,
+          "interval": 30,
+          "max_calls": 10
+        },
+        {
+          "enemy_name": "Elephant",
+          "timeout": 900,
+          "interval": 20,
+          "max_calls": 20
+        },
+        {
+          "enemy_name": "Clojure",
+          "timeout": 1700,
+          "interval": 120,
+          "max_calls": 6
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Duke",
+          "timeout": 0,
+          "interval": 20,
+          "max_calls": 30
+        },
+        {
+          "enemy_name": "Python",
+          "timeout": 700,
+          "interval": 60,
+          "max_calls": 6
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Elephant",
+          "timeout": 0,
+          "interval": 20,
+          "max_calls": 30
+        },
+        {
+          "enemy_name": "Clojure",
+          "timeout": 300,
+          "interval": 0,
+          "max_calls": 1
+        },
+        {
+          "enemy_name": "Elephant",
+          "timeout": 500,
+          "interval": 20,
+          "max_calls": 30
+        },
+        {
+          "enemy_name": "Clojure",
+          "timeout": 800,
+          "interval": 0,
+          "max_calls": 1
+        },
+        {
+          "enemy_name": "Elephant",
+          "timeout": 1000,
+          "interval": 30,
+          "max_calls": 50
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Clojure",
+          "timeout": 0,
+          "interval": 10,
+          "max_calls": 10
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Duke",
+          "timeout": 0,
+          "interval": 30,
+          "max_calls": 30
+        },
+        {
+          "enemy_name": "Elephant",
+          "timeout": 900,
+          "interval": 30,
+          "max_calls": 30
+        },
+        {
+          "enemy_name": "Python",
+          "timeout": 1800,
+          "interval": 90,
+          "max_calls": 10
+        },
+        {
+          "enemy_name": "Elephant",
+          "timeout": 2700,
+          "interval": 30,
+          "max_calls": 30
+        },
+        {
+          "enemy_name": "Duke",
+          "timeout": 3600,
+          "interval": 30,
+          "max_calls": 30
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Duke",
+          "timeout": 0,
+          "interval": 60,
+          "max_calls": 100
+        },
+        {
+          "enemy_name": "Clojure",
+          "timeout": 240,
+          "interval": 240,
+          "max_calls": 25
+        }
+      ]
+    }
+  ]
+}

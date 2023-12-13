@@ -153,17 +153,16 @@ func (s *GameState) loadMapContainer(ctx context.Context, _ general.Widgets) *wi
 		}
 	}()
 
-	var speedButton *widget.Button
-	speedButton = widget.NewButton(
+	speedButton := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
 		}),
 		widget.ButtonOpts.Text(">>", font.TTF64, &widget.ButtonTextColor{Idle: color.White}),
-		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
+		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			if s.speedUp {
 				ebiten.SetTPS(60)
 				s.speedUp = false
-				speedButton.Image = &widget.ButtonImage{
+				args.Button.Image = &widget.ButtonImage{
 					Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
 				}
 				return
@@ -171,7 +170,7 @@ func (s *GameState) loadMapContainer(ctx context.Context, _ general.Widgets) *wi
 
 			ebiten.SetTPS(180)
 			s.speedUp = true
-			speedButton.Image = &widget.ButtonImage{
+			args.Button.Image = &widget.ButtonImage{
 				Idle: image2.NewNineSliceColor(colornames.Greenyellow),
 			}
 		}),

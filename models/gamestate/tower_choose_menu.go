@@ -12,6 +12,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/colornames"
 
+	"github.com/gopher-co/td-game/models/config"
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/ui/font"
 )
@@ -52,7 +53,7 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 
 		button := widget.NewButton(
 			widget.ButtonOpts.Image(&widget.ButtonImage{
-				Idle: image2.NewNineSliceSimple(v.Image(), 64, 64),
+				Idle: image2.NewNineSliceSimple(v.Image(), config.TowerImageWidth, config.TowerImageWidth),
 			}),
 			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{
 				MaxWidth:           100,
@@ -68,8 +69,8 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 			}),
 			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{
 				HorizontalPosition: widget.GridLayoutPositionCenter,
-				MaxWidth:           64,
-				MaxHeight:          64,
+				MaxWidth:           config.TowerImageWidth,
+				MaxHeight:          config.TowerImageWidth,
 			})),
 		)
 

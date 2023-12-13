@@ -103,7 +103,10 @@ func (s *GameState) upgradesContainer(ctx context.Context, _ general.Widgets) *w
 	)
 
 	checkBlock = func() {
-		openLevel := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
+		openLevel := 0
+		if s.chosenTower.UpgradesBought < len(s.chosenTower.Upgrades) {
+			openLevel = s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
+		}
 		_, ok := s.PlayerState.LevelsComplete[openLevel]
 
 		level.Label = fmt.Sprintf("Level %d", s.chosenTower.UpgradesBought+1)

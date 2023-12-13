@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ebitenui/ebitenui"
+	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -174,7 +175,22 @@ func (s *GameState) Update() error {
 	}
 
 	if s.State == NextWaveReady {
+		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+			btn := s.UI.Container.Children()[0].(*widget.Container). // mapContainer
+											Children()[2].(*widget.Container). // speed
+											Children()[0].(*widget.Container). // buttonGroup
+											Children()[0].(*widget.Button)
+			btn.ClickedEvent.Fire(&widget.ButtonClickedEventArgs{Button: btn})
+		}
 		return nil
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+		btn := s.UI.Container.Children()[0].(*widget.Container). // mapContainer
+										Children()[2].(*widget.Container). // speed
+										Children()[0].(*widget.Container). // buttonGroup
+										Children()[1].(*widget.Button)
+		btn.ClickedEvent.Fire(&widget.ButtonClickedEventArgs{Button: btn})
 	}
 
 	s.Map.Update()
@@ -186,6 +202,8 @@ func (s *GameState) Update() error {
 	}
 
 	wave := s.GameRule[s.CurrentWave]
+	s.updateRunning(wave)
+
 	if wave.Ended() && !s.Map.AreThereAliveEnemies() {
 		s.setStateAfterWave()
 		if s.CurrentWave == len(s.GameRule)-1 {
@@ -196,7 +214,6 @@ func (s *GameState) Update() error {
 		return nil
 	}
 
-	s.updateRunning(wave)
 	s.Time++
 	return nil
 }
@@ -277,9 +294,9 @@ func (s *GameState) drawTookImageBeforeCursor(screen *ebiten.Image) {
 	ix, iy := img.Bounds().Dx(), img.Bounds().Dy()
 
 	if !ingame.CheckCollisionPath(general.Point{X: general.Coord(cx), Y: general.Coord(cy)}, s.Map.Path) {
-		vector.DrawFilledCircle(screen, float32(cx), float32(cy), s.tookTower.InitRadius, color.RGBA{A: 0x20}, true)
+		vector.DrawFilledCircle(screen, float32(cx), float32(cy), s.tookTower.InitRadius, color.RGBA{A: 0x20}, false)
 	} else {
-		//vector.DrawFilledCircle(screen, float32(cx), float32(cy), s.tookTower.InitRadius, color.RGBA{0xff, 0, 0, 0x20}, true)
+		vector.DrawFilledCircle(screen, float32(cx), float32(cy), s.tookTower.InitRadius, color.RGBA{0xff, 0, 0, 0x20}, false)
 	}
 
 	geom := ebiten.GeoM{}

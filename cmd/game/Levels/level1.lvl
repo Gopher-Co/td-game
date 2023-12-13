@@ -1,6 +1,6 @@
 {
-  "level_name": "Tutorial",
-  "map_name": "kavo",
+  "level_name": "1. Tutorial",
+  "map_name": "Lane",
   "game_rule": [
     {
       "swarms": [
@@ -17,7 +17,7 @@
         {
           "enemy_name": "Duke",
           "timeout": 0,
-          "interval": 40,
+          "interval": 50,
           "max_calls": 30
         }
       ]
@@ -33,14 +33,14 @@
         {
           "enemy_name": "Duke",
           "timeout": 600,
-          "interval": 40,
+          "interval": 50,
           "max_calls": 15
         },
         {
           "enemy_name": "Duke",
           "timeout": 1200,
-          "interval": 30,
-          "max_calls": 25
+          "interval": 40,
+          "max_calls": 20
         }
       ]
     },
@@ -57,6 +57,34 @@
           "timeout": 300,
           "interval": 60,
           "max_calls": 20
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Elephant",
+          "timeout": 0,
+          "interval": 40,
+          "max_calls": 15
+        },
+        {
+          "enemy_name": "Elephant",
+          "timeout": 600,
+          "interval": 30,
+          "max_calls": 15
+        },
+        {
+          "enemy_name": "Elephant",
+          "timeout": 1050,
+          "interval": 20,
+          "max_calls": 15
+        },
+        {
+          "enemy_name": "Clojure",
+          "timeout": 1700,
+          "interval": 120,
+          "max_calls": 5
         }
       ]
     }
