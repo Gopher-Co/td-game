@@ -22,7 +22,7 @@ const (
 	ProjectileImageWith = 32
 
 	// PathWidth is a width of the path.
-	PathWidth = 48
+	PathWidth = 64
 )
 
 // Config structures are need to pass then to NewXXX functions.

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ebitenui/ebitenui"
+	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -174,7 +175,22 @@ func (s *GameState) Update() error {
 	}
 
 	if s.State == NextWaveReady {
+		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+			btn := s.UI.Container.Children()[0].(*widget.Container). // mapContainer
+											Children()[2].(*widget.Container). // speed
+											Children()[0].(*widget.Container). // buttonGroup
+											Children()[0].(*widget.Button)
+			btn.ClickedEvent.Fire(&widget.ButtonClickedEventArgs{Button: btn})
+		}
 		return nil
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+		btn := s.UI.Container.Children()[0].(*widget.Container). // mapContainer
+										Children()[2].(*widget.Container). // speed
+										Children()[0].(*widget.Container). // buttonGroup
+										Children()[1].(*widget.Button)
+		btn.ClickedEvent.Fire(&widget.ButtonClickedEventArgs{Button: btn})
 	}
 
 	s.Map.Update()

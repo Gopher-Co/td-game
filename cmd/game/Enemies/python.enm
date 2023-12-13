@@ -1,0 +1,12 @@
+{
+  "name": "Python",
+  "max_health": 5,
+  "damage": 2,
+  "vrms": 3,
+  "money_award": 3,
+  "strengths": [{
+    "type": 1,
+    "inc_dmg": 3
+  }],
+  "weaknesses": []
+}

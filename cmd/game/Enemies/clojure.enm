@@ -1,8 +1,8 @@
 {
   "name": "Clojure",
   "max_health": 10,
-  "damage": 5,
-  "vrms": 0.9,
+  "damage": 3,
+  "vrms": 0.7,
   "money_award": 7,
   "strengths": [],
   "weaknesses": [{

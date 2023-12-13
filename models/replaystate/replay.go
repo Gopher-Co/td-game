@@ -196,7 +196,9 @@ func (r *ReplayState) Action() {
 			r.putTowerHandler(t, general.Point{X: general.Coord(info.X), Y: general.Coord(info.Y)})
 		case replay.UpgradeTower:
 			info := action.Info.(replay.InfoUpgradeTower)
-			r.Map.Towers[info.Index].Upgrade(nil)
+			t := r.Map.Towers[info.Index]
+			t.Upgrade(nil)
+			r.PlayerMapState.Money -= t.Upgrades[t.UpgradesBought-1].Price
 		case replay.TuneWeak:
 			info := action.Info.(replay.InfoTuneWeak)
 			r.Map.Towers[info.Index].State.AimType = ingame.Weakest

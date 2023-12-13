@@ -108,7 +108,7 @@ func (s *EnemySwarm) Ended() bool {
 // Update increases time of EnemySwarm and returns a new enemy id
 // if it's time for it.
 func (s *EnemySwarm) Update(t general.Frames) string {
-	if t-s.Timeout >= 0 && (t-s.Timeout)%s.Interval == 0 {
+	if s.Interval <= 0 || t-s.Timeout >= 0 && (t-s.Timeout)%s.Interval == 0 {
 		s.CurCalls++
 		return s.EnemyName
 	}
