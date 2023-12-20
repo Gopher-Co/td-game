@@ -20,7 +20,7 @@ type Upgrade struct {
 	DeltaRadius general.Coord
 
 	// OpenLevel is a level when the upgrade is opened.
-	OpenLevel int
+	OpenLevel string
 }
 
 // NewUpgrade returns a new upgrade.

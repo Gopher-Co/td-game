@@ -103,7 +103,7 @@ func New(
 ) *GameState {
 	tw2 := maps2.Clone(tw)
 	filter(tw2, func(s string, c *config.Tower) bool {
-		if c.OpenLevel == 0 {
+		if c.OpenLevel == "" {
 			return false
 		}
 

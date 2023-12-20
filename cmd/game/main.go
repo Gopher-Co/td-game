@@ -42,7 +42,7 @@ func (g *Game) Update() error {
 			Replays = append(Replays, gs.Watcher)
 			if gs.Win {
 				go func() {
-					PlayerState.LevelsComplete[Levels[gs.LevelName].Order] = struct{}{}
+					PlayerState.LevelsComplete[gs.LevelName] = struct{}{}
 					if err := io.SaveStats(PlayerState); err != nil {
 						log.Println("save unsuccessful")
 					}

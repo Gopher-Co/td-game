@@ -6,7 +6,7 @@
       "delta_damage": 2,
       "delta_radius": 10,
       "delta_speed_attack": 0,
-      "open_level": 0
+      "open_level": ""
     }
   ],
   "price": 650,
@@ -18,5 +18,5 @@
   "projectile_config": {
     "name": "#ddd"
   },
-  "open_level": 1
+  "open_level": "2. Problems in Greenland"
 }

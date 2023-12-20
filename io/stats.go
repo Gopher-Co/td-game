@@ -15,7 +15,7 @@ func LoadStats() (*ingame.PlayerState, error) {
 	f, err := os.Open("stats.json")
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
-			return &ingame.PlayerState{LevelsComplete: map[int]struct{}{}}, nil
+			return &ingame.PlayerState{LevelsComplete: map[string]struct{}{}}, nil
 		}
 
 		return nil, fmt.Errorf("stats file can't be open: %w", err)
