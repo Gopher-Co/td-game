@@ -135,14 +135,14 @@ func (t *Tower) Launch() *Projectile {
 }
 
 // Upgrade upgrades the tower.
-func (t *Tower) Upgrade(complete map[int]struct{}) bool {
+func (t *Tower) Upgrade(complete map[string]struct{}) bool {
 
 	if t.UpgradesBought == len(t.Upgrades) {
 		return false
 	}
 
 	upg := t.Upgrades[t.UpgradesBought]
-	if complete != nil && upg.OpenLevel > 0 {
+	if complete != nil && upg.OpenLevel != "" {
 		if _, ok := complete[upg.OpenLevel]; !ok {
 			return false
 		}

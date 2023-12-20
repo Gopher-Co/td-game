@@ -130,7 +130,7 @@ type Tower struct {
 	ProjectileConfig Projectile `json:"projectile_config"`
 
 	// OpenLevel is a level when the tower can be opened.
-	OpenLevel int `json:"open_level"`
+	OpenLevel string `json:"open_level"`
 
 	image *ebiten.Image
 }
@@ -179,7 +179,7 @@ type Upgrade struct {
 	DeltaRadius general.Coord `json:"delta_radius"`
 
 	// OpenLevel is a level when the upgrade can be opened.
-	OpenLevel int `json:"open_level"`
+	OpenLevel string `json:"open_level"`
 }
 
 // Projectile is a config for projectile.
