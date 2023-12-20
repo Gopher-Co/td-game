@@ -22,7 +22,7 @@ func (m *MenuState) loadReplaysMenuUI(widgets general.Widgets) *ebitenui.UI {
 	menuBackground := image.NewNineSliceSimple(bgImg, 0, 1)
 
 	backBtn := widget.NewButton(
-		widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(colornames.Aqua)}),
+		widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceSimple(widgets[ui.LevelMenuBackButtonImage], 0, 1)}),
 		widget.ButtonOpts.Text("<", font.TTF128, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			m.UI = m.loadMainMenuUI(widgets)

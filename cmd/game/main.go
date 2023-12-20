@@ -82,7 +82,7 @@ func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 // main is the entry point of the game.
 func main() {
 	ebiten.SetWindowSize(1280, 720)
-	ebiten.SetWindowTitle("Hello, World!")
+	ebiten.SetWindowTitle("Go Build, Go Defend!")
 
 	// load maps
 	mcfgs, err := io.LoadMapConfigs()

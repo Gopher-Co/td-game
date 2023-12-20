@@ -5,8 +5,5 @@
   "vrms": 1.7,
   "money_award": 2,
   "strengths": [],
-  "weaknesses": [{
-    "type": 0,
-    "inc_dmg": 3
-  }]
+  "weaknesses": []
 }
