@@ -13,6 +13,8 @@ const (
 	// MenuMainImage is a constant for the image of the main menu.
 	MenuMainImage = "MENU_MAIN_IMAGE"
 
+	MenuMainLogoImage = "MENU_MAIN_LOGO_IMAGE"
+
 	// MenuBackgroundImage is a constant for the image of the menu background.
 	MenuBackgroundImage = "MENU_BACKGROUND_IMAGE"
 

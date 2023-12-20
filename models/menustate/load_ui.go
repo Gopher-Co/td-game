@@ -20,13 +20,7 @@ import (
 
 // loadMainMenuUI loads the main menu UI.
 func (m *MenuState) loadMainMenuUI(widgets general.Widgets) *ebitenui.UI {
-	mainMenuImg := widgets[ui.MenuMainImage]
 	bgImg := widgets[ui.MenuBackgroundImage]
-
-	img := ebiten.NewImage(1280, 720)
-	geom := ebiten.GeoM{}
-	geom.Scale(1280./float64(mainMenuImg.Bounds().Dx()), 720./float64(mainMenuImg.Bounds().Dy()))
-	img.DrawImage(widgets[ui.MenuMainImage], &ebiten.DrawImageOptions{GeoM: geom})
 
 	menuBackground := image.NewNineSliceSimple(bgImg, 0, 1)
 
@@ -42,10 +36,10 @@ func (m *MenuState) loadMainMenuUI(widgets general.Widgets) *ebitenui.UI {
 	buttons := m.btn(widgets)
 
 	logo := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(1),
-			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false}),
-			widget.GridLayoutOpts.Padding(widget.Insets{
+		widget.ContainerOpts.Layout(widget.NewRowLayout(
+			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
+			widget.RowLayoutOpts.Spacing(50),
+			widget.RowLayoutOpts.Padding(widget.Insets{
 				Top:    250,
 				Left:   0,
 				Right:  0,
@@ -54,15 +48,22 @@ func (m *MenuState) loadMainMenuUI(widgets general.Widgets) *ebitenui.UI {
 		)),
 	)
 
-	logoImage := widget.NewGraphic(
-		widget.GraphicOpts.Image(img),
+	// main menu image
+	mainImgW := widgets[ui.MenuMainImage]
+	mainImg := ebiten.NewImage(1080, 920)
+	geom := ebiten.GeoM{}
+	geom.Scale(1080/float64(mainImgW.Bounds().Dx()), 920/float64(mainImgW.Bounds().Dx()))
+	mainImg.DrawImage(mainImgW, &ebiten.DrawImageOptions{GeoM: geom})
+	mainImage := widget.NewGraphic(
+		widget.GraphicOpts.Image(mainImg),
 		widget.GraphicOpts.WidgetOpts(widget.WidgetOpts.LayoutData(
-			widget.GridLayoutData{
-				HorizontalPosition: widget.GridLayoutPositionCenter,
+			widget.RowLayoutData{
+				Stretch: true,
 			},
 		)),
 	)
-	logo.AddChild(logoImage)
+
+	logo.AddChild(mainImage)
 	root.AddChild(buttons)
 	root.AddChild(logo)
 
@@ -81,13 +82,17 @@ func (m *MenuState) btn(widgets general.Widgets) *widget.Container {
 				Bottom: 0,
 			}),
 			widget.GridLayoutOpts.Spacing(0, 50),
+			widget.GridLayoutOpts.Padding(widget.Insets{Top: 50}),
 			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, false, false}),
 		)),
 		widget.ContainerOpts.BackgroundImage(image.NewNineSliceSimple(widgets[ui.MenuLeftSidebarImage], 0, 1)),
 	)
 
-	text := widget.NewText(
-		widget.TextOpts.Text("Go Build,\nGo Defend!", font.TTF72, color.White),
+	// logo image loading
+	logoImg := widgets[ui.MenuMainLogoImage]
+
+	logoImage := widget.NewGraphic(
+		widget.GraphicOpts.Image(logoImg),
 	)
 
 	btn1 := widget.NewButton(
@@ -122,7 +127,7 @@ func (m *MenuState) btn(widgets general.Widgets) *widget.Container {
 		}),
 	)
 
-	buttons.AddChild(text)
+	buttons.AddChild(logoImage)
 	buttons.AddChild(btn1)
 	buttons.AddChild(btn2)
 	buttons.AddChild(btn3)
@@ -153,7 +158,7 @@ func (m *MenuState) loadLevelMenuUI(widgets general.Widgets) *ebitenui.UI {
 	//defer font.TTF128.Close()
 
 	backBtn := widget.NewButton(
-		widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(colornames.Aqua)}),
+		widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceSimple(widgets[ui.LevelMenuBackButtonImage], 0, 1)}),
 		widget.ButtonOpts.Text("<", font.TTF128, &widget.ButtonTextColor{Idle: color.White}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			m.UI = m.loadMainMenuUI(widgets)

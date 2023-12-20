@@ -17,7 +17,7 @@ func InitImage(s string) (*ebiten.Image, error) {
 		return img, nil
 	}
 
-	return InitPNG(s)
+	return InitPNG("assets/" + s)
 }
 
 // InitColor initializes an image with a color.

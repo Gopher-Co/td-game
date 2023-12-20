@@ -2,7 +2,7 @@
   "name": "Wizard",
   "upgrades": [
     {
-      "price": 400,
+      "price": 700,
       "delta_damage": 1,
       "delta_radius": 120.0,
       "delta_speed_attack": 5,

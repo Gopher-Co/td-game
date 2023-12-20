@@ -45,8 +45,8 @@
         {
           "enemy_name": "Clojure",
           "timeout": 1700,
-          "interval": 120,
-          "max_calls": 5
+          "interval": 1,
+          "max_calls": 1
         }
       ]
     },
@@ -201,6 +201,138 @@
           "timeout": 240,
           "interval": 240,
           "max_calls": 25
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Python",
+          "timeout": 0,
+          "interval": 30,
+          "max_calls": 20
+        },
+        {
+          "enemy_name": "Haskell",
+          "timeout": 0,
+          "interval": 0,
+          "max_calls": 1
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Elephant",
+          "timeout": 0,
+          "interval": 7,
+          "max_calls": 80
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Elephant",
+          "timeout": 0,
+          "interval": 100,
+          "max_calls": 50
+        },
+        {
+          "enemy_name": "Python",
+          "timeout": 320,
+          "interval": 50,
+          "max_calls": 10
+        },
+        {
+          "enemy_name": "Clojure",
+          "timeout": 1220,
+          "interval": 50,
+          "max_calls": 10
+        },
+        {
+          "enemy_name": "Duke",
+          "timeout": 1620,
+          "interval": 50,
+          "max_calls": 50
+        },
+        {
+          "enemy_name": "Python",
+          "timeout": 4000,
+          "interval": 25,
+          "max_calls": 10
+        },
+        {
+          "enemy_name": "Elephant",
+          "timeout": 4550,
+          "interval": 10,
+          "max_calls": 45
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Elephant",
+          "timeout": 360,
+          "interval": 15,
+          "max_calls": 30
+        },
+        {
+          "enemy_name": "Ruby",
+          "timeout": 1080,
+          "interval": 30,
+          "max_calls": 7
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Clojure",
+          "timeout": 0,
+          "interval": 40,
+          "max_calls": 10
+        },
+        {
+          "enemy_name": "Python",
+          "timeout": 200,
+          "interval": 30,
+          "max_calls": 10
+        },
+        {
+          "enemy_name": "Haskell",
+          "timeout": 1000,
+          "interval": 360,
+          "max_calls": 4
+        }
+      ]
+    },
+    {
+      "swarms": [
+        {
+          "enemy_name": "Duke",
+          "timeout": 0,
+          "interval": 5,
+          "max_calls": 100
+        },
+        {
+          "enemy_name": "Elephant",
+          "timeout": 560,
+          "interval": 5,
+          "max_calls": 100
+        },
+        {
+          "enemy_name": "Python",
+          "timeout": 1120,
+          "interval": 5,
+          "max_calls": 100
+        },
+        {
+          "enemy_name": "Ruby",
+          "timeout": 1680,
+          "interval": 5,
+          "max_calls": 100
         }
       ]
     }

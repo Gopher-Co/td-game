@@ -1,0 +1,9 @@
+{
+  "name": "Haskell",
+  "max_health": 100,
+  "damage": 10,
+  "vrms": 0.5,
+  "money_award": 12,
+  "strengths": [],
+  "weaknesses": []
+}
