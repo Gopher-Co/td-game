@@ -5,8 +5,8 @@
         "MENU_BUTTON_EXIT_IMAGE": "#000",
         "MENU_MAIN_LOGO_IMAGE": "menu_logo",
         "MENU_MAIN_IMAGE": "menu_main",
-        "MENU_BACKGROUND_IMAGE": "#99a",
-        "MENU_LEFT_SIDEBAR_IMAGE": "#778",
-        "LEVEL_MENU_BACK_BUTTON_IMAGE": "#778"
+        "MENU_BACKGROUND_IMAGE": "#99A9A8",
+        "MENU_LEFT_SIDEBAR_IMAGE": "#778786",
+        "LEVEL_MENU_BACK_BUTTON_IMAGE": "#778786"
   }
 }

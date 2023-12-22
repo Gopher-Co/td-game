@@ -1,0 +1,22 @@
+{
+  "name": "Hero",
+  "upgrades": [
+      {
+        "price": 100,
+        "delta_damage": 0,
+        "delta_radius": 50.0,
+        "delta_speed_attack": 1,
+        "open_level": "3. Test"
+      }
+  ],
+  "price": 200,
+  "type": 0,
+  "initial_damage": 1,
+  "initial_radius": 150,
+  "initial_speed_attack": 15,
+  "init_projectile_speed": 40,
+  "projectile_config": {
+    "name": "#fff"
+  },
+  "open_level": "1. Tutorial"
+}

@@ -50,9 +50,9 @@ func (m *MenuState) loadMainMenuUI(widgets general.Widgets) *ebitenui.UI {
 
 	// main menu image
 	mainImgW := widgets[ui.MenuMainImage]
-	mainImg := ebiten.NewImage(1080, 920)
+	mainImg := ebiten.NewImage(980, 920)
 	geom := ebiten.GeoM{}
-	geom.Scale(1080/float64(mainImgW.Bounds().Dx()), 920/float64(mainImgW.Bounds().Dx()))
+	geom.Scale(980/float64(mainImgW.Bounds().Dx()), 920/float64(mainImgW.Bounds().Dx()))
 	mainImg.DrawImage(mainImgW, &ebiten.DrawImageOptions{GeoM: geom})
 	mainImage := widget.NewGraphic(
 		widget.GraphicOpts.Image(mainImg),
