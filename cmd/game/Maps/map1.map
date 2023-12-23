@@ -1,6 +1,6 @@
 {
   "name": "Lane",
-  "background_color": "-",
+  "background_color": "#000",
   "path": [
     {"x":-30, "y":450},
     {"x":735, "y":450},

@@ -267,17 +267,18 @@ type Map struct {
 
 // InitImage initializes image from the temporary state of the entity.
 func (c *Map) InitImage() error {
+	png, err := ui.InitPNG("./assets/" + c.Name)
+	if err == nil {
+		c.image = png
+		return nil
+	}
+
 	clr, err := colorx.ParseHexColor(c.BackgroundColor)
 	if err == nil {
 		img := ebiten.NewImage(1, 1)
 		img.Fill(clr)
 		c.image = img
 
-		return nil
-	}
-	png, err := ui.InitPNG("./assets/" + c.Name)
-	if err == nil {
-		c.image = png
 		return nil
 	}
 

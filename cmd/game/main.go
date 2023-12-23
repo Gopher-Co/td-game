@@ -130,6 +130,8 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	uicfg.Colors[ui.MenuMainLogoImage] = "menu_logo"
+	uicfg.Colors[ui.MenuMainImage] = "menu_main"
 
 	for k, v := range uicfg.Colors {
 		UI[k], err = ui.InitImage(v)

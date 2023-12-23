@@ -6,7 +6,7 @@
   "money_award": 3,
   "strengths": [{
     "type": 1,
-    "inc_dmg": 3
+    "dec_dmg": 3
   }],
   "weaknesses": []
 }
