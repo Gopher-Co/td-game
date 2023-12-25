@@ -100,7 +100,7 @@ func New(
 
 // Draw draws the game.
 func (r *ReplayState) Draw(screen *ebiten.Image) {
-	if r.Ended == true {
+	if r.Ended {
 		return
 	}
 
