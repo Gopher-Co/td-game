@@ -63,7 +63,7 @@ func (s *GameState) loadMapContainer(_ general.Widgets) *widget.Container {
 		})),
 	)
 
-	s.updater.Append(func() {
+	s.uiUpdater.Append(func() {
 		if s.CurrentWave < 0 || s.CurrentWave >= len(s.GameRule) {
 			waveText.Label = ""
 			return
@@ -128,7 +128,7 @@ func (s *GameState) loadMapContainer(_ general.Widgets) *widget.Container {
 		}),
 	)
 
-	s.updater.Append(func() {
+	s.uiUpdater.Append(func() {
 		if s.State != Running && !s.End() {
 			startButton.GetWidget().Disabled = false
 		}

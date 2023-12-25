@@ -123,7 +123,7 @@ func (s *GameState) upgradesContainer(_ general.Widgets) *widget.Container {
 
 	info := s.textUpgradeInfo()
 
-	s.updater.Append(func() {
+	s.uiUpdater.Append(func() {
 		if s.chosenTower == nil {
 			return
 		}
@@ -360,7 +360,7 @@ func (s *GameState) radio() *widget.Container {
 		widget.RadioGroupOpts.Elements(first, strong, weak),
 	)
 
-	s.updater.Append(func() {
+	s.uiUpdater.Append(func() {
 		if s.chosenTower == nil {
 			return
 		}

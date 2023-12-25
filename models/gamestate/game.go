@@ -88,7 +88,7 @@ type GameState struct {
 	// PlayerState is a state of the player.
 	PlayerState *ingame.PlayerState
 
-	updater *updater.Updater
+	uiUpdater *updater.Updater
 }
 
 // New creates a new entity of GameState.
@@ -133,7 +133,7 @@ func New(
 			Actions: make([]replay.Action, 0, 2500),
 		},
 		PlayerState: ps,
-		updater:     new(updater.Updater),
+		uiUpdater:   new(updater.Updater),
 	}
 
 	gs.UI = gs.loadGameUI(w)
@@ -171,7 +171,7 @@ func (s *GameState) Update() error {
 	}
 
 	s.UI.Update()
-	s.updater.Update()
+	s.uiUpdater.Update()
 
 	if s.Ended {
 		return nil

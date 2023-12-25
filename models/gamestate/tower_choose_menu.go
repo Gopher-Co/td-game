@@ -165,7 +165,7 @@ func (s *GameState) loadTowerMenuContainer(widgets general.Widgets) *widget.Cont
 		}),
 	)
 
-	s.updater.Append(func() {
+	s.uiUpdater.Append(func() {
 		health.Label = fmt.Sprintf("Health: %d", s.PlayerMapState.Health)
 		money.Label = fmt.Sprintf("Money: %d", s.PlayerMapState.Money)
 	})
