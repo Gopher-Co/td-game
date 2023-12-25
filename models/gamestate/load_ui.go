@@ -7,7 +7,6 @@ import (
 	"github.com/ebitenui/ebitenui"
 	image2 "github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/colornames"
 
 	"github.com/gopher-co/td-game/models/general"
@@ -84,10 +83,7 @@ func (s *GameState) loadMapContainer(_ general.Widgets) *widget.Container {
 			Bottom: 5,
 		}),
 		widget.ButtonOpts.Text("Menu", font.TTF64, &widget.ButtonTextColor{Idle: color.White}),
-		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
-			s.setStateAfterEnd()
-			s.Ended = true
-		}),
+		widget.ButtonOpts.ClickedHandler(s.handleMenu),
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 			HorizontalPosition: widget.AnchorLayoutPositionEnd,
 			VerticalPosition:   0,
@@ -118,14 +114,7 @@ func (s *GameState) loadMapContainer(_ general.Widgets) *widget.Container {
 			Idle:     color.White,
 			Disabled: color.RGBA{R: 0xff, G: 0xff, B: 0xff, A: 180},
 		}),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			b := args.Button
-			if !b.GetWidget().Disabled {
-				s.State = Running
-				s.CurrentWave++
-				b.GetWidget().Disabled = true
-			}
-		}),
+		widget.ButtonOpts.ClickedHandler(s.handleStart),
 	)
 
 	s.uiUpdater.Append(func() {
@@ -139,22 +128,7 @@ func (s *GameState) loadMapContainer(_ general.Widgets) *widget.Container {
 			Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
 		}),
 		widget.ButtonOpts.Text(">>", font.TTF64, &widget.ButtonTextColor{Idle: color.White}),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			if s.speedUp {
-				ebiten.SetTPS(60)
-				s.speedUp = false
-				args.Button.Image = &widget.ButtonImage{
-					Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
-				}
-				return
-			}
-
-			ebiten.SetTPS(180)
-			s.speedUp = true
-			args.Button.Image = &widget.ButtonImage{
-				Idle: image2.NewNineSliceColor(colornames.Greenyellow),
-			}
-		}),
+		widget.ButtonOpts.ClickedHandler(s.handleSpeed),
 	)
 
 	buttonGroup.AddChild(startButton)

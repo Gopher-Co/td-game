@@ -10,7 +10,6 @@ import (
 
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/models/ingame"
-	"github.com/gopher-co/td-game/replay"
 	"github.com/gopher-co/td-game/ui/font"
 )
 
@@ -70,8 +69,6 @@ func (s *GameState) upgradesContainer(_ general.Widgets) *widget.Container {
 		)),
 	)
 
-	var checkBlock func()
-
 	btn := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle:     image2.NewNineSliceColor(color.RGBA{R: 0x99, G: 0xe7, B: 0xa9, A: 0xff}),
@@ -84,42 +81,12 @@ func (s *GameState) upgradesContainer(_ general.Widgets) *widget.Container {
 			Disabled: color.Black,
 		}),
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(0, 100)),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			s.upgradeTowerHandler(s.chosenTower)
-			checkBlock()
-
-			s.Watcher.Append(s.Time, replay.UpgradeTower, replay.InfoUpgradeTower{
-				Index: s.findTowerIndex(s.chosenTower),
-			})
-		}),
+		widget.ButtonOpts.ClickedHandler(s.handleUpgrade),
 	)
 
 	level := widget.NewText(
 		widget.TextOpts.Text("Level", font.TTF48, color.White),
 	)
-
-	checkBlock = func() {
-		openLevel := ""
-		if s.chosenTower.UpgradesBought < len(s.chosenTower.Upgrades) {
-			openLevel = s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
-		}
-		_, ok := s.PlayerState.LevelsComplete[openLevel]
-
-		level.Label = fmt.Sprintf("Level %d", s.chosenTower.UpgradesBought+1)
-		if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) {
-			btn.Text().Label = "SOLD OUT"
-		} else if !ok && openLevel != "" {
-			btn.Text().Label = "Complete level to unlock:\n" + s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
-		} else {
-			btn.Text().Label = fmt.Sprintf("UPGRADE ($%d)", s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price)
-		}
-
-		if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) ||
-			s.PlayerMapState.Money < s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price ||
-			!ok && openLevel != "" {
-			btn.GetWidget().Disabled = true
-		}
-	}
 
 	info := s.textUpgradeInfo()
 
@@ -128,12 +95,19 @@ func (s *GameState) upgradesContainer(_ general.Widgets) *widget.Container {
 			return
 		}
 
+		level.Label = fmt.Sprintf("Level %d", s.chosenTower.UpgradesBought+1)
+
+		// all the upgrades are bought
 		if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) {
 			c := info.Children()
 			insertValues(c[0].(*widget.Text), s.chosenTower.Damage, 0, "Damage")
 			insertValues(c[1].(*widget.Text), int(s.chosenTower.Radius), 0, "Radius")
 			insertValues(c[2].(*widget.Text), s.chosenTower.SpeedAttack, 0, "Speed")
 			insertValues(c[3].(*widget.Text), int(s.chosenTower.ProjectileVrms), 0, "ProjSpeed")
+
+			btn.Text().Label = "SOLD OUT"
+			btn.GetWidget().Disabled = true
+
 			return
 		}
 
@@ -146,8 +120,14 @@ func (s *GameState) upgradesContainer(_ general.Widgets) *widget.Container {
 
 		openLevel := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
 		_, ok := s.PlayerState.LevelsComplete[openLevel]
-		if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) ||
-			s.PlayerMapState.Money < s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price ||
+
+		if !ok && openLevel != "" {
+			btn.Text().Label = "Complete level to unlock:\n" + s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
+		} else {
+			btn.Text().Label = fmt.Sprintf("UPGRADE ($%d)", s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price)
+		}
+
+		if s.PlayerMapState.Money < s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price ||
 			!ok && openLevel != "" {
 			btn.GetWidget().Disabled = true
 		} else {
@@ -223,33 +203,7 @@ func (s *GameState) tuningContainer(_ general.Widgets) *widget.Container {
 		widget.ButtonOpts.Text("ON", font.TTF54, &widget.ButtonTextColor{
 			Idle: color.White,
 		}),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			btn := args.Button
-
-			if s.chosenTower.State.IsTurnedOn {
-				s.turnOffTowerHandler(s.chosenTower)
-				btn.Text().Label = "OFF"
-				btn.Image = &widget.ButtonImage{
-					Idle: image2.NewNineSliceColor(colornames.Indianred),
-				}
-
-				s.Watcher.Append(s.Time, replay.TurnOff, replay.InfoTurnOffTower{
-					Index: s.findTowerIndex(s.chosenTower),
-				})
-
-				return
-			}
-
-			s.turnOnTowerHandler(s.chosenTower)
-			btn.Text().Label = "ON"
-			btn.Image = &widget.ButtonImage{
-				Idle: image2.NewNineSliceColor(colornames.Lawngreen),
-			}
-
-			s.Watcher.Append(s.Time, replay.TurnOn, replay.InfoTurnOnTower{
-				Index: s.findTowerIndex(s.chosenTower),
-			})
-		}),
+		widget.ButtonOpts.ClickedHandler(s.handleTurning),
 	)
 	root.AddChild(btnTurn)
 	root.AddChild(s.radio())
@@ -287,13 +241,7 @@ func (s *GameState) radio() *widget.Container {
 			Hover:   image2.NewNineSliceColor(color.RGBA{R: 0x9a, G: 0x3b, B: 0xea, A: 0xff}),
 			Pressed: image2.NewNineSliceColor(color.RGBA{R: 0x6a, G: 0x16, B: 0xc2, A: 0xff}),
 		}),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			s.tuneFirstTowerHandler(s.chosenTower)
-
-			s.Watcher.Append(s.Time, replay.TuneFirst, replay.InfoTuneFirst{
-				Index: s.findTowerIndex(s.chosenTower),
-			})
-		}),
+		widget.ButtonOpts.ClickedHandler(s.handleTuneFirst),
 	)
 
 	strong := widget.NewButton(
@@ -315,13 +263,7 @@ func (s *GameState) radio() *widget.Container {
 			Hover:   image2.NewNineSliceColor(color.RGBA{R: 0x9a, G: 0x3b, B: 0xea, A: 0xff}),
 			Pressed: image2.NewNineSliceColor(color.RGBA{R: 0x6a, G: 0x16, B: 0xc2, A: 0xff}),
 		}),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			s.tuneStrongTowerHandler(s.chosenTower)
-
-			s.Watcher.Append(s.Time, replay.TuneStrong, replay.InfoTuneStrong{
-				Index: s.findTowerIndex(s.chosenTower),
-			})
-		}),
+		widget.ButtonOpts.ClickedHandler(s.handleTuneStrong),
 	)
 
 	weak := widget.NewButton(
@@ -343,13 +285,7 @@ func (s *GameState) radio() *widget.Container {
 			Hover:   image2.NewNineSliceColor(color.RGBA{R: 0x9a, G: 0x3b, B: 0xea, A: 0xff}),
 			Pressed: image2.NewNineSliceColor(color.RGBA{R: 0x6a, G: 0x16, B: 0xc2, A: 0xff}),
 		}),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			s.tuneWeakTowerHandler(s.chosenTower)
-
-			s.Watcher.Append(s.Time, replay.TuneWeak, replay.InfoTuneWeak{
-				Index: s.findTowerIndex(s.chosenTower),
-			})
-		}),
+		widget.ButtonOpts.ClickedHandler(s.handleTuneWeak),
 	)
 
 	root.AddChild(first)
@@ -395,14 +331,7 @@ func (s *GameState) sellContainer(_ general.Widgets) *widget.Container {
 		widget.ButtonOpts.Text("SELL", font.TTF64, &widget.ButtonTextColor{
 			Idle: color.White,
 		}),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			s.Watcher.Append(s.Time, replay.SellTower, replay.InfoSellTower{
-				Index: s.findTowerIndex(s.chosenTower),
-			})
-			s.sellTowerHandler(s.chosenTower)
-
-			s.showTowerMenu()
-		}),
+		widget.ButtonOpts.ClickedHandler(s.handleSell),
 		widget.ButtonOpts.TextPadding(widget.Insets{Top: 10, Bottom: 10}),
 	)
 

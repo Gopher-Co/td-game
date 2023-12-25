@@ -59,11 +59,7 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 				VerticalPosition:   0,
 			})),
 			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(200, 100)),
-			widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
-				if s.PlayerMapState.Money >= v.Price {
-					s.tookTower = v
-				}
-			}),
+			widget.ButtonOpts.ClickedHandler(s.handleTowerTake(v)),
 			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{
 				HorizontalPosition: widget.GridLayoutPositionCenter,
 				MaxWidth:           config.TowerImageWidth,
