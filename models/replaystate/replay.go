@@ -12,6 +12,7 @@ import (
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/models/ingame"
 	"github.com/gopher-co/td-game/replay"
+	"github.com/gopher-co/td-game/ui/updater"
 )
 
 // CurrentState is a type that represents the current state of the game.
@@ -68,6 +69,8 @@ type ReplayState struct {
 
 	// currAction is an index of the current action.
 	currAction int
+
+	uiUpdater *updater.Updater
 }
 
 // New creates a new entity of ReplayState.
@@ -91,6 +94,7 @@ func New(
 		PlayerMapState: w.InitPlayerMapState,
 		cancel:         cancel,
 		rw:             w,
+		uiUpdater:      new(updater.Updater),
 	}
 
 	rs.UI = rs.loadUI(ctx, widgets)
@@ -123,6 +127,7 @@ func (r *ReplayState) Update() error {
 	r.Action()
 
 	r.UI.Update()
+	r.uiUpdater.Update()
 
 	r.Map.Update()
 

@@ -19,6 +19,7 @@ import (
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/models/ingame"
 	"github.com/gopher-co/td-game/replay"
+	"github.com/gopher-co/td-game/ui/updater"
 )
 
 // CurrentState is an enum that represents the current state of the game.
@@ -90,6 +91,8 @@ type GameState struct {
 
 	// PlayerState is a state of the player.
 	PlayerState *ingame.PlayerState
+
+	updater *updater.Updater
 }
 
 // New creates a new entity of GameState.
@@ -101,6 +104,7 @@ func New(
 	ps *ingame.PlayerState,
 	w general.Widgets,
 ) *GameState {
+	// remove all the unavailable towers
 	tw2 := maps2.Clone(tw)
 	filter(tw2, func(s string, c *config.Tower) bool {
 		if c.OpenLevel == "" {
@@ -110,6 +114,8 @@ func New(
 		_, ok := ps.LevelsComplete[c.OpenLevel]
 		return !ok
 	})
+
+	// creating gamestate from configs
 	gs := &GameState{
 		LevelName:   level.LevelName,
 		Map:         ingame.NewMap(maps[level.MapName]),
@@ -131,6 +137,7 @@ func New(
 			Actions: make([]replay.Action, 0, 2500),
 		},
 		PlayerState: ps,
+		updater:     new(updater.Updater),
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -170,6 +177,8 @@ func (s *GameState) Update() error {
 	}
 
 	s.UI.Update()
+	s.updater.Update()
+
 	if s.Ended {
 		return nil
 	}

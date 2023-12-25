@@ -4,11 +4,9 @@ import (
 	"context"
 	"fmt"
 	"image/color"
-	"time"
 
 	image2 "github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/colornames"
 
 	"github.com/gopher-co/td-game/models/general"
@@ -126,46 +124,37 @@ func (s *GameState) upgradesContainer(ctx context.Context, _ general.Widgets) *w
 
 	info := s.textUpgradeInfo()
 
-	go func() {
-		t := time.NewTicker(time.Second / time.Duration(ebiten.TPS()))
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-t.C:
-			}
-
-			if s.chosenTower == nil {
-				continue
-			}
-
-			if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) {
-				c := info.Children()
-				insertValues(c[0].(*widget.Text), s.chosenTower.Damage, 0, "Damage")
-				insertValues(c[1].(*widget.Text), int(s.chosenTower.Radius), 0, "Radius")
-				insertValues(c[2].(*widget.Text), s.chosenTower.SpeedAttack, 0, "Speed")
-				insertValues(c[3].(*widget.Text), int(s.chosenTower.ProjectileVrms), 0, "ProjSpeed")
-				continue
-			}
-
-			c := info.Children()
-			u := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought]
-			insertValues(c[0].(*widget.Text), s.chosenTower.Damage, u.DeltaDamage, "Damage")
-			insertValues(c[1].(*widget.Text), int(s.chosenTower.Radius), int(u.DeltaRadius), "Radius")
-			insertValues(c[2].(*widget.Text), s.chosenTower.SpeedAttack, u.DeltaSpeedAttack, "Speed")
-			insertValues(c[3].(*widget.Text), int(s.chosenTower.ProjectileVrms), 0, "ProjSpeed")
-
-			openLevel := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
-			_, ok := s.PlayerState.LevelsComplete[openLevel]
-			if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) ||
-				s.PlayerMapState.Money < s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price ||
-				!ok && openLevel != "" {
-				btn.GetWidget().Disabled = true
-			} else {
-				btn.GetWidget().Disabled = false
-			}
+	s.updater.Append(func() {
+		if s.chosenTower == nil {
+			return
 		}
-	}()
+
+		if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) {
+			c := info.Children()
+			insertValues(c[0].(*widget.Text), s.chosenTower.Damage, 0, "Damage")
+			insertValues(c[1].(*widget.Text), int(s.chosenTower.Radius), 0, "Radius")
+			insertValues(c[2].(*widget.Text), s.chosenTower.SpeedAttack, 0, "Speed")
+			insertValues(c[3].(*widget.Text), int(s.chosenTower.ProjectileVrms), 0, "ProjSpeed")
+			return
+		}
+
+		c := info.Children()
+		u := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought]
+		insertValues(c[0].(*widget.Text), s.chosenTower.Damage, u.DeltaDamage, "Damage")
+		insertValues(c[1].(*widget.Text), int(s.chosenTower.Radius), int(u.DeltaRadius), "Radius")
+		insertValues(c[2].(*widget.Text), s.chosenTower.SpeedAttack, u.DeltaSpeedAttack, "Speed")
+		insertValues(c[3].(*widget.Text), int(s.chosenTower.ProjectileVrms), 0, "ProjSpeed")
+
+		openLevel := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
+		_, ok := s.PlayerState.LevelsComplete[openLevel]
+		if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) ||
+			s.PlayerMapState.Money < s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price ||
+			!ok && openLevel != "" {
+			btn.GetWidget().Disabled = true
+		} else {
+			btn.GetWidget().Disabled = false
+		}
+	})
 
 	root.AddChild(level)
 	root.AddChild(btn)
@@ -371,28 +360,21 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 	r := widget.NewRadioGroup(
 		widget.RadioGroupOpts.Elements(first, strong, weak),
 	)
-	go func() {
-		t := time.NewTicker(time.Second / time.Duration(ebiten.TPS()))
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-t.C:
-			}
-			if s.chosenTower == nil {
-				continue
-			}
 
-			switch s.chosenTower.State.AimType {
-			case ingame.First:
-				r.SetActive(first)
-			case ingame.Strongest:
-				r.SetActive(strong)
-			case ingame.Weakest:
-				r.SetActive(weak)
-			}
+	s.updater.Append(func() {
+		if s.chosenTower == nil {
+			return
 		}
-	}()
+
+		switch s.chosenTower.State.AimType {
+		case ingame.First:
+			r.SetActive(first)
+		case ingame.Strongest:
+			r.SetActive(strong)
+		case ingame.Weakest:
+			r.SetActive(weak)
+		}
+	})
 
 	return root
 }

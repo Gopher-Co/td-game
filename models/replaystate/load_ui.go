@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"image/color"
-	"time"
 
 	"github.com/ebitenui/ebitenui"
 	image2 "github.com/ebitenui/ebitenui/image"
@@ -64,20 +63,13 @@ func (r *ReplayState) loadMapContainer(ctx context.Context, _ general.Widgets) *
 		})),
 	)
 
-	go func() {
-		t := time.NewTicker(time.Second / time.Duration(ebiten.TPS()))
-		for {
-			if ctx.Err() != nil {
-				return
-			}
-			<-t.C
-			if r.CurrentWave < 0 || r.CurrentWave >= len(r.GameRule) {
-				waveText.Label = ""
-				continue
-			}
-			waveText.Label = fmt.Sprintf("Wave: %d/%d", r.CurrentWave+1, len(r.GameRule))
+	r.uiUpdater.Append(func() {
+		if r.CurrentWave < 0 || r.CurrentWave >= len(r.GameRule) {
+			waveText.Label = ""
+			return
 		}
-	}()
+		waveText.Label = fmt.Sprintf("Wave: %d/%d", r.CurrentWave+1, len(r.GameRule))
+	})
 
 	waveContainer.AddChild(waveText)
 
@@ -163,18 +155,6 @@ func (r *ReplayState) loadTowerMenuContainer(ctx context.Context, _ general.Widg
 			Bottom: 0,
 		}),
 	)
-	go func() {
-		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-			}
-
-			health.Label = fmt.Sprintf("Health: %d", r.PlayerMapState.Health)
-		}
-	}()
 
 	money := widget.NewText(
 		widget.TextOpts.Text(fmt.Sprintf("Money: %d", r.PlayerMapState.Money), font.TTF40, color.White),
@@ -186,18 +166,10 @@ func (r *ReplayState) loadTowerMenuContainer(ctx context.Context, _ general.Widg
 		}),
 	)
 
-	go func() {
-		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-			}
-
-			money.Label = fmt.Sprintf("Money: %d", r.PlayerMapState.Money)
-		}
-	}()
+	r.uiUpdater.Append(func() {
+		health.Label = fmt.Sprintf("Health: %d", r.PlayerMapState.Health)
+		money.Label = fmt.Sprintf("Money: %d", r.PlayerMapState.Money)
+	})
 
 	// menu on the right side
 	menu := widget.NewContainer(

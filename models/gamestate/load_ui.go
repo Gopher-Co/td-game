@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"image/color"
-	"time"
 
 	"github.com/ebitenui/ebitenui"
 	image2 "github.com/ebitenui/ebitenui/image"
@@ -65,20 +64,13 @@ func (s *GameState) loadMapContainer(ctx context.Context, _ general.Widgets) *wi
 		})),
 	)
 
-	go func() {
-		t := time.NewTicker(time.Second / time.Duration(ebiten.TPS()))
-		for {
-			if ctx.Err() != nil {
-				return
-			}
-			<-t.C
-			if s.CurrentWave < 0 || s.CurrentWave >= len(s.GameRule) {
-				waveText.Label = ""
-				continue
-			}
-			waveText.Label = fmt.Sprintf("Wave: %d/%d", s.CurrentWave+1, len(s.GameRule))
+	s.updater.Append(func() {
+		if s.CurrentWave < 0 || s.CurrentWave >= len(s.GameRule) {
+			waveText.Label = ""
+			return
 		}
-	}()
+		waveText.Label = fmt.Sprintf("Wave: %d/%d", s.CurrentWave+1, len(s.GameRule))
+	})
 
 	waveContainer.AddChild(waveText)
 
@@ -137,20 +129,11 @@ func (s *GameState) loadMapContainer(ctx context.Context, _ general.Widgets) *wi
 		}),
 	)
 
-	go func() {
-		t := time.NewTicker(time.Second / time.Duration(ebiten.TPS()))
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-t.C:
-			}
-
-			if s.State != Running && !s.End() {
-				startButton.GetWidget().Disabled = false
-			}
+	s.updater.Append(func() {
+		if s.State != Running && !s.End() {
+			startButton.GetWidget().Disabled = false
 		}
-	}()
+	})
 
 	speedButton := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{

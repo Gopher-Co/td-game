@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"image/color"
 	"math"
-	"time"
 
 	image2 "github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/colornames"
 
 	"github.com/gopher-co/td-game/models/config"
@@ -157,18 +155,6 @@ func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.
 			Bottom: 0,
 		}),
 	)
-	go func() {
-		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-			}
-
-			health.Label = fmt.Sprintf("Health: %d", s.PlayerMapState.Health)
-		}
-	}()
 
 	money := widget.NewText(
 		widget.TextOpts.Text(fmt.Sprintf("Money: %d", s.PlayerMapState.Money), font.TTF40, color.White),
@@ -180,18 +166,10 @@ func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.
 		}),
 	)
 
-	go func() {
-		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-			}
-
-			money.Label = fmt.Sprintf("Money: %d", s.PlayerMapState.Money)
-		}
-	}()
+	s.updater.Append(func() {
+		health.Label = fmt.Sprintf("Health: %d", s.PlayerMapState.Health)
+		money.Label = fmt.Sprintf("Money: %d", s.PlayerMapState.Money)
+	})
 
 	// menu on the right side
 	menu := widget.NewContainer(
