@@ -10,7 +10,6 @@ import (
 	"golang.org/x/image/colornames"
 
 	"github.com/gopher-co/td-game/models/general"
-	"github.com/gopher-co/td-game/models/ingame"
 	"github.com/gopher-co/td-game/ui/font"
 )
 
@@ -157,50 +156,4 @@ func (s *GameState) showTowerInfoMenu() {
 	menu := s.UI.Container.Children()[1].(*widget.Container).Children()[2].(*widget.Container)
 	menu.RemoveChildren()
 	menu.AddChild(cInfo)
-}
-
-// updateTowerUI updates the tower UI.
-func (s *GameState) updateTowerUI(t *ingame.Tower) {
-	menuCont := cInfo.Children()
-
-	info := menuCont[0].(*widget.Container)
-	text0 := info.Children()[0].(*widget.Text)
-	text0.Label = t.Name
-
-	upgrades := menuCont[1].(*widget.Container)
-	text1, btn := upgrades.Children()[0].(*widget.Text), upgrades.Children()[1].(*widget.Button)
-	text1.Label = fmt.Sprintf("Level %d", t.UpgradesBought+1)
-
-	if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) {
-		btn.Text().Label = "SOLD OUT"
-		btn.GetWidget().Disabled = true
-	} else {
-		openLevel := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
-		_, ok := s.PlayerState.LevelsComplete[openLevel]
-		if !ok && openLevel != "" {
-			btn.Text().Label = "Complete level to unlock:\n" + s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
-			btn.GetWidget().Disabled = true
-		} else {
-			btn.Text().Label = fmt.Sprintf("UPGRADE ($%d)", s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price)
-			if s.PlayerMapState.Money < t.Upgrades[t.UpgradesBought].Price {
-				btn.GetWidget().Disabled = true
-			} else {
-				btn.GetWidget().Disabled = false
-			}
-		}
-	}
-
-	tuning := menuCont[2].(*widget.Container)
-	turnButton := tuning.Children()[0].(*widget.Button)
-	if s.chosenTower.State.IsTurnedOn {
-		turnButton.Text().Label = "ON"
-		turnButton.Image = &widget.ButtonImage{
-			Idle: image2.NewNineSliceColor(colornames.Lawngreen),
-		}
-	} else {
-		turnButton.Text().Label = "OFF"
-		turnButton.Image = &widget.ButtonImage{
-			Idle: image2.NewNineSliceColor(colornames.Indianred),
-		}
-	}
 }

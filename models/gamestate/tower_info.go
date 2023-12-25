@@ -55,6 +55,13 @@ func (s *GameState) textContainer(_ general.Widgets) *widget.Container {
 		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionStart),
 	)
 
+	s.uiUpdater.Append(func() {
+		if s.chosenTower == nil {
+			return
+		}
+		name.Label = s.chosenTower.Name
+	})
+
 	root.AddChild(name)
 
 	return root
@@ -205,6 +212,25 @@ func (s *GameState) tuningContainer(_ general.Widgets) *widget.Container {
 		}),
 		widget.ButtonOpts.ClickedHandler(s.handleTurning),
 	)
+
+	s.uiUpdater.Append(func() {
+		if s.chosenTower == nil {
+			return
+		}
+
+		if s.chosenTower.State.IsTurnedOn {
+			btnTurn.Text().Label = "ON"
+			btnTurn.Image = &widget.ButtonImage{
+				Idle: image2.NewNineSliceColor(colornames.Lawngreen),
+			}
+		} else {
+			btnTurn.Text().Label = "OFF"
+			btnTurn.Image = &widget.ButtonImage{
+				Idle: image2.NewNineSliceColor(colornames.Indianred),
+			}
+		}
+	})
+
 	root.AddChild(btnTurn)
 	root.AddChild(s.radio())
 

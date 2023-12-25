@@ -110,10 +110,11 @@ func (s *GameState) handleTuneWeak(_ *widget.ButtonClickedEventArgs) {
 }
 
 func (s *GameState) handleSell(_ *widget.ButtonClickedEventArgs) {
+	s.sellTowerHandler(s.chosenTower)
+
 	s.Watcher.Append(s.Time, replay.SellTower, replay.InfoSellTower{
 		Index: s.findTowerIndex(s.chosenTower),
 	})
-	s.sellTowerHandler(s.chosenTower)
 
 	s.showTowerMenu()
 }

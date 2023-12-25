@@ -319,14 +319,17 @@ func (s *GameState) rightSidebarHandle() {
 	x, _ := ebiten.CursorPosition()
 	if x <= 1500 {
 		ts := slices.Clone(s.Map.Towers)
+
+		// choose the tower at the top of the screen
 		slices.Reverse(ts)
+
 		b := true
 		for _, t := range ts {
 			if b && t.IsClicked() {
 				t.Chosen = true
 				s.chosenTower = t
 				b = !b
-				s.updateTowerUI(t)
+
 				s.showTowerInfoMenu()
 			} else {
 				t.Chosen = false
