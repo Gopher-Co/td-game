@@ -1,7 +1,6 @@
 package replaystate
 
 import (
-	"context"
 	"fmt"
 	"image/color"
 
@@ -16,7 +15,7 @@ import (
 )
 
 // loadUI loads the UI of the replay state.
-func (r *ReplayState) loadUI(ctx context.Context, widgets general.Widgets) *ebitenui.UI {
+func (r *ReplayState) loadUI(widgets general.Widgets) *ebitenui.UI {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(2),
@@ -24,9 +23,9 @@ func (r *ReplayState) loadUI(ctx context.Context, widgets general.Widgets) *ebit
 		)),
 	)
 
-	mapContainer := r.loadMapContainer(ctx, widgets)
+	mapContainer := r.loadMapContainer(widgets)
 
-	towerMenuContainer := r.loadTowerMenuContainer(ctx, widgets)
+	towerMenuContainer := r.loadTowerMenuContainer(widgets)
 
 	root.AddChild(mapContainer)
 	root.AddChild(towerMenuContainer)
@@ -35,7 +34,7 @@ func (r *ReplayState) loadUI(ctx context.Context, widgets general.Widgets) *ebit
 }
 
 // loadMapContainer loads the map container.
-func (r *ReplayState) loadMapContainer(ctx context.Context, _ general.Widgets) *widget.Container {
+func (r *ReplayState) loadMapContainer(_ general.Widgets) *widget.Container {
 	mapContainer := widget.NewContainer(
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.MinSize(1500, 0)),
 		widget.ContainerOpts.Layout(widget.NewStackedLayout()),
@@ -136,7 +135,7 @@ func (r *ReplayState) loadMapContainer(ctx context.Context, _ general.Widgets) *
 }
 
 // loadTowerMenuContainer loads the tower menu container.
-func (r *ReplayState) loadTowerMenuContainer(ctx context.Context, _ general.Widgets) *widget.Container {
+func (r *ReplayState) loadTowerMenuContainer(_ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),

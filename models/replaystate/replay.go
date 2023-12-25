@@ -1,7 +1,6 @@
 package replaystate
 
 import (
-	"context"
 	"image"
 	"log"
 
@@ -61,9 +60,6 @@ type ReplayState struct {
 	// speedUp is a flag that represents if the game is speed up.
 	speedUp bool
 
-	// cancel is a function that cancels the context.
-	cancel context.CancelFunc
-
 	// rw is a watcher of the replay.
 	rw *replay.Watcher
 
@@ -82,7 +78,6 @@ func New(
 	en map[string]*config.Enemy,
 	widgets general.Widgets,
 ) *ReplayState {
-	ctx, cancel := context.WithCancel(context.Background())
 
 	rs := &ReplayState{
 		Map:            ingame.NewMap(maps[cfg.MapName]),
@@ -92,12 +87,11 @@ func New(
 		GameRule:       ingame.NewGameRule(cfg.GameRule),
 		Time:           0,
 		PlayerMapState: w.InitPlayerMapState,
-		cancel:         cancel,
 		rw:             w,
 		uiUpdater:      new(updater.Updater),
 	}
 
-	rs.UI = rs.loadUI(ctx, widgets)
+	rs.UI = rs.loadUI(widgets)
 
 	return rs
 }
@@ -158,8 +152,6 @@ func (r *ReplayState) setStateAfterWave() {
 // setStateAfterEnd sets the state after the end of the game.
 func (r *ReplayState) setStateAfterEnd() {
 	ebiten.SetTPS(60)
-	r.cancel()
-	r.cancel = nil
 }
 
 // updateRunning updates the game in the running state.

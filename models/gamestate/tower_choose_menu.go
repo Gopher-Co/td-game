@@ -1,7 +1,6 @@
 package gamestate
 
 import (
-	"context"
 	"fmt"
 	"image/color"
 	"math"
@@ -136,7 +135,7 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 }
 
 // loadTowerMenuContainer creates a tower menu container.
-func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+func (s *GameState) loadTowerMenuContainer(widgets general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -177,7 +176,7 @@ func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.
 	)
 
 	scrollContainer := s.scrollCont(widgets)
-	menuTower := s.newTowerMenuUI(ctx, widgets)
+	menuTower := s.newTowerMenuUI(widgets)
 	cMenu = scrollContainer
 	cInfo = menuTower
 

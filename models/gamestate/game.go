@@ -1,7 +1,6 @@
 package gamestate
 
 import (
-	"context"
 	"image"
 	"image/color"
 	"log"
@@ -83,9 +82,6 @@ type GameState struct {
 	// speedUp is a flag that represents if the game is speeded up.
 	speedUp bool
 
-	// cancel is a function that cancels the context.
-	cancel context.CancelFunc
-
 	// Watcher is a watcher of the game.
 	Watcher *replay.Watcher
 
@@ -140,9 +136,7 @@ func New(
 		updater:     new(updater.Updater),
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	gs.UI = gs.loadGameUI(ctx, w)
-	gs.cancel = cancel
+	gs.UI = gs.loadGameUI(w)
 
 	return gs
 }
@@ -258,8 +252,6 @@ func (s *GameState) setStateAfterWave() {
 // clear clears the game state.
 func (s *GameState) clear() {
 	ebiten.SetTPS(60)
-	s.cancel()
-	s.cancel = nil
 }
 
 // setStateAfterEnd sets the state after the end of the game.

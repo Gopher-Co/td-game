@@ -1,7 +1,6 @@
 package gamestate
 
 import (
-	"context"
 	"fmt"
 	"image/color"
 
@@ -17,7 +16,7 @@ import (
 )
 
 // loadGameUI loads UI of the game.
-func (s *GameState) loadGameUI(ctx context.Context, widgets general.Widgets) *ebitenui.UI {
+func (s *GameState) loadGameUI(widgets general.Widgets) *ebitenui.UI {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(2),
@@ -25,9 +24,9 @@ func (s *GameState) loadGameUI(ctx context.Context, widgets general.Widgets) *eb
 		)),
 	)
 
-	mapContainer := s.loadMapContainer(ctx, widgets)
+	mapContainer := s.loadMapContainer(widgets)
 
-	towerMenuContainer := s.loadTowerMenuContainer(ctx, widgets)
+	towerMenuContainer := s.loadTowerMenuContainer(widgets)
 
 	root.AddChild(mapContainer)
 	root.AddChild(towerMenuContainer)
@@ -36,7 +35,7 @@ func (s *GameState) loadGameUI(ctx context.Context, widgets general.Widgets) *eb
 }
 
 // loadMapContainer loads a container that contains the map.
-func (s *GameState) loadMapContainer(ctx context.Context, _ general.Widgets) *widget.Container {
+func (s *GameState) loadMapContainer(_ general.Widgets) *widget.Container {
 	mapContainer := widget.NewContainer(
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.MinSize(1500, 0)),
 		widget.ContainerOpts.Layout(widget.NewStackedLayout()),

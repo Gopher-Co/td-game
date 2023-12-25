@@ -1,7 +1,6 @@
 package gamestate
 
 import (
-	"context"
 	"fmt"
 	"image/color"
 
@@ -16,7 +15,7 @@ import (
 )
 
 // newTowerMenuUI creates a new tower menu UI.
-func (s *GameState) newTowerMenuUI(ctx context.Context, widgets general.Widgets) *widget.Container {
+func (s *GameState) newTowerMenuUI(widgets general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -27,8 +26,8 @@ func (s *GameState) newTowerMenuUI(ctx context.Context, widgets general.Widgets)
 	cInfo = root
 
 	info := s.textContainer(widgets)
-	upgrades := s.upgradesContainer(ctx, widgets)
-	tuning := s.tuningContainer(ctx, widgets)
+	upgrades := s.upgradesContainer(widgets)
+	tuning := s.tuningContainer(widgets)
 	sell := s.sellContainer(widgets)
 
 	root.AddChild(info)
@@ -63,7 +62,7 @@ func (s *GameState) textContainer(_ general.Widgets) *widget.Container {
 }
 
 // upgradesContainer creates a container that contains the upgrades of the tower.
-func (s *GameState) upgradesContainer(ctx context.Context, _ general.Widgets) *widget.Container {
+func (s *GameState) upgradesContainer(_ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -209,7 +208,7 @@ func insertValues(c *widget.Text, v, deltav int, s string) {
 }
 
 // tuningContainer creates a container that contains the tuning of the tower.
-func (s *GameState) tuningContainer(ctx context.Context, _ general.Widgets) *widget.Container {
+func (s *GameState) tuningContainer(_ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -253,13 +252,13 @@ func (s *GameState) tuningContainer(ctx context.Context, _ general.Widgets) *wid
 		}),
 	)
 	root.AddChild(btnTurn)
-	root.AddChild(s.radio(ctx))
+	root.AddChild(s.radio())
 
 	return root
 }
 
 // radio creates a radio group.
-func (s *GameState) radio(ctx context.Context) *widget.Container {
+func (s *GameState) radio() *widget.Container {
 
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
