@@ -1,10 +1,7 @@
 package ingame
 
 import (
-	"image/color"
-
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 
 	"github.com/gopher-co/td-game/models/config"
 	"github.com/gopher-co/td-game/models/general"
@@ -102,15 +99,8 @@ func (m *Map) AreThereAliveEnemies() bool {
 type Path []general.Point
 
 // Draw draws the path.
-func (p Path) Draw(screen *ebiten.Image) {
+func (p Path) Draw(_ *ebiten.Image) {
 	//for i := 0; i < len(p)-1; i++ {
 	//	drawLine(screen, p[i], p[i+1])
 	//}
-}
-
-// drawLine draws a line between two points.
-func drawLine(screen *ebiten.Image, p1, p2 general.Point) {
-	x1, y1, x2, y2 := p1.X, p1.Y, p2.X, p2.Y
-	vector.DrawFilledCircle(screen, x2, y2, config.PathWidth/2, color.RGBA{R: 52, G: 63, B: 74, A: 255}, true)
-	vector.StrokeLine(screen, x1, y1, x2, y2, config.PathWidth, color.RGBA{R: 52, G: 63, B: 74, A: 255}, true)
 }
