@@ -225,7 +225,7 @@ func (s *GameState) End() bool {
 
 // Draw draws the game on the screen.
 func (s *GameState) Draw(screen *ebiten.Image) {
-	if s.Ended == true {
+	if s.Ended {
 		return
 	}
 
