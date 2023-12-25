@@ -1,0 +1,22 @@
+{
+  "level_name": "3_Test",
+  "map_name": "Test",
+  "game_rule": [
+    {
+      "swarms": [
+        {
+          "enemy_name": "Ruby",
+          "timeout": 0,
+          "interval": 0,
+          "max_calls": 1
+        },
+        {
+          "enemy_name": "Ruby",
+          "timeout": 540,
+          "interval": 20,
+          "max_calls": 5
+        }
+      ]
+    }
+  ]
+}

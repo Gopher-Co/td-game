@@ -1,41 +1,41 @@
 {
   "name": "Gopher",
   "upgrades": [
-      {
-        "price": 160,
-        "delta_damage": 1,
-        "delta_radius": 20.0,
-        "delta_speed_attack": 1,
-        "open_level": ""
-      },
-      {
-          "price": 220,
-          "delta_damage": 0,
-          "delta_radius": 0,
-          "delta_speed_attack": 5,
-          "open_level": "2. Problems in Greenland"
-      },
-      {
-          "price": 520,
-          "delta_damage": 3,
-          "delta_radius": 50.0,
-          "delta_speed_attack": 0,
-          "open_level": ""
-      },
-      {
-        "price": 20,
-        "delta_damage": 20,
-        "delta_radius": 20.0,
-        "delta_speed_attack": 5,
-        "open_level": ""
+    {
+      "price": 160,
+      "delta_damage": 1,
+      "delta_speed_attack": 1,
+      "delta_radius": 20.0,
+      "open_level": ""
+    },
+    {
+      "price": 220,
+      "delta_damage": 0,
+      "delta_speed_attack": 5,
+      "delta_radius": 0.0,
+      "open_level": "2. Problems in Greenland"
+    },
+    {
+      "price": 520,
+      "delta_damage": 3,
+      "delta_speed_attack": 0,
+      "delta_radius": 50.0,
+      "open_level": ""
+    },
+    {
+      "price": 20,
+      "delta_damage": 20,
+      "delta_speed_attack": 5,
+      "delta_radius": 20.0,
+      "open_level": ""
     }
   ],
   "price": 260,
   "type": 0,
   "initial_damage": 1,
-  "initial_radius": 250,
+  "initial_radius": 250.0,
   "initial_speed_attack": 15,
-  "init_projectile_speed": 15,
+  "init_projectile_speed": 15.0,
   "projectile_config": {
     "name": "#413245"
   },

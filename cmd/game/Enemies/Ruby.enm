@@ -1,0 +1,14 @@
+{
+  "name": "Ruby",
+  "max_health": 3,
+  "damage": 1,
+  "vrms": 5.0,
+  "money_award": 5,
+  "strengths": [
+    {
+      "type": 1,
+      "dec_dmg": 2
+    }
+  ],
+  "weaknesses": []
+}
