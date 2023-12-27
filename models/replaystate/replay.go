@@ -1,7 +1,6 @@
 package replaystate
 
 import (
-	"context"
 	"image"
 	"log"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/models/ingame"
 	"github.com/gopher-co/td-game/replay"
+	"github.com/gopher-co/td-game/ui/updater"
 )
 
 // CurrentState is a type that represents the current state of the game.
@@ -60,14 +60,13 @@ type ReplayState struct {
 	// speedUp is a flag that represents if the game is speed up.
 	speedUp bool
 
-	// cancel is a function that cancels the context.
-	cancel context.CancelFunc
-
 	// rw is a watcher of the replay.
 	rw *replay.Watcher
 
 	// currAction is an index of the current action.
 	currAction int
+
+	uiUpdater *updater.Updater
 }
 
 // New creates a new entity of ReplayState.
@@ -79,7 +78,6 @@ func New(
 	en map[string]*config.Enemy,
 	widgets general.Widgets,
 ) *ReplayState {
-	ctx, cancel := context.WithCancel(context.Background())
 
 	rs := &ReplayState{
 		Map:            ingame.NewMap(maps[cfg.MapName]),
@@ -89,11 +87,11 @@ func New(
 		GameRule:       ingame.NewGameRule(cfg.GameRule),
 		Time:           0,
 		PlayerMapState: w.InitPlayerMapState,
-		cancel:         cancel,
 		rw:             w,
+		uiUpdater:      new(updater.Updater),
 	}
 
-	rs.UI = rs.loadUI(ctx, widgets)
+	rs.UI = rs.loadUI(widgets)
 
 	return rs
 }
@@ -123,6 +121,7 @@ func (r *ReplayState) Update() error {
 	r.Action()
 
 	r.UI.Update()
+	r.uiUpdater.Update()
 
 	r.Map.Update()
 
@@ -153,8 +152,6 @@ func (r *ReplayState) setStateAfterWave() {
 // setStateAfterEnd sets the state after the end of the game.
 func (r *ReplayState) setStateAfterEnd() {
 	ebiten.SetTPS(60)
-	r.cancel()
-	r.cancel = nil
 }
 
 // updateRunning updates the game in the running state.

@@ -1,24 +1,20 @@
 package gamestate
 
 import (
-	"context"
 	"fmt"
 	"image/color"
-	"time"
 
 	image2 "github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/colornames"
 
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/models/ingame"
-	"github.com/gopher-co/td-game/replay"
 	"github.com/gopher-co/td-game/ui/font"
 )
 
 // newTowerMenuUI creates a new tower menu UI.
-func (s *GameState) newTowerMenuUI(ctx context.Context, widgets general.Widgets) *widget.Container {
+func (s *GameState) newTowerMenuUI(widgets general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -29,8 +25,8 @@ func (s *GameState) newTowerMenuUI(ctx context.Context, widgets general.Widgets)
 	cInfo = root
 
 	info := s.textContainer(widgets)
-	upgrades := s.upgradesContainer(ctx, widgets)
-	tuning := s.tuningContainer(ctx, widgets)
+	upgrades := s.upgradesContainer(widgets)
+	tuning := s.tuningContainer(widgets)
 	sell := s.sellContainer(widgets)
 
 	root.AddChild(info)
@@ -59,21 +55,26 @@ func (s *GameState) textContainer(_ general.Widgets) *widget.Container {
 		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionStart),
 	)
 
+	s.uiUpdater.Append(func() {
+		if s.chosenTower == nil {
+			return
+		}
+		name.Label = s.chosenTower.Name
+	})
+
 	root.AddChild(name)
 
 	return root
 }
 
 // upgradesContainer creates a container that contains the upgrades of the tower.
-func (s *GameState) upgradesContainer(ctx context.Context, _ general.Widgets) *widget.Container {
+func (s *GameState) upgradesContainer(_ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
 			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, false}),
 		)),
 	)
-
-	var checkBlock func()
 
 	btn := widget.NewButton(
 		widget.ButtonOpts.Image(&widget.ButtonImage{
@@ -87,85 +88,59 @@ func (s *GameState) upgradesContainer(ctx context.Context, _ general.Widgets) *w
 			Disabled: color.Black,
 		}),
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(0, 100)),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			s.upgradeTowerHandler(s.chosenTower)
-			checkBlock()
-
-			s.Watcher.Append(s.Time, replay.UpgradeTower, replay.InfoUpgradeTower{
-				Index: s.findTowerIndex(s.chosenTower),
-			})
-		}),
+		widget.ButtonOpts.ClickedHandler(s.handleUpgrade),
 	)
 
 	level := widget.NewText(
 		widget.TextOpts.Text("Level", font.TTF48, color.White),
 	)
 
-	checkBlock = func() {
-		openLevel := ""
-		if s.chosenTower.UpgradesBought < len(s.chosenTower.Upgrades) {
-			openLevel = s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
+	info := s.textUpgradeInfo()
+
+	s.uiUpdater.Append(func() {
+		if s.chosenTower == nil {
+			return
 		}
-		_, ok := s.PlayerState.LevelsComplete[openLevel]
 
 		level.Label = fmt.Sprintf("Level %d", s.chosenTower.UpgradesBought+1)
+
+		// all the upgrades are bought
 		if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) {
+			c := info.Children()
+			insertValues(c[0].(*widget.Text), s.chosenTower.Damage, 0, "Damage")
+			insertValues(c[1].(*widget.Text), int(s.chosenTower.Radius), 0, "Radius")
+			insertValues(c[2].(*widget.Text), s.chosenTower.SpeedAttack, 0, "Speed")
+			insertValues(c[3].(*widget.Text), int(s.chosenTower.ProjectileVrms), 0, "ProjSpeed")
+
 			btn.Text().Label = "SOLD OUT"
-		} else if !ok && openLevel != "" {
+			btn.GetWidget().Disabled = true
+
+			return
+		}
+
+		c := info.Children()
+		u := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought]
+		insertValues(c[0].(*widget.Text), s.chosenTower.Damage, u.DeltaDamage, "Damage")
+		insertValues(c[1].(*widget.Text), int(s.chosenTower.Radius), int(u.DeltaRadius), "Radius")
+		insertValues(c[2].(*widget.Text), s.chosenTower.SpeedAttack, u.DeltaSpeedAttack, "Speed")
+		insertValues(c[3].(*widget.Text), int(s.chosenTower.ProjectileVrms), 0, "ProjSpeed")
+
+		openLevel := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
+		_, ok := s.PlayerState.LevelsComplete[openLevel]
+
+		if !ok && openLevel != "" {
 			btn.Text().Label = "Complete level to unlock:\n" + s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
 		} else {
 			btn.Text().Label = fmt.Sprintf("UPGRADE ($%d)", s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price)
 		}
 
-		if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) ||
-			s.PlayerMapState.Money < s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price ||
+		if s.PlayerMapState.Money < s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price ||
 			!ok && openLevel != "" {
 			btn.GetWidget().Disabled = true
+		} else {
+			btn.GetWidget().Disabled = false
 		}
-	}
-
-	info := s.textUpgradeInfo()
-
-	go func() {
-		t := time.NewTicker(time.Second / time.Duration(ebiten.TPS()))
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-t.C:
-			}
-
-			if s.chosenTower == nil {
-				continue
-			}
-
-			if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) {
-				c := info.Children()
-				insertValues(c[0].(*widget.Text), s.chosenTower.Damage, 0, "Damage")
-				insertValues(c[1].(*widget.Text), int(s.chosenTower.Radius), 0, "Radius")
-				insertValues(c[2].(*widget.Text), s.chosenTower.SpeedAttack, 0, "Speed")
-				insertValues(c[3].(*widget.Text), int(s.chosenTower.ProjectileVrms), 0, "ProjSpeed")
-				continue
-			}
-
-			c := info.Children()
-			u := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought]
-			insertValues(c[0].(*widget.Text), s.chosenTower.Damage, u.DeltaDamage, "Damage")
-			insertValues(c[1].(*widget.Text), int(s.chosenTower.Radius), int(u.DeltaRadius), "Radius")
-			insertValues(c[2].(*widget.Text), s.chosenTower.SpeedAttack, u.DeltaSpeedAttack, "Speed")
-			insertValues(c[3].(*widget.Text), int(s.chosenTower.ProjectileVrms), 0, "ProjSpeed")
-
-			openLevel := s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].OpenLevel
-			_, ok := s.PlayerState.LevelsComplete[openLevel]
-			if s.chosenTower.UpgradesBought >= len(s.chosenTower.Upgrades) ||
-				s.PlayerMapState.Money < s.chosenTower.Upgrades[s.chosenTower.UpgradesBought].Price ||
-				!ok && openLevel != "" {
-				btn.GetWidget().Disabled = true
-			} else {
-				btn.GetWidget().Disabled = false
-			}
-		}
-	}()
+	})
 
 	root.AddChild(level)
 	root.AddChild(btn)
@@ -220,7 +195,7 @@ func insertValues(c *widget.Text, v, deltav int, s string) {
 }
 
 // tuningContainer creates a container that contains the tuning of the tower.
-func (s *GameState) tuningContainer(ctx context.Context, _ general.Widgets) *widget.Container {
+func (s *GameState) tuningContainer(_ general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -235,42 +210,35 @@ func (s *GameState) tuningContainer(ctx context.Context, _ general.Widgets) *wid
 		widget.ButtonOpts.Text("ON", font.TTF54, &widget.ButtonTextColor{
 			Idle: color.White,
 		}),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			btn := args.Button
+		widget.ButtonOpts.ClickedHandler(s.handleTurning),
+	)
 
-			if s.chosenTower.State.IsTurnedOn {
-				s.turnOffTowerHandler(s.chosenTower)
-				btn.Text().Label = "OFF"
-				btn.Image = &widget.ButtonImage{
-					Idle: image2.NewNineSliceColor(colornames.Indianred),
-				}
+	s.uiUpdater.Append(func() {
+		if s.chosenTower == nil {
+			return
+		}
 
-				s.Watcher.Append(s.Time, replay.TurnOff, replay.InfoTurnOffTower{
-					Index: s.findTowerIndex(s.chosenTower),
-				})
-
-				return
-			}
-
-			s.turnOnTowerHandler(s.chosenTower)
-			btn.Text().Label = "ON"
-			btn.Image = &widget.ButtonImage{
+		if s.chosenTower.State.IsTurnedOn {
+			btnTurn.Text().Label = "ON"
+			btnTurn.Image = &widget.ButtonImage{
 				Idle: image2.NewNineSliceColor(colornames.Lawngreen),
 			}
+		} else {
+			btnTurn.Text().Label = "OFF"
+			btnTurn.Image = &widget.ButtonImage{
+				Idle: image2.NewNineSliceColor(colornames.Indianred),
+			}
+		}
+	})
 
-			s.Watcher.Append(s.Time, replay.TurnOn, replay.InfoTurnOnTower{
-				Index: s.findTowerIndex(s.chosenTower),
-			})
-		}),
-	)
 	root.AddChild(btnTurn)
-	root.AddChild(s.radio(ctx))
+	root.AddChild(s.radio())
 
 	return root
 }
 
 // radio creates a radio group.
-func (s *GameState) radio(ctx context.Context) *widget.Container {
+func (s *GameState) radio() *widget.Container {
 
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
@@ -299,13 +267,7 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 			Hover:   image2.NewNineSliceColor(color.RGBA{R: 0x9a, G: 0x3b, B: 0xea, A: 0xff}),
 			Pressed: image2.NewNineSliceColor(color.RGBA{R: 0x6a, G: 0x16, B: 0xc2, A: 0xff}),
 		}),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			s.tuneFirstTowerHandler(s.chosenTower)
-
-			s.Watcher.Append(s.Time, replay.TuneFirst, replay.InfoTuneFirst{
-				Index: s.findTowerIndex(s.chosenTower),
-			})
-		}),
+		widget.ButtonOpts.ClickedHandler(s.handleTuneFirst),
 	)
 
 	strong := widget.NewButton(
@@ -327,13 +289,7 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 			Hover:   image2.NewNineSliceColor(color.RGBA{R: 0x9a, G: 0x3b, B: 0xea, A: 0xff}),
 			Pressed: image2.NewNineSliceColor(color.RGBA{R: 0x6a, G: 0x16, B: 0xc2, A: 0xff}),
 		}),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			s.tuneStrongTowerHandler(s.chosenTower)
-
-			s.Watcher.Append(s.Time, replay.TuneStrong, replay.InfoTuneStrong{
-				Index: s.findTowerIndex(s.chosenTower),
-			})
-		}),
+		widget.ButtonOpts.ClickedHandler(s.handleTuneStrong),
 	)
 
 	weak := widget.NewButton(
@@ -355,13 +311,7 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 			Hover:   image2.NewNineSliceColor(color.RGBA{R: 0x9a, G: 0x3b, B: 0xea, A: 0xff}),
 			Pressed: image2.NewNineSliceColor(color.RGBA{R: 0x6a, G: 0x16, B: 0xc2, A: 0xff}),
 		}),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			s.tuneWeakTowerHandler(s.chosenTower)
-
-			s.Watcher.Append(s.Time, replay.TuneWeak, replay.InfoTuneWeak{
-				Index: s.findTowerIndex(s.chosenTower),
-			})
-		}),
+		widget.ButtonOpts.ClickedHandler(s.handleTuneWeak),
 	)
 
 	root.AddChild(first)
@@ -371,28 +321,21 @@ func (s *GameState) radio(ctx context.Context) *widget.Container {
 	r := widget.NewRadioGroup(
 		widget.RadioGroupOpts.Elements(first, strong, weak),
 	)
-	go func() {
-		t := time.NewTicker(time.Second / time.Duration(ebiten.TPS()))
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-t.C:
-			}
-			if s.chosenTower == nil {
-				continue
-			}
 
-			switch s.chosenTower.State.AimType {
-			case ingame.First:
-				r.SetActive(first)
-			case ingame.Strongest:
-				r.SetActive(strong)
-			case ingame.Weakest:
-				r.SetActive(weak)
-			}
+	s.uiUpdater.Append(func() {
+		if s.chosenTower == nil {
+			return
 		}
-	}()
+
+		switch s.chosenTower.State.AimType {
+		case ingame.First:
+			r.SetActive(first)
+		case ingame.Strongest:
+			r.SetActive(strong)
+		case ingame.Weakest:
+			r.SetActive(weak)
+		}
+	})
 
 	return root
 }
@@ -414,14 +357,7 @@ func (s *GameState) sellContainer(_ general.Widgets) *widget.Container {
 		widget.ButtonOpts.Text("SELL", font.TTF64, &widget.ButtonTextColor{
 			Idle: color.White,
 		}),
-		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			s.Watcher.Append(s.Time, replay.SellTower, replay.InfoSellTower{
-				Index: s.findTowerIndex(s.chosenTower),
-			})
-			s.sellTowerHandler(s.chosenTower)
-
-			s.showTowerMenu()
-		}),
+		widget.ButtonOpts.ClickedHandler(s.handleSell),
 		widget.ButtonOpts.TextPadding(widget.Insets{Top: 10, Bottom: 10}),
 	)
 
