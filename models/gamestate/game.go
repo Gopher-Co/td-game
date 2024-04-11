@@ -369,6 +369,10 @@ func (s *GameState) sellTowerHandler(t *ingame.Tower) {
 	s.PlayerMapState.Money += p
 
 	t.Sold = true
+
+	s.Map.Towers = slices.DeleteFunc(s.Map.Towers, func(tower *ingame.Tower) bool {
+		return tower == s.chosenTower
+	})
 	s.chosenTower = nil
 }
 
