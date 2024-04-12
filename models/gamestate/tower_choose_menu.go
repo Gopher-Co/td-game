@@ -1,15 +1,12 @@
 package gamestate
 
 import (
-	"context"
 	"fmt"
 	"image/color"
 	"math"
-	"time"
 
 	image2 "github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/colornames"
 
 	"github.com/gopher-co/td-game/models/config"
@@ -62,11 +59,7 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 				VerticalPosition:   0,
 			})),
 			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(200, 100)),
-			widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
-				if s.PlayerMapState.Money >= v.Price {
-					s.tookTower = v
-				}
-			}),
+			widget.ButtonOpts.ClickedHandler(s.handleTowerTake(v)),
 			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{
 				HorizontalPosition: widget.GridLayoutPositionCenter,
 				MaxWidth:           config.TowerImageWidth,
@@ -138,7 +131,7 @@ func (s *GameState) scrollCont(_ general.Widgets) *widget.Container {
 }
 
 // loadTowerMenuContainer creates a tower menu container.
-func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.Widgets) *widget.Container {
+func (s *GameState) loadTowerMenuContainer(widgets general.Widgets) *widget.Container {
 	root := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -157,18 +150,6 @@ func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.
 			Bottom: 0,
 		}),
 	)
-	go func() {
-		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-			}
-
-			health.Label = fmt.Sprintf("Health: %d", s.PlayerMapState.Health)
-		}
-	}()
 
 	money := widget.NewText(
 		widget.TextOpts.Text(fmt.Sprintf("Money: %d", s.PlayerMapState.Money), font.TTF40, color.White),
@@ -180,18 +161,10 @@ func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.
 		}),
 	)
 
-	go func() {
-		ticker := time.NewTicker(time.Second / time.Duration(ebiten.ActualTPS()))
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-			}
-
-			money.Label = fmt.Sprintf("Money: %d", s.PlayerMapState.Money)
-		}
-	}()
+	s.uiUpdater.Append(func() {
+		health.Label = fmt.Sprintf("Health: %d", s.PlayerMapState.Health)
+		money.Label = fmt.Sprintf("Money: %d", s.PlayerMapState.Money)
+	})
 
 	// menu on the right side
 	menu := widget.NewContainer(
@@ -199,7 +172,7 @@ func (s *GameState) loadTowerMenuContainer(ctx context.Context, widgets general.
 	)
 
 	scrollContainer := s.scrollCont(widgets)
-	menuTower := s.newTowerMenuUI(ctx, widgets)
+	menuTower := s.newTowerMenuUI(widgets)
 	cMenu = scrollContainer
 	cInfo = menuTower
 

@@ -1,8 +1,6 @@
 package ingame
 
 import (
-	"slices"
-
 	"github.com/gopher-co/td-game/models/config"
 	"github.com/gopher-co/td-game/models/general"
 )
@@ -53,7 +51,11 @@ func (w *Wave) CallEnemies() []string {
 	}
 
 	w.Time++
-	return slices.Clip(es)
+
+	es1 := make([]string, len(es))
+	copy(es1, es)
+
+	return es1
 }
 
 // Ended returns true if all the swarms are ended.

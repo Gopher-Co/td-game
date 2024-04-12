@@ -1,7 +1,6 @@
 package gamestate
 
 import (
-	"context"
 	"image"
 	"image/color"
 	"log"
@@ -19,6 +18,7 @@ import (
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/models/ingame"
 	"github.com/gopher-co/td-game/replay"
+	"github.com/gopher-co/td-game/ui/updater"
 )
 
 // CurrentState is an enum that represents the current state of the game.
@@ -82,14 +82,13 @@ type GameState struct {
 	// speedUp is a flag that represents if the game is speeded up.
 	speedUp bool
 
-	// cancel is a function that cancels the context.
-	cancel context.CancelFunc
-
 	// Watcher is a watcher of the game.
 	Watcher *replay.Watcher
 
 	// PlayerState is a state of the player.
 	PlayerState *ingame.PlayerState
+
+	uiUpdater *updater.Updater
 }
 
 // New creates a new entity of GameState.
@@ -101,6 +100,7 @@ func New(
 	ps *ingame.PlayerState,
 	w general.Widgets,
 ) *GameState {
+	// remove all the unavailable towers
 	tw2 := maps2.Clone(tw)
 	filter(tw2, func(s string, c *config.Tower) bool {
 		if c.OpenLevel == "" {
@@ -110,6 +110,8 @@ func New(
 		_, ok := ps.LevelsComplete[c.OpenLevel]
 		return !ok
 	})
+
+	// creating gamestate from configs
 	gs := &GameState{
 		LevelName:   level.LevelName,
 		Map:         ingame.NewMap(maps[level.MapName]),
@@ -131,11 +133,10 @@ func New(
 			Actions: make([]replay.Action, 0, 2500),
 		},
 		PlayerState: ps,
+		uiUpdater:   new(updater.Updater),
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	gs.UI = gs.loadGameUI(ctx, w)
-	gs.cancel = cancel
+	gs.UI = gs.loadGameUI(w)
 
 	return gs
 }
@@ -170,6 +171,8 @@ func (s *GameState) Update() error {
 	}
 
 	s.UI.Update()
+	s.uiUpdater.Update()
+
 	if s.Ended {
 		return nil
 	}
@@ -249,8 +252,6 @@ func (s *GameState) setStateAfterWave() {
 // clear clears the game state.
 func (s *GameState) clear() {
 	ebiten.SetTPS(60)
-	s.cancel()
-	s.cancel = nil
 }
 
 // setStateAfterEnd sets the state after the end of the game.
@@ -318,14 +319,17 @@ func (s *GameState) rightSidebarHandle() {
 	x, _ := ebiten.CursorPosition()
 	if x <= 1500 {
 		ts := slices.Clone(s.Map.Towers)
+
+		// choose the tower at the top of the screen
 		slices.Reverse(ts)
+
 		b := true
 		for _, t := range ts {
 			if b && t.IsClicked() {
 				t.Chosen = true
 				s.chosenTower = t
 				b = !b
-				s.updateTowerUI(t)
+
 				s.showTowerInfoMenu()
 			} else {
 				t.Chosen = false
@@ -365,6 +369,10 @@ func (s *GameState) sellTowerHandler(t *ingame.Tower) {
 	s.PlayerMapState.Money += p
 
 	t.Sold = true
+
+	s.Map.Towers = slices.DeleteFunc(s.Map.Towers, func(tower *ingame.Tower) bool {
+		return tower == s.chosenTower
+	})
 	s.chosenTower = nil
 }
 
