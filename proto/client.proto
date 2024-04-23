@@ -14,3 +14,7 @@ message JoinLobbyRequest {
   Player player = 1;
   LobbyId lobby = 2;
 }
+
+message StateLoaded {
+  Status status = 1;
+}

@@ -28,6 +28,10 @@ message Address {
   uint32 port = 2;
 }
 
+message GameState {
+  // TODO
+}
+
 enum Status {
   OK = 0;
   ERROR = 1;
