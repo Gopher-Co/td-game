@@ -1,0 +1,22 @@
+syntax = "proto3";
+import "common.proto";
+
+message CreateLobbyRequest {
+  Player player = 1;
+  Lobby lobby = 2;
+}
+
+message Player {
+  PlayerId id = 1;
+  Address address = 2;
+}
+
+message PlayerId {
+  string uuid = 1;
+  string nickname = 2;
+}
+
+message Address {
+  fixed32 ipv4 = 1;
+  uint32 port = 2;
+}

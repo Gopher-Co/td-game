@@ -1,0 +1,12 @@
+syntax = "proto3";
+import "common.proto";
+
+enum Status {
+  OK = 0;
+  ERROR = 1;
+}
+
+message CreateLobbyResponse {
+    Lobby lobby = 1;
+    Status status = 2;
+}
