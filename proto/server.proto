@@ -19,5 +19,5 @@ message PlayersList {
 }
 
 message LobbyFilledGameStarted {
-  GameState state = 1;
+  InitialGameState state = 1;
 }

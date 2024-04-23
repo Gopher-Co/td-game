@@ -28,8 +28,35 @@ message Address {
   uint32 port = 2;
 }
 
-message GameState {
-  // TODO
+message InitialGameState {
+  map<string, PlayerState> players = 1;
+  MapSettings mapSettings = 2;
+}
+
+message PlayerState {
+  int64 health = 1;
+  int64 money = 2;
+}
+
+message MapSettings {
+  Path path = 1;
+  Image background = 2;
+}
+
+message Path {
+  repeated Point points = 1;
+}
+
+message Image {
+  bytes image_data = 1;
+  int32 height = 2;
+  int32 width = 3;
+  int64 frame = 4;
+}
+
+message Point {
+  float x = 1;
+  float y = 2;
 }
 
 enum Status {
