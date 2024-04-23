@@ -3,5 +3,14 @@ import "common.proto";
 
 message CreateLobbyRequest {
   Player player = 1;
-  Lobby lobby = 2;
+  LobbyId lobby = 2;
+  Vacancy vacancy = 3;
+}
+
+message ListLobbiesRequest {
+}
+
+message JoinLobbyRequest {
+  Player player = 1;
+  LobbyId lobby = 2;
 }

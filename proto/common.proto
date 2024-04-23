@@ -1,7 +1,16 @@
 syntax = "proto3";
 
 message Lobby {
+  LobbyId id = 1;
+  Vacancy vacancy = 2;
+}
+
+message LobbyId {
   string name = 1;
+}
+
+message Vacancy {
+  uint32 vacant_slots = 1;
 }
 
 message Player {
@@ -17,4 +26,9 @@ message PlayerId {
 message Address {
   fixed32 ipv4 = 1;
   uint32 port = 2;
+}
+
+enum Status {
+  OK = 0;
+  ERROR = 1;
 }

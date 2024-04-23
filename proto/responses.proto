@@ -1,12 +1,22 @@
 syntax = "proto3";
 import "common.proto";
 
-enum Status {
-  OK = 0;
-  ERROR = 1;
+message CreateLobbyResponse {
+  optional Lobby lobby = 1;
+  Status status = 2;
 }
 
-message CreateLobbyResponse {
-    Lobby lobby = 1;
-    Status status = 2;
+message ListLobbiesResponse {
+  repeated Lobby lobbies = 1;
+}
+
+message JoinLobbyResponse {
+  Status status = 1;
+}
+
+message PlayersList {
+  repeated PlayerId players = 1;
+}
+
+message LobbyFilledGameStarted {
 }
