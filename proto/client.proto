@@ -27,5 +27,40 @@ message SendGameStateResponse {
   Status status = 1;
 }
 
+message PutTowerRequest {
+  string tower_name = 1;
+  Point point = 2;
+}
+
+message UpgradeTowerRequest {
+  TowerId tower = 1;
+}
+
+message TurnTowerOnRequest {
+  TowerId tower = 1;
+}
+
+message ChangeTowerAimTypeRequest {
+  TowerId tower = 1;
+  int32 new_aim_type = 2;
+}
+
+message TurnTowerOffRequest {
+  TowerId tower = 1;
+}
+
+message SellTowerRequest {
+  TowerId tower = 1;
+}
+
+message StartNewWaveRequest {
+}
+
+message SlowGameDownRequest {
+}
+
+message SpeedGameUpRequest {
+}
+
 message LeaveLobbyRequest {
 }
