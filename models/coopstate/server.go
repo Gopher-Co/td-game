@@ -1,34 +1,62 @@
 package coopstate
 
-import "sync"
+import (
+	"context"
+	"errors"
+	"fmt"
+	"github.com/google/uuid"
+	"log"
+	"sync"
+)
 
-type Conns map[string]*State
+import "google.golang.org/grpc"
+
+type States map[string]*State
+type Conns map[string]struct{}
 
 type Server struct {
-	once  sync.Once
-	conns Conns
+	id        string
+	once      sync.Once
+	conns     Conns
+	states    States
+	levelName string
+	size      int
+	UnimplementedServerServer
 }
 
-func NewServer() *Server {
-	return &Server{once: sync.Once{}}
+func (s *Server) JoinLobby(ctx context.Context, in *JoinLobbyRequest) (*JoinLobbyResponse, error) {
+	if err := s.TakeNewConnection(in.Player.Id.Nickname, in.Lobby.Name); err != nil {
+		return &JoinLobbyResponse{Status: Status_ERROR}, nil
+	}
+
+	return &JoinLobbyResponse{Status: Status_OK}, nil
 }
 
-func (s *Server) CurrentState() any {
+func NewServer(levelName string, size int) *grpc.Server {
+	grpcServer := grpc.NewServer()
+	s := &Server{
+		id:        uuid.NewString(),
+		conns:     make(Conns, size),
+		states:    make(States, size),
+		levelName: levelName,
+		size:      size,
+	}
+	log.Println(s.id)
+	RegisterServerServer(grpcServer, s)
+
+	return grpcServer
+}
+
+func (s *Server) TakeNewConnection(nick, id string) error {
+	if s.id != id {
+		return errors.New("id mismatch")
+	}
+
+	if _, ok := s.conns[nick]; ok {
+		return fmt.Errorf("nickname %s already taken", nick)
+	}
+
+	s.conns[nick] = struct{}{}
+
 	return nil
-}
-
-func (s *Server) Init() {
-	s.once.Do(func() {})
-}
-
-func (s *Server) TakeNewConnection(key string, conn *State) {
-	s.conns[key] = conn
-}
-
-func (s *Server) RemoveConnection(key string) {
-	delete(s.conns, key)
-}
-
-func (s *Server) GetConnection(key string) any {
-	return s.conns[key]
 }
