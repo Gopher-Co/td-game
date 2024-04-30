@@ -1,0 +1,71 @@
+syntax = "proto3";
+import "common.proto";
+
+message FetchLevelsResponse {
+  repeated LevelId levels = 1;
+}
+
+message CreateLobbyResponse {
+  optional Lobby lobby = 1;
+  Status status = 2;
+}
+
+message FetchLobbiesResponse {
+  repeated Lobby lobbies = 1;
+}
+
+message JoinLobbyResponse {
+  Status status = 1;
+//  optional PlayersList players = 2;
+}
+
+message LobbyFilledGameStartedRequest {
+  InitialGameState state = 1;
+}
+
+message SendGameStateRequest {
+  PlayerState player_state = 1;
+  MapState map_state = 2;
+}
+
+message PutTowerResponse {
+  Status status = 1;
+//  optional PlayerState new_state = 2;
+}
+
+message UpgradeTowerResponse {
+  Status status = 1;
+}
+
+message TurnTowerOnResponse {
+  Status status = 1;
+}
+
+message TurnTowerOffResponse {
+  Status status = 1;
+}
+
+message ChangeTowerAimTypeResponse {
+  Status status = 1;
+}
+
+message SellTowerResponse {
+//  optional PlayerState player = 1;
+  Status status = 2;
+}
+
+message StartNewWaveResponse {
+  Status status = 1;
+}
+
+message SlowGameDownResponse {
+  Status status = 1;
+}
+
+message SpeedGameUpResponse {
+  Status status = 1;
+}
+
+message LeaveLobbyResponse {
+  Status status = 1;
+}
