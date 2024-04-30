@@ -1,0 +1,218 @@
+syntax = "proto3";
+
+message Lobby {
+  LobbyId id = 1;
+  Vacancy vacancy = 2;
+}
+
+message LobbyId {
+  string name = 1;
+}
+
+message Vacancy {
+  uint32 vacant_slots = 1;
+}
+
+message Player {
+  PlayerId id = 1;
+  Address address = 2;
+}
+
+message PlayerId {
+  string uuid = 1;
+  string nickname = 2;
+}
+
+message PlayersList {
+  repeated PlayerId players = 1;
+}
+
+message Address {
+  fixed32 ipv4 = 1;
+  uint32 port = 2;
+}
+
+message LevelId {
+  string level_name = 1;
+  string map_name = 2;
+}
+
+message InitialGameState {
+  map<string, PlayerState> players = 1;
+  MapSettings mapSettings = 2;
+  map<string, TowerConfig> towers_to_buy = 3;
+  map<string, EnemyConfig> enemy_to_call = 4;
+  GameRule game_rule = 5;
+  string level_name = 6;
+}
+
+message PlayerState {
+  int64 health = 1;
+  int64 money = 2;
+}
+
+message MapSettings {
+  Path path = 1;
+  Image background = 2;
+}
+
+message Path {
+  repeated Point points = 1;
+}
+
+message Image {
+  bytes image_data = 1;
+  int32 height = 2;
+  int32 width = 3;
+  int64 frame = 4;
+}
+
+message Point {
+  float x = 1;
+  float y = 2;
+}
+
+enum Status {
+  OK = 0;
+  ERROR = 1;
+}
+
+message TowerConfig {
+  string name = 1;
+  repeated Upgrade upgrades = 2;
+  int64 price = 3;
+  int32 type_attack = 4;
+  int64 damage = 5;
+  double radius = 6;
+  int64 speed_attack = 7;
+  double projectile_vrms = 8;
+  ProjectileConfig projectile = 9;
+  string open_level = 10;
+  Image image = 11;
+}
+
+message Tower {
+  TowerId id = 1;
+  TowerConfig config = 2;
+  TowerState state = 3;
+  PlayerId owner = 4;
+}
+
+message TowerId {
+  int64 id = 1;
+}
+
+message TowerState {
+  int32 aim_type = 1;
+  bool is_turned_on = 2;
+  int64 cool_down = 3;
+  Point position = 4;
+}
+
+message Upgrade {
+  int64 price = 1;
+  int64 delta_damage = 2;
+  int64 delta_speed_attack = 3;
+  double delta_radius = 4;
+  string open_level = 5;
+}
+
+message ProjectileConfig {
+  string name = 1;
+  Image image = 2;
+}
+
+message Projectile {
+  ProjectileConfig config = 1;
+  Point pos = 2;
+  double vrms = 3;
+  double vx = 4;
+  double vy = 5;
+  // Type is a type of the projectile.
+  int32 type = 6;
+  int64 damage = 7;
+  int64 ttl = 8;
+  EnemyId target_enemy = 9;
+}
+
+message EnemyConfig {
+  string name = 1;
+  int64 max_health = 2;
+  int64 damage = 3;
+  double vrms = 4;
+  int64 money_award = 5;
+  repeated Strength strengths = 6;
+  repeated Weakness weaknesses = 7;
+  Image image = 8;
+}
+
+message Enemy {
+  EnemyConfig config = 1;
+  EnemyState state = 2;
+  EnemyId enemy_id = 3;
+}
+
+message EnemyId {
+  int64 id = 1;
+}
+
+message EnemyState {
+  // CurrPoint is a current point in Path.
+  int64 curr_point = 1;
+  // Pos is a current position of the enemy.
+  Point pos = 2;
+  // Vx is a velocity on X-axis.
+  double vx = 3;
+  // Vy is a velocity on Y-axis.
+  double vy = 4;
+  int64 health = 5;
+  // TimeNextPointLeft is a time left to the next point.
+  int64 time_next_point_left = 6;
+}
+
+message Strength {
+  int32 type_attack = 1;
+  int64 dec_dmg = 2;
+}
+
+message Weakness {
+  int32 type_attack = 1;
+  int64 inc_dmg = 2;
+}
+
+message GameRule {
+  repeated Wave waves = 1;
+}
+
+message Wave {
+  repeated Swarm swarms = 1;
+  int64 time = 2;
+}
+
+message Swarm {
+  string enemy_name = 1;
+  int64 timeout = 2;
+  int64 interval = 3;
+  int64 current_time = 4;
+  int64 cur_time = 5;
+  int64 max_calls = 6;
+  int64 cur_calls = 7;
+}
+
+message MapState {
+  bool ended = 1;
+  bool win = 2;
+  int32 current_state = 3;
+  int64 current_wave = 4;
+  GameRule game_rule = 5;
+  int64 time = 6;
+  map<string, PlayerState> players_states = 7;
+  // tookTower is a tower that was taken from the right sidebar.
+  string took_tower_name = 8;
+  // chosenTower is a tower that was chosen from the map.
+  string chosen_tower_name = 9;
+  bool speed_up = 10;
+  repeated Tower towers = 11;
+  repeated Enemy enemies = 12;
+  repeated Projectile projectiles = 13;
+}
