@@ -83,7 +83,7 @@ func (m *MenuState) btn(widgets general.Widgets) *widget.Container {
 			}),
 			widget.GridLayoutOpts.Spacing(0, 50),
 			widget.GridLayoutOpts.Padding(widget.Insets{Top: 50}),
-			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, false, false}),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, false, false, false}),
 		)),
 		widget.ContainerOpts.BackgroundImage(image.NewNineSliceSimple(widgets[ui.MenuLeftSidebarImage], 0, 1)),
 	)
@@ -116,7 +116,7 @@ func (m *MenuState) btn(widgets general.Widgets) *widget.Container {
 		}),
 	)
 
-	btn3 := widget.NewButton(
+	btn4 := widget.NewButton(
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(600, 100)),
 		widget.ButtonOpts.Image(&widget.ButtonImage{
 			Idle: image.NewNineSliceSimple(widgets[ui.MenuButtonExitImage], 0, 1),
@@ -127,10 +127,22 @@ func (m *MenuState) btn(widgets general.Widgets) *widget.Container {
 		}),
 	)
 
+	btn3 := widget.NewButton(
+		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(600, 100)),
+		widget.ButtonOpts.Image(&widget.ButtonImage{
+			Idle: image.NewNineSliceSimple(widgets[ui.MenuButtonExitImage], 0, 1),
+		}),
+		widget.ButtonOpts.Text("Co-op", font.TTF72, &widget.ButtonTextColor{Idle: color.White}),
+		widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) {
+			m.UI = m.loadCoopMenuUI(widgets)
+		}),
+	)
+
 	buttons.AddChild(logoImage)
 	buttons.AddChild(btn1)
 	buttons.AddChild(btn2)
 	buttons.AddChild(btn3)
+	buttons.AddChild(btn4)
 	return buttons
 }
 
