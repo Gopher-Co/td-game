@@ -1,13 +1,17 @@
 syntax = "proto3";
 import "common.proto";
 
+message FetchLevelsRequest {
+}
+
 message CreateLobbyRequest {
   Player player = 1;
   LobbyId lobby = 2;
   Vacancy vacancy = 3;
+  LevelId chosen_level = 4;
 }
 
-message ListLobbiesRequest {
+message FetchLobbiesRequest {
 }
 
 message JoinLobbyRequest {
@@ -15,6 +19,13 @@ message JoinLobbyRequest {
   LobbyId lobby = 2;
 }
 
-message StateLoaded {
+message LobbyFilledGameStartedResponse {
   Status status = 1;
+}
+
+message SendGameStateResponse {
+  Status status = 1;
+}
+
+message LeaveLobbyRequest {
 }
