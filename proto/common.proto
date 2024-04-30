@@ -1,4 +1,6 @@
 syntax = "proto3";
+package td_game.coopstate;
+option go_package="github.com/gopher-co/td-game/models/coopstate";
 
 message Lobby {
   LobbyId id = 1;
