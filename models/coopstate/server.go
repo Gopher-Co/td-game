@@ -21,7 +21,7 @@ func (s *Server) Init() {
 	s.once.Do(func() {})
 }
 
-func (s *Server) TakeNewConnection(key string, conn any) {
+func (s *Server) TakeNewConnection(key string, conn *State) {
 	s.conns[key] = conn
 }
 
