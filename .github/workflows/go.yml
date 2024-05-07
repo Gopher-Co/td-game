@@ -24,10 +24,10 @@ jobs:
       with:
         go-version: '1.22.2'
 
-    - name: Build
-      run: go build -C cmd/game -v
-
     - name: Test
       env:
         DISPLAY: :0
       run: go test -v ./...
+
+    - name: Build
+      run: go build -C cmd/game -v
