@@ -17,9 +17,6 @@ jobs:
     - name: install libs
       run: sudo apt install gcc libc6-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev libasound2-dev pkg-config
 
-    - name: export variable
-      run: export DISPLAY=:0
-
     - uses: actions/checkout@v4
 
     - name: Set up Go
@@ -31,4 +28,6 @@ jobs:
       run: go build -C cmd/game -v
 
     - name: Test
+      env:
+        DISPLAY: :0
       run: go test -v ./...
