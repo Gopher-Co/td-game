@@ -157,6 +157,14 @@ func (t *Tower) Upgrade(complete map[string]struct{}) bool {
 	return true
 }
 
+func (t *Tower) NextUpgrade() *Upgrade {
+	if len(t.Upgrades) == t.UpgradesBought {
+		return nil
+	}
+
+	return t.Upgrades[t.UpgradesBought]
+}
+
 // Update updates the tower.
 func (t *Tower) Update() {
 	if t.Sold {
