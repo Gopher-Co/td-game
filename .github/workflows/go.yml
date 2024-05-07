@@ -22,7 +22,7 @@ jobs:
         go-version: '1.22.2'
 
     - name: Build
-      run: go build -v ./...
+      run: go build -C cmd/game -v
 
     - name: Test
       run: go test -v ./...
