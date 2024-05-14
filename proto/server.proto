@@ -3,11 +3,6 @@ package td_game.coopstate;
 option go_package="github.com/gopher-co/td-game/models/coopstate";
 
 import "common.proto";
-import "client.proto";
-
-service Server {
-  rpc JoinLobby(JoinLobbyRequest) returns (JoinLobbyResponse);
-}
 
 message FetchLevelsResponse {
   repeated LevelId levels = 1;
