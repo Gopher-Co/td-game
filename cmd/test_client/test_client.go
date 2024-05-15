@@ -12,7 +12,7 @@ func main() {
 	conn, _ := grpc.Dial("localhost:8080", grpc.WithInsecure(), grpc.WithBlock())
 	defer conn.Close()
 
-	c := coopstate.NewServerClient(conn)
+	c := coopstate.NewGameHostClient(conn)
 	resp, err := c.JoinLobby(context.Background(), &coopstate.JoinLobbyRequest{
 		Player: &coopstate.Player{
 			Id: &coopstate.PlayerId{

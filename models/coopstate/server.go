@@ -21,7 +21,7 @@ type Server struct {
 	states    States
 	levelName string
 	size      int
-	UnimplementedServerServer
+	UnimplementedGameHostServer
 }
 
 func (s *Server) JoinLobby(ctx context.Context, in *JoinLobbyRequest) (*JoinLobbyResponse, error) {
@@ -42,7 +42,7 @@ func NewServer(levelName string, size int) *grpc.Server {
 		size:      size,
 	}
 	log.Println(s.id)
-	RegisterServerServer(grpcServer, s)
+	RegisterGameHostServer(grpcServer, s)
 
 	return grpcServer
 }
