@@ -77,6 +77,8 @@ message Point {
 enum Status {
   OK = 0;
   ERROR = 1;
+  GAME_ENDED = 2;
+  NO_SUCH_GAME = 3;
 }
 
 message TowerConfig {

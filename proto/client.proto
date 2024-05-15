@@ -22,12 +22,13 @@ message JoinLobbyRequest {
   LobbyId lobby = 2;
 }
 
-message LobbyFilledGameStartedResponse {
-  Status status = 1;
+message AwaitGameRequest{
 }
 
 message SendGameStateResponse {
-  Status status = 1;
+  PlayerState player_state = 1;
+  MapState map_state = 2;
+  Status status = 3;
 }
 
 message PutTowerRequest {

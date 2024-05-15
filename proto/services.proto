@@ -1,0 +1,26 @@
+syntax = "proto3";
+package td_game.coopstate;
+option go_package="github.com/gopher-co/td-game/models/coopstate";
+
+import "client.proto";
+import "server.proto";
+
+service GameHost {
+  rpc FetchLevels(FetchLevelsRequest) returns (FetchLevelsResponse);
+  rpc CreateLobby(CreateLobbyRequest) returns (CreateLobbyResponse);
+  rpc FetchLobbies(FetchLobbiesRequest) returns (FetchLobbiesResponse);
+  rpc JoinLobby(JoinLobbyRequest) returns (JoinLobbyResponse);
+  rpc PutTower(PutTowerRequest) returns (PutTowerResponse);
+  rpc UpgradeTower(UpgradeTowerRequest) returns (UpgradeTowerResponse);
+  rpc TurnTowerOn(TurnTowerOnRequest) returns (TurnTowerOnResponse);
+  rpc TurnTowerOff(TurnTowerOffRequest) returns (TurnTowerOffResponse);
+  rpc ChangeTowerAimType(ChangeTowerAimTypeRequest) returns (ChangeTowerAimTypeResponse);
+  rpc SellTower(SellTowerRequest) returns (SellTowerResponse);
+  rpc StartNewWave(StartNewWaveRequest) returns (StartNewWaveResponse);
+  rpc SlowGameDown(SlowGameDownRequest) returns (SlowGameDownResponse);
+  rpc SpeedGameUp(SpeedGameUpRequest) returns (SpeedGameUpResponse);
+  rpc LeaveLobby(LeaveLobbyRequest) returns (LeaveLobbyResponse);
+
+  rpc AwaitGame(AwaitGameRequest) returns (stream AwaitGameResponse);
+  rpc SendGameState(SendGameStateRequest) returns (stream SendGameStateResponse);
+}
