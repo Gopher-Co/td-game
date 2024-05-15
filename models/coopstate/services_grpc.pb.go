@@ -55,8 +55,8 @@ type GameHostClient interface {
 	SlowGameDown(ctx context.Context, in *SlowGameDownRequest, opts ...grpc.CallOption) (*SlowGameDownResponse, error)
 	SpeedGameUp(ctx context.Context, in *SpeedGameUpRequest, opts ...grpc.CallOption) (*SpeedGameUpResponse, error)
 	LeaveLobby(ctx context.Context, in *LeaveLobbyRequest, opts ...grpc.CallOption) (*LeaveLobbyResponse, error)
-	AwaitGame(ctx context.Context, in *AwaitGameRequest, opts ...grpc.CallOption) (GameHost_AwaitGameClient, error)
-	SendGameState(ctx context.Context, in *SendGameStateRequest, opts ...grpc.CallOption) (*SendGameStateResponse, error)
+	AwaitGame(ctx context.Context, in *AwaitGameRequest, opts ...grpc.CallOption) (*AwaitGameResponse, error)
+	SendGameState(ctx context.Context, in *SendGameStateRequest, opts ...grpc.CallOption) (GameHost_SendGameStateClient, error)
 }
 
 type gameHostClient struct {
@@ -193,12 +193,21 @@ func (c *gameHostClient) LeaveLobby(ctx context.Context, in *LeaveLobbyRequest, 
 	return out, nil
 }
 
-func (c *gameHostClient) AwaitGame(ctx context.Context, in *AwaitGameRequest, opts ...grpc.CallOption) (GameHost_AwaitGameClient, error) {
-	stream, err := c.cc.NewStream(ctx, &GameHost_ServiceDesc.Streams[0], GameHost_AwaitGame_FullMethodName, opts...)
+func (c *gameHostClient) AwaitGame(ctx context.Context, in *AwaitGameRequest, opts ...grpc.CallOption) (*AwaitGameResponse, error) {
+	out := new(AwaitGameResponse)
+	err := c.cc.Invoke(ctx, GameHost_AwaitGame_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &gameHostAwaitGameClient{stream}
+	return out, nil
+}
+
+func (c *gameHostClient) SendGameState(ctx context.Context, in *SendGameStateRequest, opts ...grpc.CallOption) (GameHost_SendGameStateClient, error) {
+	stream, err := c.cc.NewStream(ctx, &GameHost_ServiceDesc.Streams[0], GameHost_SendGameState_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &gameHostSendGameStateClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -208,30 +217,21 @@ func (c *gameHostClient) AwaitGame(ctx context.Context, in *AwaitGameRequest, op
 	return x, nil
 }
 
-type GameHost_AwaitGameClient interface {
-	Recv() (*AwaitGameResponse, error)
+type GameHost_SendGameStateClient interface {
+	Recv() (*SendGameStateResponse, error)
 	grpc.ClientStream
 }
 
-type gameHostAwaitGameClient struct {
+type gameHostSendGameStateClient struct {
 	grpc.ClientStream
 }
 
-func (x *gameHostAwaitGameClient) Recv() (*AwaitGameResponse, error) {
-	m := new(AwaitGameResponse)
+func (x *gameHostSendGameStateClient) Recv() (*SendGameStateResponse, error) {
+	m := new(SendGameStateResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
-}
-
-func (c *gameHostClient) SendGameState(ctx context.Context, in *SendGameStateRequest, opts ...grpc.CallOption) (*SendGameStateResponse, error) {
-	out := new(SendGameStateResponse)
-	err := c.cc.Invoke(ctx, GameHost_SendGameState_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 // GameHostServer is the server API for GameHost service.
@@ -252,8 +252,8 @@ type GameHostServer interface {
 	SlowGameDown(context.Context, *SlowGameDownRequest) (*SlowGameDownResponse, error)
 	SpeedGameUp(context.Context, *SpeedGameUpRequest) (*SpeedGameUpResponse, error)
 	LeaveLobby(context.Context, *LeaveLobbyRequest) (*LeaveLobbyResponse, error)
-	AwaitGame(*AwaitGameRequest, GameHost_AwaitGameServer) error
-	SendGameState(context.Context, *SendGameStateRequest) (*SendGameStateResponse, error)
+	AwaitGame(context.Context, *AwaitGameRequest) (*AwaitGameResponse, error)
+	SendGameState(*SendGameStateRequest, GameHost_SendGameStateServer) error
 	mustEmbedUnimplementedGameHostServer()
 }
 
@@ -303,11 +303,11 @@ func (UnimplementedGameHostServer) SpeedGameUp(context.Context, *SpeedGameUpRequ
 func (UnimplementedGameHostServer) LeaveLobby(context.Context, *LeaveLobbyRequest) (*LeaveLobbyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LeaveLobby not implemented")
 }
-func (UnimplementedGameHostServer) AwaitGame(*AwaitGameRequest, GameHost_AwaitGameServer) error {
-	return status.Errorf(codes.Unimplemented, "method AwaitGame not implemented")
+func (UnimplementedGameHostServer) AwaitGame(context.Context, *AwaitGameRequest) (*AwaitGameResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AwaitGame not implemented")
 }
-func (UnimplementedGameHostServer) SendGameState(context.Context, *SendGameStateRequest) (*SendGameStateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendGameState not implemented")
+func (UnimplementedGameHostServer) SendGameState(*SendGameStateRequest, GameHost_SendGameStateServer) error {
+	return status.Errorf(codes.Unimplemented, "method SendGameState not implemented")
 }
 func (UnimplementedGameHostServer) mustEmbedUnimplementedGameHostServer() {}
 
@@ -574,43 +574,43 @@ func _GameHost_LeaveLobby_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GameHost_AwaitGame_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(AwaitGameRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(GameHostServer).AwaitGame(m, &gameHostAwaitGameServer{stream})
-}
-
-type GameHost_AwaitGameServer interface {
-	Send(*AwaitGameResponse) error
-	grpc.ServerStream
-}
-
-type gameHostAwaitGameServer struct {
-	grpc.ServerStream
-}
-
-func (x *gameHostAwaitGameServer) Send(m *AwaitGameResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func _GameHost_SendGameState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SendGameStateRequest)
+func _GameHost_AwaitGame_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AwaitGameRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GameHostServer).SendGameState(ctx, in)
+		return srv.(GameHostServer).AwaitGame(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GameHost_SendGameState_FullMethodName,
+		FullMethod: GameHost_AwaitGame_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GameHostServer).SendGameState(ctx, req.(*SendGameStateRequest))
+		return srv.(GameHostServer).AwaitGame(ctx, req.(*AwaitGameRequest))
 	}
 	return interceptor(ctx, in, info, handler)
+}
+
+func _GameHost_SendGameState_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(SendGameStateRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(GameHostServer).SendGameState(m, &gameHostSendGameStateServer{stream})
+}
+
+type GameHost_SendGameStateServer interface {
+	Send(*SendGameStateResponse) error
+	grpc.ServerStream
+}
+
+type gameHostSendGameStateServer struct {
+	grpc.ServerStream
+}
+
+func (x *gameHostSendGameStateServer) Send(m *SendGameStateResponse) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 // GameHost_ServiceDesc is the grpc.ServiceDesc for GameHost service.
@@ -677,14 +677,14 @@ var GameHost_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _GameHost_LeaveLobby_Handler,
 		},
 		{
-			MethodName: "SendGameState",
-			Handler:    _GameHost_SendGameState_Handler,
+			MethodName: "AwaitGame",
+			Handler:    _GameHost_AwaitGame_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "AwaitGame",
-			Handler:       _GameHost_AwaitGame_Handler,
+			StreamName:    "SendGameState",
+			Handler:       _GameHost_SendGameState_Handler,
 			ServerStreams: true,
 		},
 	},
