@@ -577,7 +577,7 @@ var Server_ServiceDesc = grpc.ServiceDesc{
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ClientClient interface {
 	LobbyFilledGameStarted(ctx context.Context, in *LobbyFilledGameStartedRequest, opts ...grpc.CallOption) (*LobbyFilledGameStartedResponse, error)
-	SendGameState(ctx context.Context, in *SendGameStateRequest, opts ...grpc.CallOption) (*SendGameStateResponse, error)
+	SendGameState(ctx context.Context, opts ...grpc.CallOption) (Client_SendGameStateClient, error)
 }
 
 type clientClient struct {
@@ -597,13 +597,38 @@ func (c *clientClient) LobbyFilledGameStarted(ctx context.Context, in *LobbyFill
 	return out, nil
 }
 
-func (c *clientClient) SendGameState(ctx context.Context, in *SendGameStateRequest, opts ...grpc.CallOption) (*SendGameStateResponse, error) {
-	out := new(SendGameStateResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Client/SendGameState", in, out, opts...)
+func (c *clientClient) SendGameState(ctx context.Context, opts ...grpc.CallOption) (Client_SendGameStateClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Client_ServiceDesc.Streams[0], "/td_game.coopstate.Client/SendGameState", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &clientSendGameStateClient{stream}
+	return x, nil
+}
+
+type Client_SendGameStateClient interface {
+	Send(*SendGameStateRequest) error
+	CloseAndRecv() (*SendGameStateResponse, error)
+	grpc.ClientStream
+}
+
+type clientSendGameStateClient struct {
+	grpc.ClientStream
+}
+
+func (x *clientSendGameStateClient) Send(m *SendGameStateRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *clientSendGameStateClient) CloseAndRecv() (*SendGameStateResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(SendGameStateResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // ClientServer is the server API for Client service.
@@ -611,7 +636,7 @@ func (c *clientClient) SendGameState(ctx context.Context, in *SendGameStateReque
 // for forward compatibility
 type ClientServer interface {
 	LobbyFilledGameStarted(context.Context, *LobbyFilledGameStartedRequest) (*LobbyFilledGameStartedResponse, error)
-	SendGameState(context.Context, *SendGameStateRequest) (*SendGameStateResponse, error)
+	SendGameState(Client_SendGameStateServer) error
 	mustEmbedUnimplementedClientServer()
 }
 
@@ -622,8 +647,8 @@ type UnimplementedClientServer struct {
 func (UnimplementedClientServer) LobbyFilledGameStarted(context.Context, *LobbyFilledGameStartedRequest) (*LobbyFilledGameStartedResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LobbyFilledGameStarted not implemented")
 }
-func (UnimplementedClientServer) SendGameState(context.Context, *SendGameStateRequest) (*SendGameStateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendGameState not implemented")
+func (UnimplementedClientServer) SendGameState(Client_SendGameStateServer) error {
+	return status.Errorf(codes.Unimplemented, "method SendGameState not implemented")
 }
 func (UnimplementedClientServer) mustEmbedUnimplementedClientServer() {}
 
@@ -656,22 +681,30 @@ func _Client_LobbyFilledGameStarted_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Client_SendGameState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SendGameStateRequest)
-	if err := dec(in); err != nil {
+func _Client_SendGameState_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ClientServer).SendGameState(&clientSendGameStateServer{stream})
+}
+
+type Client_SendGameStateServer interface {
+	SendAndClose(*SendGameStateResponse) error
+	Recv() (*SendGameStateRequest, error)
+	grpc.ServerStream
+}
+
+type clientSendGameStateServer struct {
+	grpc.ServerStream
+}
+
+func (x *clientSendGameStateServer) SendAndClose(m *SendGameStateResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *clientSendGameStateServer) Recv() (*SendGameStateRequest, error) {
+	m := new(SendGameStateRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
-	if interceptor == nil {
-		return srv.(ClientServer).SendGameState(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/td_game.coopstate.Client/SendGameState",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ClientServer).SendGameState(ctx, req.(*SendGameStateRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return m, nil
 }
 
 // Client_ServiceDesc is the grpc.ServiceDesc for Client service.
@@ -685,11 +718,13 @@ var Client_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "LobbyFilledGameStarted",
 			Handler:    _Client_LobbyFilledGameStarted_Handler,
 		},
+	},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "SendGameState",
-			Handler:    _Client_SendGameState_Handler,
+			StreamName:    "SendGameState",
+			Handler:       _Client_SendGameState_Handler,
+			ClientStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "services.proto",
 }
