@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"log"
 	"sync"
 )
 
@@ -32,7 +31,7 @@ func (s *Server) JoinLobby(ctx context.Context, in *JoinLobbyRequest) (*JoinLobb
 	return &JoinLobbyResponse{Status: Status_OK}, nil
 }
 
-func NewServer(levelName string, size int) *grpc.Server {
+func NewServer(levelName string, size int) (*grpc.Server, string) {
 	grpcServer := grpc.NewServer()
 	s := &Server{
 		id:        uuid.NewString(),
@@ -41,10 +40,9 @@ func NewServer(levelName string, size int) *grpc.Server {
 		levelName: levelName,
 		size:      size,
 	}
-	log.Println(s.id)
 	RegisterGameHostServer(grpcServer, s)
 
-	return grpcServer
+	return grpcServer, s.id
 }
 
 func (s *Server) TakeNewConnection(nick, id string) error {

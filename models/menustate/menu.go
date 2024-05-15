@@ -2,12 +2,12 @@ package menustate
 
 import (
 	"github.com/ebitenui/ebitenui"
-	"github.com/hajimehoshi/ebiten/v2"
-
 	"github.com/gopher-co/td-game/models/config"
+	"github.com/gopher-co/td-game/models/coopstate"
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/models/ingame"
 	"github.com/gopher-co/td-game/replay"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // MenuState is a struct that represents the state of the menu.
@@ -32,6 +32,8 @@ type MenuState struct {
 
 	// State is a state of the player.
 	State *ingame.PlayerState
+
+	s coopstate.GameHostClient
 }
 
 // New creates a new entity of MenuState.
