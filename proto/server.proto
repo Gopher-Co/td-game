@@ -22,13 +22,11 @@ message JoinLobbyResponse {
 //  optional PlayersList players = 2;
 }
 
-message LobbyFilledGameStartedRequest {
+message AwaitGameResponse {
   InitialGameState state = 1;
 }
 
 message SendGameStateRequest {
-  PlayerState player_state = 1;
-  MapState map_state = 2;
 }
 
 message PutTowerResponse {

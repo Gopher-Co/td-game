@@ -18,10 +18,10 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// ServerClient is the client API for Server service.
+// GameHostClient is the client API for GameHost service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ServerClient interface {
+type GameHostClient interface {
 	FetchLevels(ctx context.Context, in *FetchLevelsRequest, opts ...grpc.CallOption) (*FetchLevelsResponse, error)
 	CreateLobby(ctx context.Context, in *CreateLobbyRequest, opts ...grpc.CallOption) (*CreateLobbyResponse, error)
 	FetchLobbies(ctx context.Context, in *FetchLobbiesRequest, opts ...grpc.CallOption) (*FetchLobbiesResponse, error)
@@ -36,146 +36,212 @@ type ServerClient interface {
 	SlowGameDown(ctx context.Context, in *SlowGameDownRequest, opts ...grpc.CallOption) (*SlowGameDownResponse, error)
 	SpeedGameUp(ctx context.Context, in *SpeedGameUpRequest, opts ...grpc.CallOption) (*SpeedGameUpResponse, error)
 	LeaveLobby(ctx context.Context, in *LeaveLobbyRequest, opts ...grpc.CallOption) (*LeaveLobbyResponse, error)
+	AwaitGame(ctx context.Context, in *AwaitGameRequest, opts ...grpc.CallOption) (GameHost_AwaitGameClient, error)
+	SendGameState(ctx context.Context, in *SendGameStateRequest, opts ...grpc.CallOption) (GameHost_SendGameStateClient, error)
 }
 
-type serverClient struct {
+type gameHostClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewServerClient(cc grpc.ClientConnInterface) ServerClient {
-	return &serverClient{cc}
+func NewGameHostClient(cc grpc.ClientConnInterface) GameHostClient {
+	return &gameHostClient{cc}
 }
 
-func (c *serverClient) FetchLevels(ctx context.Context, in *FetchLevelsRequest, opts ...grpc.CallOption) (*FetchLevelsResponse, error) {
+func (c *gameHostClient) FetchLevels(ctx context.Context, in *FetchLevelsRequest, opts ...grpc.CallOption) (*FetchLevelsResponse, error) {
 	out := new(FetchLevelsResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Server/FetchLevels", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/td_game.coopstate.GameHost/FetchLevels", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) CreateLobby(ctx context.Context, in *CreateLobbyRequest, opts ...grpc.CallOption) (*CreateLobbyResponse, error) {
+func (c *gameHostClient) CreateLobby(ctx context.Context, in *CreateLobbyRequest, opts ...grpc.CallOption) (*CreateLobbyResponse, error) {
 	out := new(CreateLobbyResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Server/CreateLobby", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/td_game.coopstate.GameHost/CreateLobby", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) FetchLobbies(ctx context.Context, in *FetchLobbiesRequest, opts ...grpc.CallOption) (*FetchLobbiesResponse, error) {
+func (c *gameHostClient) FetchLobbies(ctx context.Context, in *FetchLobbiesRequest, opts ...grpc.CallOption) (*FetchLobbiesResponse, error) {
 	out := new(FetchLobbiesResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Server/FetchLobbies", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/td_game.coopstate.GameHost/FetchLobbies", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) JoinLobby(ctx context.Context, in *JoinLobbyRequest, opts ...grpc.CallOption) (*JoinLobbyResponse, error) {
+func (c *gameHostClient) JoinLobby(ctx context.Context, in *JoinLobbyRequest, opts ...grpc.CallOption) (*JoinLobbyResponse, error) {
 	out := new(JoinLobbyResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Server/JoinLobby", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/td_game.coopstate.GameHost/JoinLobby", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) PutTower(ctx context.Context, in *PutTowerRequest, opts ...grpc.CallOption) (*PutTowerResponse, error) {
+func (c *gameHostClient) PutTower(ctx context.Context, in *PutTowerRequest, opts ...grpc.CallOption) (*PutTowerResponse, error) {
 	out := new(PutTowerResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Server/PutTower", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/td_game.coopstate.GameHost/PutTower", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) UpgradeTower(ctx context.Context, in *UpgradeTowerRequest, opts ...grpc.CallOption) (*UpgradeTowerResponse, error) {
+func (c *gameHostClient) UpgradeTower(ctx context.Context, in *UpgradeTowerRequest, opts ...grpc.CallOption) (*UpgradeTowerResponse, error) {
 	out := new(UpgradeTowerResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Server/UpgradeTower", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/td_game.coopstate.GameHost/UpgradeTower", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) TurnTowerOn(ctx context.Context, in *TurnTowerOnRequest, opts ...grpc.CallOption) (*TurnTowerOnResponse, error) {
+func (c *gameHostClient) TurnTowerOn(ctx context.Context, in *TurnTowerOnRequest, opts ...grpc.CallOption) (*TurnTowerOnResponse, error) {
 	out := new(TurnTowerOnResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Server/TurnTowerOn", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/td_game.coopstate.GameHost/TurnTowerOn", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) TurnTowerOff(ctx context.Context, in *TurnTowerOffRequest, opts ...grpc.CallOption) (*TurnTowerOffResponse, error) {
+func (c *gameHostClient) TurnTowerOff(ctx context.Context, in *TurnTowerOffRequest, opts ...grpc.CallOption) (*TurnTowerOffResponse, error) {
 	out := new(TurnTowerOffResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Server/TurnTowerOff", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/td_game.coopstate.GameHost/TurnTowerOff", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) ChangeTowerAimType(ctx context.Context, in *ChangeTowerAimTypeRequest, opts ...grpc.CallOption) (*ChangeTowerAimTypeResponse, error) {
+func (c *gameHostClient) ChangeTowerAimType(ctx context.Context, in *ChangeTowerAimTypeRequest, opts ...grpc.CallOption) (*ChangeTowerAimTypeResponse, error) {
 	out := new(ChangeTowerAimTypeResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Server/ChangeTowerAimType", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/td_game.coopstate.GameHost/ChangeTowerAimType", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) SellTower(ctx context.Context, in *SellTowerRequest, opts ...grpc.CallOption) (*SellTowerResponse, error) {
+func (c *gameHostClient) SellTower(ctx context.Context, in *SellTowerRequest, opts ...grpc.CallOption) (*SellTowerResponse, error) {
 	out := new(SellTowerResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Server/SellTower", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/td_game.coopstate.GameHost/SellTower", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) StartNewWave(ctx context.Context, in *StartNewWaveRequest, opts ...grpc.CallOption) (*StartNewWaveResponse, error) {
+func (c *gameHostClient) StartNewWave(ctx context.Context, in *StartNewWaveRequest, opts ...grpc.CallOption) (*StartNewWaveResponse, error) {
 	out := new(StartNewWaveResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Server/StartNewWave", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/td_game.coopstate.GameHost/StartNewWave", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) SlowGameDown(ctx context.Context, in *SlowGameDownRequest, opts ...grpc.CallOption) (*SlowGameDownResponse, error) {
+func (c *gameHostClient) SlowGameDown(ctx context.Context, in *SlowGameDownRequest, opts ...grpc.CallOption) (*SlowGameDownResponse, error) {
 	out := new(SlowGameDownResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Server/SlowGameDown", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/td_game.coopstate.GameHost/SlowGameDown", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) SpeedGameUp(ctx context.Context, in *SpeedGameUpRequest, opts ...grpc.CallOption) (*SpeedGameUpResponse, error) {
+func (c *gameHostClient) SpeedGameUp(ctx context.Context, in *SpeedGameUpRequest, opts ...grpc.CallOption) (*SpeedGameUpResponse, error) {
 	out := new(SpeedGameUpResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Server/SpeedGameUp", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/td_game.coopstate.GameHost/SpeedGameUp", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) LeaveLobby(ctx context.Context, in *LeaveLobbyRequest, opts ...grpc.CallOption) (*LeaveLobbyResponse, error) {
+func (c *gameHostClient) LeaveLobby(ctx context.Context, in *LeaveLobbyRequest, opts ...grpc.CallOption) (*LeaveLobbyResponse, error) {
 	out := new(LeaveLobbyResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Server/LeaveLobby", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/td_game.coopstate.GameHost/LeaveLobby", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ServerServer is the server API for Server service.
-// All implementations must embed UnimplementedServerServer
+func (c *gameHostClient) AwaitGame(ctx context.Context, in *AwaitGameRequest, opts ...grpc.CallOption) (GameHost_AwaitGameClient, error) {
+	stream, err := c.cc.NewStream(ctx, &GameHost_ServiceDesc.Streams[0], "/td_game.coopstate.GameHost/AwaitGame", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &gameHostAwaitGameClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type GameHost_AwaitGameClient interface {
+	Recv() (*AwaitGameResponse, error)
+	grpc.ClientStream
+}
+
+type gameHostAwaitGameClient struct {
+	grpc.ClientStream
+}
+
+func (x *gameHostAwaitGameClient) Recv() (*AwaitGameResponse, error) {
+	m := new(AwaitGameResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *gameHostClient) SendGameState(ctx context.Context, in *SendGameStateRequest, opts ...grpc.CallOption) (GameHost_SendGameStateClient, error) {
+	stream, err := c.cc.NewStream(ctx, &GameHost_ServiceDesc.Streams[1], "/td_game.coopstate.GameHost/SendGameState", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &gameHostSendGameStateClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type GameHost_SendGameStateClient interface {
+	Recv() (*SendGameStateResponse, error)
+	grpc.ClientStream
+}
+
+type gameHostSendGameStateClient struct {
+	grpc.ClientStream
+}
+
+func (x *gameHostSendGameStateClient) Recv() (*SendGameStateResponse, error) {
+	m := new(SendGameStateResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// GameHostServer is the server API for GameHost service.
+// All implementations must embed UnimplementedGameHostServer
 // for forward compatibility
-type ServerServer interface {
+type GameHostServer interface {
 	FetchLevels(context.Context, *FetchLevelsRequest) (*FetchLevelsResponse, error)
 	CreateLobby(context.Context, *CreateLobbyRequest) (*CreateLobbyResponse, error)
 	FetchLobbies(context.Context, *FetchLobbiesRequest) (*FetchLobbiesResponse, error)
@@ -190,540 +256,444 @@ type ServerServer interface {
 	SlowGameDown(context.Context, *SlowGameDownRequest) (*SlowGameDownResponse, error)
 	SpeedGameUp(context.Context, *SpeedGameUpRequest) (*SpeedGameUpResponse, error)
 	LeaveLobby(context.Context, *LeaveLobbyRequest) (*LeaveLobbyResponse, error)
-	mustEmbedUnimplementedServerServer()
+	AwaitGame(*AwaitGameRequest, GameHost_AwaitGameServer) error
+	SendGameState(*SendGameStateRequest, GameHost_SendGameStateServer) error
+	mustEmbedUnimplementedGameHostServer()
 }
 
-// UnimplementedServerServer must be embedded to have forward compatible implementations.
-type UnimplementedServerServer struct {
+// UnimplementedGameHostServer must be embedded to have forward compatible implementations.
+type UnimplementedGameHostServer struct {
 }
 
-func (UnimplementedServerServer) FetchLevels(context.Context, *FetchLevelsRequest) (*FetchLevelsResponse, error) {
+func (UnimplementedGameHostServer) FetchLevels(context.Context, *FetchLevelsRequest) (*FetchLevelsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FetchLevels not implemented")
 }
-func (UnimplementedServerServer) CreateLobby(context.Context, *CreateLobbyRequest) (*CreateLobbyResponse, error) {
+func (UnimplementedGameHostServer) CreateLobby(context.Context, *CreateLobbyRequest) (*CreateLobbyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateLobby not implemented")
 }
-func (UnimplementedServerServer) FetchLobbies(context.Context, *FetchLobbiesRequest) (*FetchLobbiesResponse, error) {
+func (UnimplementedGameHostServer) FetchLobbies(context.Context, *FetchLobbiesRequest) (*FetchLobbiesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FetchLobbies not implemented")
 }
-func (UnimplementedServerServer) JoinLobby(context.Context, *JoinLobbyRequest) (*JoinLobbyResponse, error) {
+func (UnimplementedGameHostServer) JoinLobby(context.Context, *JoinLobbyRequest) (*JoinLobbyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method JoinLobby not implemented")
 }
-func (UnimplementedServerServer) PutTower(context.Context, *PutTowerRequest) (*PutTowerResponse, error) {
+func (UnimplementedGameHostServer) PutTower(context.Context, *PutTowerRequest) (*PutTowerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PutTower not implemented")
 }
-func (UnimplementedServerServer) UpgradeTower(context.Context, *UpgradeTowerRequest) (*UpgradeTowerResponse, error) {
+func (UnimplementedGameHostServer) UpgradeTower(context.Context, *UpgradeTowerRequest) (*UpgradeTowerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpgradeTower not implemented")
 }
-func (UnimplementedServerServer) TurnTowerOn(context.Context, *TurnTowerOnRequest) (*TurnTowerOnResponse, error) {
+func (UnimplementedGameHostServer) TurnTowerOn(context.Context, *TurnTowerOnRequest) (*TurnTowerOnResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TurnTowerOn not implemented")
 }
-func (UnimplementedServerServer) TurnTowerOff(context.Context, *TurnTowerOffRequest) (*TurnTowerOffResponse, error) {
+func (UnimplementedGameHostServer) TurnTowerOff(context.Context, *TurnTowerOffRequest) (*TurnTowerOffResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TurnTowerOff not implemented")
 }
-func (UnimplementedServerServer) ChangeTowerAimType(context.Context, *ChangeTowerAimTypeRequest) (*ChangeTowerAimTypeResponse, error) {
+func (UnimplementedGameHostServer) ChangeTowerAimType(context.Context, *ChangeTowerAimTypeRequest) (*ChangeTowerAimTypeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeTowerAimType not implemented")
 }
-func (UnimplementedServerServer) SellTower(context.Context, *SellTowerRequest) (*SellTowerResponse, error) {
+func (UnimplementedGameHostServer) SellTower(context.Context, *SellTowerRequest) (*SellTowerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SellTower not implemented")
 }
-func (UnimplementedServerServer) StartNewWave(context.Context, *StartNewWaveRequest) (*StartNewWaveResponse, error) {
+func (UnimplementedGameHostServer) StartNewWave(context.Context, *StartNewWaveRequest) (*StartNewWaveResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartNewWave not implemented")
 }
-func (UnimplementedServerServer) SlowGameDown(context.Context, *SlowGameDownRequest) (*SlowGameDownResponse, error) {
+func (UnimplementedGameHostServer) SlowGameDown(context.Context, *SlowGameDownRequest) (*SlowGameDownResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SlowGameDown not implemented")
 }
-func (UnimplementedServerServer) SpeedGameUp(context.Context, *SpeedGameUpRequest) (*SpeedGameUpResponse, error) {
+func (UnimplementedGameHostServer) SpeedGameUp(context.Context, *SpeedGameUpRequest) (*SpeedGameUpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SpeedGameUp not implemented")
 }
-func (UnimplementedServerServer) LeaveLobby(context.Context, *LeaveLobbyRequest) (*LeaveLobbyResponse, error) {
+func (UnimplementedGameHostServer) LeaveLobby(context.Context, *LeaveLobbyRequest) (*LeaveLobbyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LeaveLobby not implemented")
 }
-func (UnimplementedServerServer) mustEmbedUnimplementedServerServer() {}
+func (UnimplementedGameHostServer) AwaitGame(*AwaitGameRequest, GameHost_AwaitGameServer) error {
+	return status.Errorf(codes.Unimplemented, "method AwaitGame not implemented")
+}
+func (UnimplementedGameHostServer) SendGameState(*SendGameStateRequest, GameHost_SendGameStateServer) error {
+	return status.Errorf(codes.Unimplemented, "method SendGameState not implemented")
+}
+func (UnimplementedGameHostServer) mustEmbedUnimplementedGameHostServer() {}
 
-// UnsafeServerServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ServerServer will
+// UnsafeGameHostServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to GameHostServer will
 // result in compilation errors.
-type UnsafeServerServer interface {
-	mustEmbedUnimplementedServerServer()
+type UnsafeGameHostServer interface {
+	mustEmbedUnimplementedGameHostServer()
 }
 
-func RegisterServerServer(s grpc.ServiceRegistrar, srv ServerServer) {
-	s.RegisterService(&Server_ServiceDesc, srv)
+func RegisterGameHostServer(s grpc.ServiceRegistrar, srv GameHostServer) {
+	s.RegisterService(&GameHost_ServiceDesc, srv)
 }
 
-func _Server_FetchLevels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GameHost_FetchLevels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FetchLevelsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).FetchLevels(ctx, in)
+		return srv.(GameHostServer).FetchLevels(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/td_game.coopstate.Server/FetchLevels",
+		FullMethod: "/td_game.coopstate.GameHost/FetchLevels",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).FetchLevels(ctx, req.(*FetchLevelsRequest))
+		return srv.(GameHostServer).FetchLevels(ctx, req.(*FetchLevelsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_CreateLobby_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GameHost_CreateLobby_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateLobbyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).CreateLobby(ctx, in)
+		return srv.(GameHostServer).CreateLobby(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/td_game.coopstate.Server/CreateLobby",
+		FullMethod: "/td_game.coopstate.GameHost/CreateLobby",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).CreateLobby(ctx, req.(*CreateLobbyRequest))
+		return srv.(GameHostServer).CreateLobby(ctx, req.(*CreateLobbyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_FetchLobbies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GameHost_FetchLobbies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FetchLobbiesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).FetchLobbies(ctx, in)
+		return srv.(GameHostServer).FetchLobbies(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/td_game.coopstate.Server/FetchLobbies",
+		FullMethod: "/td_game.coopstate.GameHost/FetchLobbies",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).FetchLobbies(ctx, req.(*FetchLobbiesRequest))
+		return srv.(GameHostServer).FetchLobbies(ctx, req.(*FetchLobbiesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_JoinLobby_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GameHost_JoinLobby_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(JoinLobbyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).JoinLobby(ctx, in)
+		return srv.(GameHostServer).JoinLobby(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/td_game.coopstate.Server/JoinLobby",
+		FullMethod: "/td_game.coopstate.GameHost/JoinLobby",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).JoinLobby(ctx, req.(*JoinLobbyRequest))
+		return srv.(GameHostServer).JoinLobby(ctx, req.(*JoinLobbyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_PutTower_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GameHost_PutTower_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PutTowerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).PutTower(ctx, in)
+		return srv.(GameHostServer).PutTower(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/td_game.coopstate.Server/PutTower",
+		FullMethod: "/td_game.coopstate.GameHost/PutTower",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).PutTower(ctx, req.(*PutTowerRequest))
+		return srv.(GameHostServer).PutTower(ctx, req.(*PutTowerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_UpgradeTower_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GameHost_UpgradeTower_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpgradeTowerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).UpgradeTower(ctx, in)
+		return srv.(GameHostServer).UpgradeTower(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/td_game.coopstate.Server/UpgradeTower",
+		FullMethod: "/td_game.coopstate.GameHost/UpgradeTower",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).UpgradeTower(ctx, req.(*UpgradeTowerRequest))
+		return srv.(GameHostServer).UpgradeTower(ctx, req.(*UpgradeTowerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_TurnTowerOn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GameHost_TurnTowerOn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TurnTowerOnRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).TurnTowerOn(ctx, in)
+		return srv.(GameHostServer).TurnTowerOn(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/td_game.coopstate.Server/TurnTowerOn",
+		FullMethod: "/td_game.coopstate.GameHost/TurnTowerOn",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).TurnTowerOn(ctx, req.(*TurnTowerOnRequest))
+		return srv.(GameHostServer).TurnTowerOn(ctx, req.(*TurnTowerOnRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_TurnTowerOff_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GameHost_TurnTowerOff_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TurnTowerOffRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).TurnTowerOff(ctx, in)
+		return srv.(GameHostServer).TurnTowerOff(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/td_game.coopstate.Server/TurnTowerOff",
+		FullMethod: "/td_game.coopstate.GameHost/TurnTowerOff",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).TurnTowerOff(ctx, req.(*TurnTowerOffRequest))
+		return srv.(GameHostServer).TurnTowerOff(ctx, req.(*TurnTowerOffRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_ChangeTowerAimType_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GameHost_ChangeTowerAimType_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeTowerAimTypeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).ChangeTowerAimType(ctx, in)
+		return srv.(GameHostServer).ChangeTowerAimType(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/td_game.coopstate.Server/ChangeTowerAimType",
+		FullMethod: "/td_game.coopstate.GameHost/ChangeTowerAimType",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).ChangeTowerAimType(ctx, req.(*ChangeTowerAimTypeRequest))
+		return srv.(GameHostServer).ChangeTowerAimType(ctx, req.(*ChangeTowerAimTypeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_SellTower_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GameHost_SellTower_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SellTowerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).SellTower(ctx, in)
+		return srv.(GameHostServer).SellTower(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/td_game.coopstate.Server/SellTower",
+		FullMethod: "/td_game.coopstate.GameHost/SellTower",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).SellTower(ctx, req.(*SellTowerRequest))
+		return srv.(GameHostServer).SellTower(ctx, req.(*SellTowerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_StartNewWave_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GameHost_StartNewWave_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartNewWaveRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).StartNewWave(ctx, in)
+		return srv.(GameHostServer).StartNewWave(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/td_game.coopstate.Server/StartNewWave",
+		FullMethod: "/td_game.coopstate.GameHost/StartNewWave",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).StartNewWave(ctx, req.(*StartNewWaveRequest))
+		return srv.(GameHostServer).StartNewWave(ctx, req.(*StartNewWaveRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_SlowGameDown_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GameHost_SlowGameDown_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SlowGameDownRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).SlowGameDown(ctx, in)
+		return srv.(GameHostServer).SlowGameDown(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/td_game.coopstate.Server/SlowGameDown",
+		FullMethod: "/td_game.coopstate.GameHost/SlowGameDown",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).SlowGameDown(ctx, req.(*SlowGameDownRequest))
+		return srv.(GameHostServer).SlowGameDown(ctx, req.(*SlowGameDownRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_SpeedGameUp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GameHost_SpeedGameUp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SpeedGameUpRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).SpeedGameUp(ctx, in)
+		return srv.(GameHostServer).SpeedGameUp(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/td_game.coopstate.Server/SpeedGameUp",
+		FullMethod: "/td_game.coopstate.GameHost/SpeedGameUp",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).SpeedGameUp(ctx, req.(*SpeedGameUpRequest))
+		return srv.(GameHostServer).SpeedGameUp(ctx, req.(*SpeedGameUpRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_LeaveLobby_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GameHost_LeaveLobby_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(LeaveLobbyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).LeaveLobby(ctx, in)
+		return srv.(GameHostServer).LeaveLobby(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/td_game.coopstate.Server/LeaveLobby",
+		FullMethod: "/td_game.coopstate.GameHost/LeaveLobby",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).LeaveLobby(ctx, req.(*LeaveLobbyRequest))
+		return srv.(GameHostServer).LeaveLobby(ctx, req.(*LeaveLobbyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Server_ServiceDesc is the grpc.ServiceDesc for Server service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var Server_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "td_game.coopstate.Server",
-	HandlerType: (*ServerServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "FetchLevels",
-			Handler:    _Server_FetchLevels_Handler,
-		},
-		{
-			MethodName: "CreateLobby",
-			Handler:    _Server_CreateLobby_Handler,
-		},
-		{
-			MethodName: "FetchLobbies",
-			Handler:    _Server_FetchLobbies_Handler,
-		},
-		{
-			MethodName: "JoinLobby",
-			Handler:    _Server_JoinLobby_Handler,
-		},
-		{
-			MethodName: "PutTower",
-			Handler:    _Server_PutTower_Handler,
-		},
-		{
-			MethodName: "UpgradeTower",
-			Handler:    _Server_UpgradeTower_Handler,
-		},
-		{
-			MethodName: "TurnTowerOn",
-			Handler:    _Server_TurnTowerOn_Handler,
-		},
-		{
-			MethodName: "TurnTowerOff",
-			Handler:    _Server_TurnTowerOff_Handler,
-		},
-		{
-			MethodName: "ChangeTowerAimType",
-			Handler:    _Server_ChangeTowerAimType_Handler,
-		},
-		{
-			MethodName: "SellTower",
-			Handler:    _Server_SellTower_Handler,
-		},
-		{
-			MethodName: "StartNewWave",
-			Handler:    _Server_StartNewWave_Handler,
-		},
-		{
-			MethodName: "SlowGameDown",
-			Handler:    _Server_SlowGameDown_Handler,
-		},
-		{
-			MethodName: "SpeedGameUp",
-			Handler:    _Server_SpeedGameUp_Handler,
-		},
-		{
-			MethodName: "LeaveLobby",
-			Handler:    _Server_LeaveLobby_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "services.proto",
-}
-
-// ClientClient is the client API for Client service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ClientClient interface {
-	LobbyFilledGameStarted(ctx context.Context, in *LobbyFilledGameStartedRequest, opts ...grpc.CallOption) (*LobbyFilledGameStartedResponse, error)
-	SendGameState(ctx context.Context, opts ...grpc.CallOption) (Client_SendGameStateClient, error)
-}
-
-type clientClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewClientClient(cc grpc.ClientConnInterface) ClientClient {
-	return &clientClient{cc}
-}
-
-func (c *clientClient) LobbyFilledGameStarted(ctx context.Context, in *LobbyFilledGameStartedRequest, opts ...grpc.CallOption) (*LobbyFilledGameStartedResponse, error) {
-	out := new(LobbyFilledGameStartedResponse)
-	err := c.cc.Invoke(ctx, "/td_game.coopstate.Client/LobbyFilledGameStarted", in, out, opts...)
-	if err != nil {
-		return nil, err
+func _GameHost_AwaitGame_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(AwaitGameRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	return out, nil
+	return srv.(GameHostServer).AwaitGame(m, &gameHostAwaitGameServer{stream})
 }
 
-func (c *clientClient) SendGameState(ctx context.Context, opts ...grpc.CallOption) (Client_SendGameStateClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Client_ServiceDesc.Streams[0], "/td_game.coopstate.Client/SendGameState", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &clientSendGameStateClient{stream}
-	return x, nil
-}
-
-type Client_SendGameStateClient interface {
-	Send(*SendGameStateRequest) error
-	CloseAndRecv() (*SendGameStateResponse, error)
-	grpc.ClientStream
-}
-
-type clientSendGameStateClient struct {
-	grpc.ClientStream
-}
-
-func (x *clientSendGameStateClient) Send(m *SendGameStateRequest) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *clientSendGameStateClient) CloseAndRecv() (*SendGameStateResponse, error) {
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	m := new(SendGameStateResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-// ClientServer is the server API for Client service.
-// All implementations must embed UnimplementedClientServer
-// for forward compatibility
-type ClientServer interface {
-	LobbyFilledGameStarted(context.Context, *LobbyFilledGameStartedRequest) (*LobbyFilledGameStartedResponse, error)
-	SendGameState(Client_SendGameStateServer) error
-	mustEmbedUnimplementedClientServer()
-}
-
-// UnimplementedClientServer must be embedded to have forward compatible implementations.
-type UnimplementedClientServer struct {
-}
-
-func (UnimplementedClientServer) LobbyFilledGameStarted(context.Context, *LobbyFilledGameStartedRequest) (*LobbyFilledGameStartedResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method LobbyFilledGameStarted not implemented")
-}
-func (UnimplementedClientServer) SendGameState(Client_SendGameStateServer) error {
-	return status.Errorf(codes.Unimplemented, "method SendGameState not implemented")
-}
-func (UnimplementedClientServer) mustEmbedUnimplementedClientServer() {}
-
-// UnsafeClientServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ClientServer will
-// result in compilation errors.
-type UnsafeClientServer interface {
-	mustEmbedUnimplementedClientServer()
-}
-
-func RegisterClientServer(s grpc.ServiceRegistrar, srv ClientServer) {
-	s.RegisterService(&Client_ServiceDesc, srv)
-}
-
-func _Client_LobbyFilledGameStarted_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LobbyFilledGameStartedRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ClientServer).LobbyFilledGameStarted(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/td_game.coopstate.Client/LobbyFilledGameStarted",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ClientServer).LobbyFilledGameStarted(ctx, req.(*LobbyFilledGameStartedRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Client_SendGameState_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(ClientServer).SendGameState(&clientSendGameStateServer{stream})
-}
-
-type Client_SendGameStateServer interface {
-	SendAndClose(*SendGameStateResponse) error
-	Recv() (*SendGameStateRequest, error)
+type GameHost_AwaitGameServer interface {
+	Send(*AwaitGameResponse) error
 	grpc.ServerStream
 }
 
-type clientSendGameStateServer struct {
+type gameHostAwaitGameServer struct {
 	grpc.ServerStream
 }
 
-func (x *clientSendGameStateServer) SendAndClose(m *SendGameStateResponse) error {
+func (x *gameHostAwaitGameServer) Send(m *AwaitGameResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *clientSendGameStateServer) Recv() (*SendGameStateRequest, error) {
+func _GameHost_SendGameState_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(SendGameStateRequest)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
-		return nil, err
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	return m, nil
+	return srv.(GameHostServer).SendGameState(m, &gameHostSendGameStateServer{stream})
 }
 
-// Client_ServiceDesc is the grpc.ServiceDesc for Client service.
+type GameHost_SendGameStateServer interface {
+	Send(*SendGameStateResponse) error
+	grpc.ServerStream
+}
+
+type gameHostSendGameStateServer struct {
+	grpc.ServerStream
+}
+
+func (x *gameHostSendGameStateServer) Send(m *SendGameStateResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+// GameHost_ServiceDesc is the grpc.ServiceDesc for GameHost service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Client_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "td_game.coopstate.Client",
-	HandlerType: (*ClientServer)(nil),
+var GameHost_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "td_game.coopstate.GameHost",
+	HandlerType: (*GameHostServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "LobbyFilledGameStarted",
-			Handler:    _Client_LobbyFilledGameStarted_Handler,
+			MethodName: "FetchLevels",
+			Handler:    _GameHost_FetchLevels_Handler,
+		},
+		{
+			MethodName: "CreateLobby",
+			Handler:    _GameHost_CreateLobby_Handler,
+		},
+		{
+			MethodName: "FetchLobbies",
+			Handler:    _GameHost_FetchLobbies_Handler,
+		},
+		{
+			MethodName: "JoinLobby",
+			Handler:    _GameHost_JoinLobby_Handler,
+		},
+		{
+			MethodName: "PutTower",
+			Handler:    _GameHost_PutTower_Handler,
+		},
+		{
+			MethodName: "UpgradeTower",
+			Handler:    _GameHost_UpgradeTower_Handler,
+		},
+		{
+			MethodName: "TurnTowerOn",
+			Handler:    _GameHost_TurnTowerOn_Handler,
+		},
+		{
+			MethodName: "TurnTowerOff",
+			Handler:    _GameHost_TurnTowerOff_Handler,
+		},
+		{
+			MethodName: "ChangeTowerAimType",
+			Handler:    _GameHost_ChangeTowerAimType_Handler,
+		},
+		{
+			MethodName: "SellTower",
+			Handler:    _GameHost_SellTower_Handler,
+		},
+		{
+			MethodName: "StartNewWave",
+			Handler:    _GameHost_StartNewWave_Handler,
+		},
+		{
+			MethodName: "SlowGameDown",
+			Handler:    _GameHost_SlowGameDown_Handler,
+		},
+		{
+			MethodName: "SpeedGameUp",
+			Handler:    _GameHost_SpeedGameUp_Handler,
+		},
+		{
+			MethodName: "LeaveLobby",
+			Handler:    _GameHost_LeaveLobby_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
+			StreamName:    "AwaitGame",
+			Handler:       _GameHost_AwaitGame_Handler,
+			ServerStreams: true,
+		},
+		{
 			StreamName:    "SendGameState",
-			Handler:       _Client_SendGameState_Handler,
-			ClientStreams: true,
+			Handler:       _GameHost_SendGameState_Handler,
+			ServerStreams: true,
 		},
 	},
 	Metadata: "services.proto",

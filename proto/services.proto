@@ -5,7 +5,7 @@ option go_package="github.com/gopher-co/td-game/models/coopstate";
 import "client.proto";
 import "server.proto";
 
-service Server {
+service GameHost {
   rpc FetchLevels(FetchLevelsRequest) returns (FetchLevelsResponse);
   rpc CreateLobby(CreateLobbyRequest) returns (CreateLobbyResponse);
   rpc FetchLobbies(FetchLobbiesRequest) returns (FetchLobbiesResponse);
@@ -20,9 +20,7 @@ service Server {
   rpc SlowGameDown(SlowGameDownRequest) returns (SlowGameDownResponse);
   rpc SpeedGameUp(SpeedGameUpRequest) returns (SpeedGameUpResponse);
   rpc LeaveLobby(LeaveLobbyRequest) returns (LeaveLobbyResponse);
-}
 
-service Client {
-  rpc LobbyFilledGameStarted(LobbyFilledGameStartedRequest) returns (LobbyFilledGameStartedResponse);
-  rpc SendGameState(stream SendGameStateRequest) returns (SendGameStateResponse);
+  rpc AwaitGame(AwaitGameRequest) returns (stream AwaitGameResponse);
+  rpc SendGameState(SendGameStateRequest) returns (stream SendGameStateResponse);
 }
