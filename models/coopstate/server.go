@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"sync"
+	"time"
 )
 
 import "google.golang.org/grpc"
@@ -57,4 +58,27 @@ func (s *Server) TakeNewConnection(nick, id string) error {
 	s.conns[nick] = struct{}{}
 
 	return nil
+}
+
+func (s *Server) AwaitGame(ctx context.Context, in *AwaitGameRequest) (*AwaitGameResponse, error) {
+	t := time.NewTicker(time.Second)
+
+	for {
+		<-t.C
+		if len(s.conns) == s.size {
+			break
+		}
+	}
+
+	t.Stop()
+	return &AwaitGameResponse{
+		State: &InitialGameState{
+			Players:     nil,
+			MapSettings: nil,
+			TowersToBuy: nil,
+			EnemyToCall: nil,
+			GameRule:    nil,
+			LevelName:   s.levelName,
+		},
+	}, nil
 }

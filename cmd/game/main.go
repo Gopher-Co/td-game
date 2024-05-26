@@ -10,6 +10,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/gopher-co/td-game/models/coopstate"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
@@ -51,8 +53,10 @@ func (g *Game) Update() error {
 			g.s = menustate.New(PlayerState, Levels, Replays, general.Widgets(UI))
 		case *menustate.MenuState:
 			ms := g.s.(*menustate.MenuState)
-			if ms.Next != "" {
+			if ms.Next != "" && ms.Host == nil {
 				g.s = gamestate.New(Levels[ms.Next], Maps, Enemies, Towers, PlayerState, general.Widgets(UI))
+			} else if ms.Next != "" && ms.Host != nil {
+				g.s = coopstate.ClientState{}
 			} else if ms.NextReplay != -1 {
 				r := Replays[ms.NextReplay]
 				g.s = replaystate.New(r, Levels[r.Name], Maps, Towers, Enemies, general.Widgets(UI))

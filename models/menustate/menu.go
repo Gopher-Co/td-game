@@ -33,7 +33,7 @@ type MenuState struct {
 	// State is a state of the player.
 	State *ingame.PlayerState
 
-	s coopstate.GameHostClient
+	Host coopstate.GameHostClient
 }
 
 // New creates a new entity of MenuState.

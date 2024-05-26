@@ -2,6 +2,12 @@ package menustate
 
 import (
 	"context"
+	"image/color"
+	"log"
+	"net"
+	"net/url"
+	"regexp"
+
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
@@ -12,11 +18,6 @@ import (
 	"github.com/gopher-co/td-game/ui/font"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"image/color"
-	"log"
-	"net"
-	"net/url"
-	"regexp"
 )
 
 var valid = regexp.MustCompile(`^[a-zA-Z0-9_]*$`).MatchString
@@ -152,7 +153,7 @@ func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
 			if err != nil {
 				panic(err)
 			}
-			s, id := coopstate.NewServer(sLevel, 2)
+			s, id := coopstate.NewServer(sLevel, 1)
 			go func() { _ = s.Serve(l) }()
 			conn, err := grpc.Dial("localhost:24555", grpc.WithTransportCredentials(insecure.NewCredentials()))
 			if err != nil {
@@ -178,7 +179,14 @@ func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
 			}
 			connStringCopyText.Label = "To connect write: grpc://localhost:24555/" + id
 			log.Println(connStringCopyText.Label)
-			m.s = c
+			m.Host = c
+			_, err = c.AwaitGame(context.Background(), &coopstate.AwaitGameRequest{})
+			if err != nil {
+				connStringCopyText.Label = "Connection failed:("
+				return
+			}
+			m.Ended = true
+			m.Next = sLevel
 		}),
 		widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(color.Black)}),
 	)

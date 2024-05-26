@@ -21,6 +21,6 @@ service GameHost {
   rpc SpeedGameUp(SpeedGameUpRequest) returns (SpeedGameUpResponse);
   rpc LeaveLobby(LeaveLobbyRequest) returns (LeaveLobbyResponse);
 
-  rpc AwaitGame(AwaitGameRequest) returns (stream AwaitGameResponse);
+  rpc AwaitGame(AwaitGameRequest) returns (AwaitGameResponse);
   rpc SendGameState(SendGameStateRequest) returns (stream SendGameStateResponse);
 }
