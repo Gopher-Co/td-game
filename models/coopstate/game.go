@@ -2,6 +2,7 @@ package coopstate
 
 import (
 	"context"
+	"encoding/json"
 	"image"
 	"image/color"
 	"log"
@@ -10,14 +11,14 @@ import (
 	"time"
 
 	"github.com/ebitenui/ebitenui"
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
+
 	"github.com/gopher-co/td-game/models/config"
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/models/ingame"
 	"github.com/gopher-co/td-game/replay"
 	"github.com/gopher-co/td-game/ui/updater"
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 // CurrentState is an enum that represents the current state of the game.
@@ -37,6 +38,8 @@ const (
 // GameState is a struct that represents the state of the game.
 type GameState struct {
 	cli GameHostClient
+
+	stream GameHost_SendGameStateClient
 
 	// LevelName is a name of the level.
 	LevelName string
@@ -115,9 +118,15 @@ func New(
 		return !ok
 	})
 
+	stream, err := cli.SendGameState(context.Background(), &SendGameStateRequest{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// creating gamestate from configs
 	gs := &GameState{
 		cli:         cli,
+		stream:      stream,
 		LevelName:   level.LevelName,
 		Map:         ingame.NewMap(maps[level.MapName]),
 		TowersToBuy: tw2,
@@ -153,97 +162,12 @@ func (s *GameState) Update() error {
 		return nil
 	}
 
-	if s.State == Paused {
-		return nil
+	var bb []byte
+	if err := s.stream.RecvMsg(&bb); err != nil {
+		log.Println(err)
+		return err
 	}
-
-	// if clicked on tower
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
-		s.rightSidebarHandle()
-	}
-
-	// put tower on the map
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) && s.tookTower != nil {
-		x, y := ebiten.CursorPosition()
-		_, err := s.cli.PutTower(s.ctx, &PutTowerRequest{
-			TowerName: s.tookTower.Name,
-			Point: &Point{
-				X: float32(x),
-				Y: float32(y),
-			},
-		})
-		if err != nil {
-			log.Printf("Error putting tower: %v", err)
-		}
-		//t := s.putTowerHandler(s.tookTower)
-		//if t != nil {
-		//	s.Watcher.Append(s.Time, replay.PutTower, replay.InfoPutTower{
-		//		Name: t.Name,
-		//		X:    int(t.State.Pos.X),
-		//		Y:    int(t.State.Pos.Y),
-		//	})
-		//}
-	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton2) {
-		s.tookTower = nil
-	}
-
-	s.UI.Update()
-	s.uiUpdater.Update()
-
-	if s.Ended {
-		return nil
-	}
-
-	if s.State == NextWaveReady {
-		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-			_, err := s.cli.StartNewWave(s.ctx, &StartNewWaveRequest{})
-			if err != nil {
-				log.Printf("Error starting new wave: %v", err)
-			}
-			//btn := s.UI.Container.Children()[0].(*widget.Container). // mapContainer
-			//								Children()[2].(*widget.Container). // speed
-			//								Children()[0].(*widget.Container). // buttonGroup
-			//								Children()[0].(*widget.Button)
-			//btn.ClickedEvent.Fire(&widget.ButtonClickedEventArgs{Button: btn})
-		}
-		return nil
-	}
-
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		_, err := s.cli.SpeedGameUp(context.Background(), &SpeedGameUpRequest{})
-		if err != nil {
-			log.Printf("Error speed up: %v", err)
-		}
-		//btn := s.UI.Container.Children()[0].(*widget.Container). // mapContainer
-		//								Children()[2].(*widget.Container). // speed
-		//								Children()[0].(*widget.Container). // buttonGroup
-		//								Children()[1].(*widget.Button)
-		//btn.ClickedEvent.Fire(&widget.ButtonClickedEventArgs{Button: btn})
-	}
-
-	s.Map.Update()
-
-	if s.PlayerMapState.Dead() {
-		s.Ended = true
-		s.setStateAfterEnd()
-		return nil
-	}
-
-	wave := s.GameRule[s.CurrentWave]
-	s.updateRunning(wave)
-
-	if wave.Ended() && !s.Map.AreThereAliveEnemies() {
-		s.setStateAfterWave()
-		if s.CurrentWave == len(s.GameRule)-1 {
-			s.Ended = true
-			s.Win = true
-			s.setStateAfterEnd()
-		}
-		return nil
-	}
-
-	s.Time++
-	return nil
+	return json.Unmarshal(bb, s)
 }
 
 // End returns true if the game is ended.

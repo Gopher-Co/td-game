@@ -2,11 +2,12 @@ package coopstate
 
 import (
 	"fmt"
+	"sync"
+
 	"github.com/gopher-co/td-game/models/config"
 	"github.com/gopher-co/td-game/models/coopstate/models"
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/models/ingame"
-	"sync"
 )
 
 type Lib struct {
@@ -90,8 +91,4 @@ func (s *State) TurnOffTower(index int, playerName string) error {
 
 	s.Map.Towers[index].State.IsTurnedOn = false
 	return nil
-}
-
-func (s *State) Update() {
-
 }

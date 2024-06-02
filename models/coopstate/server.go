@@ -2,6 +2,7 @@ package coopstate
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -60,4 +61,9 @@ func (s *Server) TakeNewConnection(nick, id string) error {
 	s.conns[nick] = struct{}{}
 
 	return nil
+}
+
+func (s *Server) SendGameState(r *SendGameStateRequest, ss GameHost_SendGameStateServer) error {
+	bb, _ := json.Marshal(s.gamestate)
+	return ss.SendMsg(bb)
 }

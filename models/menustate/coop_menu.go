@@ -2,17 +2,19 @@ package menustate
 
 import (
 	"fmt"
+	"image/color"
+	"regexp"
+
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
+
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/ui"
 	"github.com/gopher-co/td-game/ui/font"
-	"image/color"
-	"regexp"
 )
 
-var valid = regexp.MustCompile(`^[a-zA-Z0-9_]*$`).MatchString
+var valid = regexp.MustCompile(`^[a-zA-Z0-9_. ]*$`).MatchString
 
 func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
 	bgImg := widgets[ui.MenuBackgroundImage]
