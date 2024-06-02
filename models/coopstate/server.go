@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"log"
 	"sync"
-)
 
-import "google.golang.org/grpc"
+	"github.com/google/uuid"
+	"google.golang.org/grpc"
+)
 
 type States map[string]*State
 type Conns map[string]struct{}
@@ -21,6 +21,7 @@ type Server struct {
 	states    States
 	levelName string
 	size      int
+	gamestate GameState
 	UnimplementedGameHostServer
 }
 
