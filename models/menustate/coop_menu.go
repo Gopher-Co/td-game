@@ -24,6 +24,7 @@ import (
 // valid is a function that checks if the string is valid.
 var valid = regexp.MustCompile(`^[a-zA-Z0-9_. ]*$`).MatchString
 
+// loadCoopMenuUI loads the coop menu UI.
 func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
 	bgImg := widgets[ui.MenuBackgroundImage]
 	menuBackground := image.NewNineSliceSimple(bgImg, 0, 1)
