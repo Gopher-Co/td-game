@@ -10,6 +10,7 @@ func (u *Updater) Append(f func()) {
 	u.funcs = append(u.funcs, f)
 }
 
+// Update updates the updater.
 func (u *Updater) Update() {
 	for _, f := range u.funcs {
 		f()
