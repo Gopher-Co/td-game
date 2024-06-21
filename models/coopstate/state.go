@@ -97,6 +97,7 @@ func (s *State) TurnOnTower(index int, playerName string) error {
 	return nil
 }
 
+// TurnOffTower turns off a tower.
 func (s *State) TurnOffTower(index int, playerName string) error {
 	if s.Map.Towers[index].Whose != playerName {
 		return fmt.Errorf("not your tower %s", playerName)
