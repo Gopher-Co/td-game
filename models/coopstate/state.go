@@ -10,6 +10,7 @@ import (
 	"github.com/gopher-co/td-game/models/ingame"
 )
 
+// Lib is a library of towers.
 type Lib struct {
 	Towers map[string]*config.Tower
 }
