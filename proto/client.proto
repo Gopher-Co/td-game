@@ -23,6 +23,7 @@ message JoinLobbyRequest {
 }
 
 message AwaitGameRequest{
+  string nickname = 1;
 }
 
 message SendGameStateResponse {

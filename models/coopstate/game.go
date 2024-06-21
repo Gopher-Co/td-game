@@ -2,7 +2,6 @@ package coopstate
 
 import (
 	"context"
-	"encoding/json"
 	"image"
 	"image/color"
 	"log"
@@ -11,7 +10,9 @@ import (
 	"time"
 
 	"github.com/ebitenui/ebitenui"
+	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 
 	"github.com/gopher-co/td-game/models/config"
@@ -39,7 +40,7 @@ const (
 type GameState struct {
 	cli GameHostClient
 
-	stream GameHost_SendGameStateClient
+	stream GameHost_JoinLobbyClient
 
 	// LevelName is a name of the level.
 	LevelName string
@@ -95,6 +96,8 @@ type GameState struct {
 	uiUpdater *updater.Updater
 
 	ctx context.Context
+
+	ch <-chan *JoinLobbyResponse
 }
 
 // New creates a new entity of GameState.
@@ -106,6 +109,7 @@ func New(
 	ps *ingame.PlayerState,
 	w general.Widgets,
 	cli GameHostClient,
+	cli2 GameHost_JoinLobbyClient,
 ) *GameState {
 	// remove all the unavailable towers
 	tw2 := maps2.Clone(tw)
@@ -118,15 +122,10 @@ func New(
 		return !ok
 	})
 
-	stream, err := cli.SendGameState(context.Background(), &SendGameStateRequest{})
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// creating gamestate from configs
 	gs := &GameState{
 		cli:         cli,
-		stream:      stream,
+		stream:      cli2,
 		LevelName:   level.LevelName,
 		Map:         ingame.NewMap(maps[level.MapName]),
 		TowersToBuy: tw2,
@@ -151,6 +150,18 @@ func New(
 		ctx:         context.Background(),
 	}
 
+	ch := make(chan *JoinLobbyResponse)
+	go func() {
+		for {
+			v, err := cli2.Recv()
+			if err != nil {
+				log.Println(err)
+			}
+			ch <- v
+		}
+	}()
+
+	gs.ch = ch
 	gs.UI = gs.loadGameUI(w)
 
 	return gs
@@ -162,12 +173,65 @@ func (s *GameState) Update() error {
 		return nil
 	}
 
-	var bb []byte
-	if err := s.stream.RecvMsg(&bb); err != nil {
-		log.Println(err)
-		return err
+	if s.State == Paused {
+		return nil
 	}
-	return json.Unmarshal(bb, s)
+
+	select {
+	case v := <-s.ch:
+		if msg := v.GetPutTower(); msg != nil {
+			towerConfig := s.TowersToBuy[msg.TowerName]
+			s.putTowerHandler(towerConfig, int(msg.Point.X), int(msg.Point.Y))
+		} else if msg := v.GetStartNewWave(); msg != nil {
+			btn := s.UI.Container.Children()[0].(*widget.Container). // mapContainer
+											Children()[2].(*widget.Container). // speed
+											Children()[0].(*widget.Container). // buttonGroup
+											Children()[0].(*widget.Button)
+			btn.ClickedEvent.Fire(&widget.ButtonClickedEventArgs{Button: btn})
+			s.State = Running
+			s.CurrentWave++
+		}
+	default:
+	}
+
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) && s.tookTower != nil {
+		x, y := ebiten.CursorPosition()
+		s.cli.PutTower(s.ctx, &PutTowerRequest{
+			TowerName: s.tookTower.Name,
+			Point:     &Point{X: float32(x), Y: float32(y)},
+		})
+		s.tookTower = nil
+	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton2) {
+		s.tookTower = nil
+	}
+
+	s.UI.Update()
+	s.uiUpdater.Update()
+
+	if s.Ended {
+		return nil
+	}
+	if s.State == NextWaveReady {
+		return nil
+	}
+
+	s.Map.Update()
+
+	wave := s.GameRule[s.CurrentWave]
+	s.updateRunning(wave)
+
+	if wave.Ended() && !s.Map.AreThereAliveEnemies() {
+		s.setStateAfterWave()
+		if s.CurrentWave == len(s.GameRule)-1 {
+			s.Ended = true
+			s.Win = true
+			s.setStateAfterEnd()
+		}
+		return nil
+	}
+
+	s.Time++
+	return nil
 }
 
 // End returns true if the game is ended.
@@ -290,8 +354,7 @@ func (s *GameState) rightSidebarHandle() {
 }
 
 // putTowerHandler handles the putting of the tower.
-func (s *GameState) putTowerHandler(tt *config.Tower) *ingame.Tower {
-	x, y := ebiten.CursorPosition()
+func (s *GameState) putTowerHandler(tt *config.Tower, x, y int) *ingame.Tower {
 	pos := general.Point{X: general.Coord(x), Y: general.Coord(y)}
 
 	if x < 1500 && s.PlayerMapState.Money >= tt.Price {

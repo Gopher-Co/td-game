@@ -1,6 +1,8 @@
 package coopstate
 
 import (
+	"context"
+
 	image2 "github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -30,8 +32,7 @@ func (s *GameState) handleSpeed(args *widget.ButtonClickedEventArgs) {
 func (s *GameState) handleStart(args *widget.ButtonClickedEventArgs) {
 	b := args.Button
 	if !b.GetWidget().Disabled {
-		s.State = Running
-		s.CurrentWave++
+		s.cli.StartNewWave(context.Background(), &StartNewWaveRequest{})
 		b.GetWidget().Disabled = true
 	}
 }

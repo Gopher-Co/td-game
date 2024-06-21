@@ -14,6 +14,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
 	"github.com/gopher-co/td-game/io"
+	"github.com/gopher-co/td-game/models/coopstate"
 	"github.com/gopher-co/td-game/models/gamestate"
 	"github.com/gopher-co/td-game/models/general"
 	"github.com/gopher-co/td-game/models/menustate"
@@ -51,7 +52,10 @@ func (g *Game) Update() error {
 			g.s = menustate.New(PlayerState, Levels, Replays, general.Widgets(UI))
 		case *menustate.MenuState:
 			ms := g.s.(*menustate.MenuState)
-			if ms.Next != "" {
+			if ms.Stream != nil {
+				log.Println("Starting stream")
+				g.s = coopstate.New(Levels[ms.Next], Maps, Enemies, Towers, PlayerState, general.Widgets(UI), ms.Host, ms.Stream)
+			} else if ms.Next != "" {
 				g.s = gamestate.New(Levels[ms.Next], Maps, Enemies, Towers, PlayerState, general.Widgets(UI))
 			} else if ms.NextReplay != -1 {
 				r := Replays[ms.NextReplay]
@@ -83,6 +87,7 @@ func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 func main() {
 	ebiten.SetWindowSize(1280, 720)
 	ebiten.SetWindowTitle("Go Build, Go Defend!")
+	ebiten.SetRunnableOnUnfocused(true)
 
 	// load maps
 	mcfgs, err := io.LoadMapConfigs()

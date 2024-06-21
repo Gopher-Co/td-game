@@ -158,7 +158,8 @@ func (s *GameState) Update() error {
 
 	// put tower on the map
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) && s.tookTower != nil {
-		t := s.putTowerHandler(s.tookTower)
+		x, y := ebiten.CursorPosition()
+		t := s.putTowerHandler(s.tookTower, x, y)
 		if t != nil {
 			s.Watcher.Append(s.Time, replay.PutTower, replay.InfoPutTower{
 				Name: t.Name,
@@ -342,8 +343,7 @@ func (s *GameState) rightSidebarHandle() {
 }
 
 // putTowerHandler handles the putting of the tower.
-func (s *GameState) putTowerHandler(tt *config.Tower) *ingame.Tower {
-	x, y := ebiten.CursorPosition()
+func (s *GameState) putTowerHandler(tt *config.Tower, x, y int) *ingame.Tower {
 	pos := general.Point{X: general.Coord(x), Y: general.Coord(y)}
 
 	if x < 1500 && s.PlayerMapState.Money >= tt.Price {
