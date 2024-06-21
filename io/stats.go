@@ -34,6 +34,7 @@ func LoadStats() (*ingame.PlayerState, error) {
 	return stats, nil
 }
 
+// SaveStats saves the player stats to the stats.json file.
 func SaveStats(stats *ingame.PlayerState) error {
 	f, err := os.OpenFile("stats.json", os.O_WRONLY|os.O_SYNC|os.O_CREATE|os.O_TRUNC, 0o666)
 	if err != nil && !errors.Is(err, fs.ErrExist) {
