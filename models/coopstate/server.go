@@ -51,7 +51,8 @@ func (s *Server) JoinLobby(in *JoinLobbyRequest, ss GameHost_JoinLobbyServer) er
 	}
 }
 
-func (s *Server) AwaitGame(ctx context.Context, r *AwaitGameRequest) (*AwaitGameResponse, error) {
+// AwaitGame awaits the game.
+func (s *Server) AwaitGame(ctx context.Context, _ *AwaitGameRequest) (*AwaitGameResponse, error) {
 	for {
 		select {
 		case <-ctx.Done():
