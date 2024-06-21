@@ -77,6 +77,7 @@ func (s *State) UpgradeTower(index int, playerName string) error {
 	return nil
 }
 
+// TuneTower tunes a tower.
 func (s *State) TuneTower(index int, playerName string, aim ingame.Aim) error {
 	if s.Map.Towers[index].Whose != playerName {
 		return fmt.Errorf("not your tower %s", playerName)
