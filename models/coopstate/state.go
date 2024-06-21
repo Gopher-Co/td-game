@@ -16,6 +16,7 @@ type Lib struct {
 	Towers map[string]*config.Tower
 }
 
+// State is a state of the game.
 type State struct {
 	lib    *Lib
 	mu     *sync.RWMutex
