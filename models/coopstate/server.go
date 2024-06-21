@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc"
 )
 
+// States represents a map of states.
 type States map[string]GameHost_JoinLobbyServer
 type Conns map[string]struct{}
 
