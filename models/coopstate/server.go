@@ -65,6 +65,7 @@ func (s *Server) AwaitGame(ctx context.Context, _ *AwaitGameRequest) (*AwaitGame
 	}
 }
 
+// NewServer creates a new server.
 func NewServer(levelName string, size int) (*grpc.Server, string) {
 	grpcServer := grpc.NewServer()
 	s := &Server{
