@@ -87,6 +87,7 @@ func (s *State) TuneTower(index int, playerName string, aim ingame.Aim) error {
 	return nil
 }
 
+// TurnOnTower turns on a tower.
 func (s *State) TurnOnTower(index int, playerName string) error {
 	if s.Map.Towers[index].Whose != playerName {
 		return fmt.Errorf("not your tower %s", playerName)
