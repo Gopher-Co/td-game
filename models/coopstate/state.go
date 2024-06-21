@@ -12,6 +12,7 @@ import (
 
 // Lib is a library of towers.
 type Lib struct {
+	// Towers is a map of towers.
 	Towers map[string]*config.Tower
 }
 
