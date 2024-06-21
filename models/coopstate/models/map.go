@@ -6,5 +6,6 @@ import "github.com/gopher-co/td-game/models/ingame"
 type Map struct {
 	// Towers is a list of towers that can be built on the map.
 	Towers []*Tower
-	Path   ingame.Path
+	// Path is a path that enemies follow.
+	Path ingame.Path
 }
