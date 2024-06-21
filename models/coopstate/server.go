@@ -20,10 +20,15 @@ type Conns map[string]struct{}
 
 // Server represents a server.
 type Server struct {
-	id        string
-	once      sync.Once
-	conns     Conns
-	states    States
+	// id is the server ID.
+	id string
+	// once is a sync.Once.
+	once sync.Once
+	// conns is a map of connections.
+	conns Conns
+	// states is a map of states.
+	states States
+	// levelName is the level name.
 	levelName string
 	size      int
 	gamestate GameState
