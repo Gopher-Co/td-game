@@ -5,6 +5,7 @@ type Updater struct {
 	funcs []func()
 }
 
+// Append appends a function to the updater.
 func (u *Updater) Append(f func()) {
 	u.funcs = append(u.funcs, f)
 }
