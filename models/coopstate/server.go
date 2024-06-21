@@ -96,6 +96,7 @@ func (s *Server) TakeNewConnection(nick, id string) error {
 	return nil
 }
 
+// PutTower puts a tower.
 func (s *Server) PutTower(_ context.Context, r *PutTowerRequest) (*PutTowerResponse, error) {
 	var errs error
 	for _, state := range s.states {
