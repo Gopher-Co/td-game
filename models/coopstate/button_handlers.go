@@ -34,7 +34,7 @@ func (s *GameState) handleSpeed(args *widget.ButtonClickedEventArgs) {
 func (s *GameState) handleStart(args *widget.ButtonClickedEventArgs) {
 	b := args.Button
 	if !b.GetWidget().Disabled {
-		s.cli.StartNewWave(context.Background(), &StartNewWaveRequest{})
+		_, _ = s.cli.StartNewWave(context.Background(), &StartNewWaveRequest{})
 		b.GetWidget().Disabled = true
 	}
 }
