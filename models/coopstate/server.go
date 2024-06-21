@@ -14,6 +14,8 @@ import (
 
 // States represents a map of states.
 type States map[string]GameHost_JoinLobbyServer
+
+// Conns represents a map of connections.
 type Conns map[string]struct{}
 
 type Server struct {
