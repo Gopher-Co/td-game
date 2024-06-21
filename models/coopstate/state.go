@@ -35,6 +35,7 @@ func NewState(lib *Lib) *State {
 	return &State{lib: lib}
 }
 
+// PutTower puts a tower.
 func (s *State) PutTower(x, y general.Coord, towerName, playerName string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
