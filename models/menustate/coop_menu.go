@@ -70,9 +70,9 @@ func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
 		}),
 		widget.TextInputOpts.Face(font.TTF20),
 		widget.TextInputOpts.Color(&widget.TextInputColor{
-			Idle:          color.NRGBA{254, 255, 255, 255},
+			Idle:          color.NRGBA{R: 254, G: 255, B: 255, A: 255},
 			Disabled:      color.NRGBA{R: 200, G: 200, B: 200, A: 255},
-			Caret:         color.NRGBA{254, 255, 255, 255},
+			Caret:         color.NRGBA{R: 254, G: 255, B: 255, A: 255},
 			DisabledCaret: color.NRGBA{R: 200, G: 200, B: 200, A: 255},
 		}),
 		widget.TextInputOpts.Placeholder("Nick"),
@@ -111,9 +111,9 @@ func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
 		}),
 		widget.TextInputOpts.Face(font.TTF20),
 		widget.TextInputOpts.Color(&widget.TextInputColor{
-			Idle:          color.NRGBA{254, 255, 255, 255},
+			Idle:          color.NRGBA{R: 254, G: 255, B: 255, A: 255},
 			Disabled:      color.NRGBA{R: 200, G: 200, B: 200, A: 255},
-			Caret:         color.NRGBA{254, 255, 255, 255},
+			Caret:         color.NRGBA{R: 254, G: 255, B: 255, A: 255},
 			DisabledCaret: color.NRGBA{R: 200, G: 200, B: 200, A: 255},
 		}),
 		widget.TextInputOpts.Placeholder("Level name"),
@@ -150,7 +150,7 @@ func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
 	)
 
 	submit := widget.NewButton(
-		widget.ButtonOpts.Text("Create", font.TTF32, &widget.ButtonTextColor{Idle: color.NRGBA{255, 255, 255, 255}}),
+		widget.ButtonOpts.Text("Create", font.TTF32, &widget.ButtonTextColor{Idle: color.NRGBA{R: 255, G: 255, B: 255, A: 255}}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			l, err := net.Listen("tcp", ":24555")
 			if err != nil {
@@ -199,9 +199,9 @@ func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
 	conn := widget.NewTextInput(
 		widget.TextInputOpts.Face(font.TTF20),
 		widget.TextInputOpts.Color(&widget.TextInputColor{
-			Idle:          color.NRGBA{254, 255, 255, 255},
+			Idle:          color.NRGBA{R: 254, G: 255, B: 255, A: 255},
 			Disabled:      color.NRGBA{R: 200, G: 200, B: 200, A: 255},
-			Caret:         color.NRGBA{254, 255, 255, 255},
+			Caret:         color.NRGBA{R: 254, G: 255, B: 255, A: 255},
 			DisabledCaret: color.NRGBA{R: 200, G: 200, B: 200, A: 255},
 		}),
 		widget.TextInputOpts.Placeholder("Connection string"),
@@ -234,7 +234,7 @@ func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
 	)
 
 	connSubmit := widget.NewButton(
-		widget.ButtonOpts.Text("Connect!", font.TTF32, &widget.ButtonTextColor{Idle: color.NRGBA{255, 255, 255, 255}}),
+		widget.ButtonOpts.Text("Connect!", font.TTF32, &widget.ButtonTextColor{Idle: color.NRGBA{R: 255, G: 255, B: 255, A: 255}}),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			urlStr, err := url.Parse(connString)
 			if err != nil {
