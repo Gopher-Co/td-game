@@ -18,10 +18,15 @@ type Lib struct {
 
 // State is a state of the game.
 type State struct {
-	lib    *Lib
-	mu     *sync.RWMutex
-	Map    models.Map
+	// lib is a library of towers.
+	lib *Lib
+	// mu is a mutex.
+	mu *sync.RWMutex
+	// Map is a map.
+	Map models.Map
+	// Player is a player.
 	Player ingame.PlayerMapState
+	// Global is a global state.
 	Global ingame.PlayerState
 }
 
