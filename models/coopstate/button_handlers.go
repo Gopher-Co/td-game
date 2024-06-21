@@ -30,6 +30,7 @@ func (s *GameState) handleSpeed(args *widget.ButtonClickedEventArgs) {
 	}
 }
 
+// handleStart handles the start button click.
 func (s *GameState) handleStart(args *widget.ButtonClickedEventArgs) {
 	b := args.Button
 	if !b.GetWidget().Disabled {
