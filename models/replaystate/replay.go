@@ -66,6 +66,7 @@ type ReplayState struct {
 	// currAction is an index of the current action.
 	currAction int
 
+	// uiUpdater is an updater of the UI.
 	uiUpdater *updater.Updater
 }
 
