@@ -30,7 +30,9 @@ type Server struct {
 	states States
 	// levelName is the level name.
 	levelName string
-	size      int
+	// size is the size of the server.
+	size int
+	// gamestate is the game state.
 	gamestate GameState
 	UnimplementedGameHostServer
 }
