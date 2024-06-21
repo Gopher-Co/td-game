@@ -45,6 +45,7 @@ func (s *GameState) handleMenu(_ *widget.ButtonClickedEventArgs) {
 	s.Ended = true
 }
 
+// handleTowerTake handles the tower take button click.
 func (s *GameState) handleTowerTake(v *config.Tower) func(eventArgs *widget.ButtonClickedEventArgs) {
 	return func(args *widget.ButtonClickedEventArgs) {
 		if s.PlayerMapState.Money >= v.Price {
