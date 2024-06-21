@@ -111,6 +111,7 @@ func (s *Server) PutTower(_ context.Context, r *PutTowerRequest) (*PutTowerRespo
 	return &PutTowerResponse{Status: Status_OK}, nil
 }
 
+// StartNewWave starts a new wave.
 func (s *Server) StartNewWave(_ context.Context, r *StartNewWaveRequest) (*StartNewWaveResponse, error) {
 	var errs error
 	for _, state := range s.states {
