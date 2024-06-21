@@ -37,6 +37,7 @@ type MenuState struct {
 	// Host is a host of the game.
 	Host coopstate.GameHostClient
 
+	// Stream is a stream of the game.
 	Stream coopstate.GameHost_JoinLobbyClient
 }
 
