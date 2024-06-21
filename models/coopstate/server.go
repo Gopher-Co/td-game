@@ -18,6 +18,7 @@ type States map[string]GameHost_JoinLobbyServer
 // Conns represents a map of connections.
 type Conns map[string]struct{}
 
+// Server represents a server.
 type Server struct {
 	id        string
 	once      sync.Once
