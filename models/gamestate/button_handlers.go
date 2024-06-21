@@ -10,6 +10,7 @@ import (
 	"github.com/gopher-co/td-game/replay"
 )
 
+// handleSpeed handles the speed button click.
 func (s *GameState) handleSpeed(args *widget.ButtonClickedEventArgs) {
 	if s.speedUp {
 		ebiten.SetTPS(60)
