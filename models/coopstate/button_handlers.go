@@ -119,6 +119,7 @@ func (s *GameState) handleTuneWeak(_ *widget.ButtonClickedEventArgs) {
 	})
 }
 
+// handleSell handles the sell button click.
 func (s *GameState) handleSell(_ *widget.ButtonClickedEventArgs) {
 	s.sellTowerHandler(s.chosenTower)
 
