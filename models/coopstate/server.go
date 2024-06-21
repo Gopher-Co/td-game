@@ -34,6 +34,7 @@ type Server struct {
 	size int
 	// gamestate is the game state.
 	gamestate GameState
+	// UnimplementedGameHostServer is an unimplemented game host server.
 	UnimplementedGameHostServer
 }
 
