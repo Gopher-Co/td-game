@@ -327,6 +327,7 @@ func checkCollision(p, p1, p2 general.Point) bool {
 		0 < sc(AM, AD) && sc(AM, AD) < sc(AD, AD)
 }
 
+// IsClicked checks if the tower is clicked.
 func (t *Tower) IsClicked() bool {
 	cx, cy := ebiten.CursorPosition()
 	x1, x2 := int(t.State.Pos.X-config.TowerImageWidth/2), int(t.State.Pos.X+config.TowerImageWidth/2)
