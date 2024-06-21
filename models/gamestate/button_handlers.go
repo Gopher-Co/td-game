@@ -38,7 +38,8 @@ func (s *GameState) handleStart(args *widget.ButtonClickedEventArgs) {
 	}
 }
 
-func (s *GameState) handleMenu(args *widget.ButtonClickedEventArgs) {
+// handleMenu handles the menu button click.
+func (s *GameState) handleMenu(_ *widget.ButtonClickedEventArgs) {
 	s.setStateAfterEnd()
 	s.Ended = true
 }
