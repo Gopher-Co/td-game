@@ -92,6 +92,7 @@ func (s *GameState) handleTurning(args *widget.ButtonClickedEventArgs) {
 	})
 }
 
+// handleTuneFirst handles the tune first button click.
 func (s *GameState) handleTuneFirst(_ *widget.ButtonClickedEventArgs) {
 	s.tuneFirstTowerHandler(s.chosenTower)
 
