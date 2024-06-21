@@ -330,7 +330,7 @@ func (s *GameState) rightSidebarHandle() {
 			if b && t.IsClicked() {
 				t.Chosen = true
 				s.chosenTower = t
-				b = !b
+				b = false
 
 				s.showTowerInfoMenu()
 			} else {
