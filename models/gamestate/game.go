@@ -88,6 +88,7 @@ type GameState struct {
 	// PlayerState is a state of the player.
 	PlayerState *ingame.PlayerState
 
+	// uiUpdater is an updater of the UI.
 	uiUpdater *updater.Updater
 }
 
