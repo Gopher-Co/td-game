@@ -9,7 +9,7 @@ service GameHost {
   rpc FetchLevels(FetchLevelsRequest) returns (FetchLevelsResponse);
   rpc CreateLobby(CreateLobbyRequest) returns (CreateLobbyResponse);
   rpc FetchLobbies(FetchLobbiesRequest) returns (FetchLobbiesResponse);
-  rpc JoinLobby(JoinLobbyRequest) returns (JoinLobbyResponse);
+  rpc JoinLobby(JoinLobbyRequest) returns (stream JoinLobbyResponse);
   rpc PutTower(PutTowerRequest) returns (PutTowerResponse);
   rpc UpgradeTower(UpgradeTowerRequest) returns (UpgradeTowerResponse);
   rpc TurnTowerOn(TurnTowerOnRequest) returns (TurnTowerOnResponse);
@@ -21,6 +21,6 @@ service GameHost {
   rpc SpeedGameUp(SpeedGameUpRequest) returns (SpeedGameUpResponse);
   rpc LeaveLobby(LeaveLobbyRequest) returns (LeaveLobbyResponse);
 
-  rpc AwaitGame(AwaitGameRequest) returns (stream AwaitGameResponse);
+  rpc AwaitGame(AwaitGameRequest) returns (AwaitGameResponse);
   rpc SendGameState(SendGameStateRequest) returns (stream SendGameStateResponse);
 }

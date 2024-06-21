@@ -1,6 +1,7 @@
-package gamestate
+package coopstate
 
 import (
+	"context"
 	"image"
 	"image/color"
 	"log"
@@ -37,6 +38,10 @@ const (
 
 // GameState is a struct that represents the state of the game.
 type GameState struct {
+	cli GameHostClient
+
+	stream GameHost_JoinLobbyClient
+
 	// LevelName is a name of the level.
 	LevelName string
 
@@ -89,6 +94,10 @@ type GameState struct {
 	PlayerState *ingame.PlayerState
 
 	uiUpdater *updater.Updater
+
+	ctx context.Context
+
+	ch <-chan *JoinLobbyResponse
 }
 
 // New creates a new entity of GameState.
@@ -99,6 +108,8 @@ func New(
 	tw map[string]*config.Tower,
 	ps *ingame.PlayerState,
 	w general.Widgets,
+	cli GameHostClient,
+	cli2 GameHost_JoinLobbyClient,
 ) *GameState {
 	// remove all the unavailable towers
 	tw2 := maps2.Clone(tw)
@@ -113,6 +124,8 @@ func New(
 
 	// creating gamestate from configs
 	gs := &GameState{
+		cli:         cli,
+		stream:      cli2,
 		LevelName:   level.LevelName,
 		Map:         ingame.NewMap(maps[level.MapName]),
 		TowersToBuy: tw2,
@@ -134,8 +147,21 @@ func New(
 		},
 		PlayerState: ps,
 		uiUpdater:   new(updater.Updater),
+		ctx:         context.Background(),
 	}
 
+	ch := make(chan *JoinLobbyResponse)
+	go func() {
+		for {
+			v, err := cli2.Recv()
+			if err != nil {
+				log.Println(err)
+			}
+			ch <- v
+		}
+	}()
+
+	gs.ch = ch
 	gs.UI = gs.loadGameUI(w)
 
 	return gs
@@ -151,22 +177,30 @@ func (s *GameState) Update() error {
 		return nil
 	}
 
-	// if clicked on tower
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
-		s.rightSidebarHandle()
+	select {
+	case v := <-s.ch:
+		if msg := v.GetPutTower(); msg != nil {
+			towerConfig := s.TowersToBuy[msg.TowerName]
+			s.putTowerHandler(towerConfig, int(msg.Point.X), int(msg.Point.Y))
+		} else if msg := v.GetStartNewWave(); msg != nil {
+			btn := s.UI.Container.Children()[0].(*widget.Container). // mapContainer
+											Children()[2].(*widget.Container). // speed
+											Children()[0].(*widget.Container). // buttonGroup
+											Children()[0].(*widget.Button)
+			btn.ClickedEvent.Fire(&widget.ButtonClickedEventArgs{Button: btn})
+			s.State = Running
+			s.CurrentWave++
+		}
+	default:
 	}
 
-	// put tower on the map
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) && s.tookTower != nil {
 		x, y := ebiten.CursorPosition()
-		t := s.putTowerHandler(s.tookTower, x, y)
-		if t != nil {
-			s.Watcher.Append(s.Time, replay.PutTower, replay.InfoPutTower{
-				Name: t.Name,
-				X:    int(t.State.Pos.X),
-				Y:    int(t.State.Pos.Y),
-			})
-		}
+		s.cli.PutTower(s.ctx, &PutTowerRequest{
+			TowerName: s.tookTower.Name,
+			Point:     &Point{X: float32(x), Y: float32(y)},
+		})
+		s.tookTower = nil
 	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton2) {
 		s.tookTower = nil
 	}
@@ -177,33 +211,11 @@ func (s *GameState) Update() error {
 	if s.Ended {
 		return nil
 	}
-
 	if s.State == NextWaveReady {
-		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-			btn := s.UI.Container.Children()[0].(*widget.Container). // mapContainer
-											Children()[2].(*widget.Container). // speed
-											Children()[0].(*widget.Container). // buttonGroup
-											Children()[0].(*widget.Button)
-			btn.ClickedEvent.Fire(&widget.ButtonClickedEventArgs{Button: btn})
-		}
 		return nil
-	}
-
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		btn := s.UI.Container.Children()[0].(*widget.Container). // mapContainer
-										Children()[2].(*widget.Container). // speed
-										Children()[0].(*widget.Container). // buttonGroup
-										Children()[1].(*widget.Button)
-		btn.ClickedEvent.Fire(&widget.ButtonClickedEventArgs{Button: btn})
 	}
 
 	s.Map.Update()
-
-	if s.PlayerMapState.Dead() {
-		s.Ended = true
-		s.setStateAfterEnd()
-		return nil
-	}
 
 	wave := s.GameRule[s.CurrentWave]
 	s.updateRunning(wave)
@@ -258,7 +270,6 @@ func (s *GameState) clear() {
 // setStateAfterEnd sets the state after the end of the game.
 func (s *GameState) setStateAfterEnd() {
 	s.clear()
-
 	// replay save
 	s.Watcher.Append(s.Time, replay.Stop, replay.InfoStop{Null: nil})
 

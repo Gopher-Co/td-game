@@ -3,6 +3,7 @@ package td_game.coopstate;
 option go_package="github.com/gopher-co/td-game/models/coopstate";
 
 import "common.proto";
+import "client.proto";
 
 message FetchLevelsResponse {
   repeated LevelId levels = 1;
@@ -19,11 +20,17 @@ message FetchLobbiesResponse {
 
 message JoinLobbyResponse {
   Status status = 1;
+  oneof response {
+    PutTowerRequest putTower = 2;
+    StartNewWaveRequest startNewWave = 3;
+    SpeedGameUpRequest speedUp = 4;
+    SlowGameDownRequest slowDown = 5;
+  }
 //  optional PlayersList players = 2;
 }
 
 message AwaitGameResponse {
-  InitialGameState state = 1;
+  string level = 1;
 }
 
 message SendGameStateRequest {
