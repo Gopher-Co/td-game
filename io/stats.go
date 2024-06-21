@@ -11,6 +11,7 @@ import (
 	"github.com/gopher-co/td-game/models/ingame"
 )
 
+// LoadStats loads the player stats from the stats.json file.
 func LoadStats() (*ingame.PlayerState, error) {
 	f, err := os.Open("stats.json")
 	if err != nil {
