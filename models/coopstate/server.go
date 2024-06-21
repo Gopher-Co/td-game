@@ -81,6 +81,7 @@ func NewServer(levelName string, size int) (*grpc.Server, string) {
 	return grpcServer, s.id
 }
 
+// TakeNewConnection takes a new connection.
 func (s *Server) TakeNewConnection(nick, id string) error {
 	if s.id != id {
 		return errors.New("id mismatch")
