@@ -30,6 +30,7 @@ type State struct {
 	Global ingame.PlayerState
 }
 
+// NewState creates a new state.
 func NewState(lib *Lib) *State {
 	return &State{lib: lib}
 }
