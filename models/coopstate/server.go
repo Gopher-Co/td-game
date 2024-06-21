@@ -38,6 +38,7 @@ type Server struct {
 	UnimplementedGameHostServer
 }
 
+// JoinLobby joins the lobby.
 func (s *Server) JoinLobby(in *JoinLobbyRequest, ss GameHost_JoinLobbyServer) error {
 	s.states[in.Player.Id.Nickname] = ss
 	if err := s.TakeNewConnection(in.Player.Id.Nickname, in.Lobby.Name); err != nil {
