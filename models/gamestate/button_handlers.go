@@ -109,6 +109,7 @@ func (s *GameState) handleTuneStrong(_ *widget.ButtonClickedEventArgs) {
 	})
 }
 
+// handleTuneWeak handles the tune weak button click.
 func (s *GameState) handleTuneWeak(_ *widget.ButtonClickedEventArgs) {
 	s.tuneWeakTowerHandler(s.chosenTower)
 
