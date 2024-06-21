@@ -1,5 +1,6 @@
 package updater
 
+// Updater is a struct that represents an updater.
 type Updater struct {
 	funcs []func()
 }
