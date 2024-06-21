@@ -336,6 +336,7 @@ func (t *Tower) IsClicked() bool {
 	return cx >= x1 && cx <= x2 && cy >= y1 && cy <= y2 // inside the square
 }
 
+// initUpgrades initializes the upgrades of the tower.
 func (t *Tower) initUpgrades(cfg []config.Upgrade) {
 	ups := make([]*Upgrade, len(cfg))
 
