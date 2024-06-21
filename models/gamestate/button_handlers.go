@@ -53,6 +53,7 @@ func (s *GameState) handleTowerTake(v *config.Tower) func(eventArgs *widget.Butt
 	}
 }
 
+// handleUpgrade handles the upgrade button click.
 func (s *GameState) handleUpgrade(_ *widget.ButtonClickedEventArgs) {
 	s.upgradeTowerHandler(s.chosenTower)
 
