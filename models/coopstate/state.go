@@ -56,6 +56,7 @@ func (s *State) PutTower(x, y general.Coord, towerName, playerName string) error
 	return nil
 }
 
+// UpgradeTower upgrades a tower.
 func (s *State) UpgradeTower(index int, playerName string) error {
 	if s.Map.Towers[index].Whose != playerName {
 		return fmt.Errorf("not your tower %s", playerName)
