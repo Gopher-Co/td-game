@@ -21,6 +21,7 @@ import (
 	"github.com/gopher-co/td-game/ui/font"
 )
 
+// valid is a function that checks if the string is valid.
 var valid = regexp.MustCompile(`^[a-zA-Z0-9_. ]*$`).MatchString
 
 func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
