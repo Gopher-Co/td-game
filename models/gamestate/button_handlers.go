@@ -62,6 +62,7 @@ func (s *GameState) handleUpgrade(_ *widget.ButtonClickedEventArgs) {
 	})
 }
 
+// handleTurning handles the turning button click.
 func (s *GameState) handleTurning(args *widget.ButtonClickedEventArgs) {
 	btn := args.Button
 
