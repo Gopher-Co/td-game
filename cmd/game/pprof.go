@@ -8,6 +8,7 @@ import (
 	"net/http"
 )
 
+// init initializes the pprof server.
 func init() {
 	pprof = func() {
 		go func() {
