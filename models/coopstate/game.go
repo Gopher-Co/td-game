@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -183,11 +182,6 @@ func (s *GameState) Update() error {
 			towerConfig := s.TowersToBuy[msg.TowerName]
 			s.putTowerHandler(towerConfig, int(msg.Point.X), int(msg.Point.Y))
 		} else if msg := v.GetStartNewWave(); msg != nil {
-			btn := s.UI.Container.Children()[0].(*widget.Container). // mapContainer
-											Children()[2].(*widget.Container). // speed
-											Children()[0].(*widget.Container). // buttonGroup
-											Children()[0].(*widget.Button)
-			btn.ClickedEvent.Fire(&widget.ButtonClickedEventArgs{Button: btn})
 			s.State = Running
 			s.CurrentWave++
 		} else if msg := v.GetSpeedUp(); msg != nil {

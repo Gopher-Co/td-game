@@ -61,7 +61,7 @@ func (g *Game) Update() error {
 				r := Replays[ms.NextReplay]
 				g.s = replaystate.New(r, Levels[r.Name], Maps, Towers, Enemies, general.Widgets(UI))
 			}
-		case *replaystate.ReplayState:
+		case *replaystate.ReplayState, *coopstate.GameState:
 			g.s = menustate.New(PlayerState, Levels, Replays, general.Widgets(UI))
 		default:
 			panic(fmt.Sprintf("type %T must be handled", g.s))
