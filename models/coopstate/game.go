@@ -176,6 +176,11 @@ func (s *GameState) Update() error {
 		return nil
 	}
 
+	// if clicked on tower
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
+		s.rightSidebarHandle()
+	}
+
 	select {
 	case v := <-s.ch:
 		if msg := v.GetPutTower(); msg != nil {
