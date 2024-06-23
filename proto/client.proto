@@ -54,18 +54,6 @@ message TurnTowerOffRequest {
   TowerId tower = 1;
 }
 
-message AimTowerAtFirstRequest {
-  TowerId tower = 1;
-}
-
-message AimTowerAtStrongRequest {
-  TowerId tower = 1;
-}
-
-message AimTowerAtLastRequest {
-  TowerId tower = 1;
-}
-
 message SellTowerRequest {
   TowerId tower = 1;
 }
@@ -83,11 +71,10 @@ message LeaveLobbyRequest {
 }
 
 message TuneTowerRequest {
-  oneof response {
-    TurnTowerOnRequest turnOn = 1;
-    TurnTowerOffRequest turnOff = 2;
-    AimTowerAtFirstRequest aimAtFirst = 3;
-    AimTowerAtStrongRequest aimAtStrong = 4;
-    AimTowerAtLastRequest aimAtLast = 5;
+  TowerId tower = 1;
+  enum Aim {
+    AIM_TOWER_AT_FIRST = 0;
+    AIM_TOWER_AT_STRONG = 1;
+    AIM_TOWER_AT_LAST = 2;
   }
 }

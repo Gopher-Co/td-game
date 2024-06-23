@@ -27,7 +27,9 @@ message JoinLobbyResponse {
     SlowGameDownRequest slowDown = 5;
     UpgradeTowerRequest upgradeTower = 6;
     SellTowerRequest sellTower = 7;
-    TuneTowerRequest tuneTower = 8;
+    TurnTowerOnRequest turnOn = 8;
+    TurnTowerOffRequest turnOff = 9;
+    TuneTowerRequest tuneTower = 10;
   }
 //  optional PlayersList players = 2;
 }
@@ -53,18 +55,6 @@ message TurnTowerOnResponse {
 }
 
 message TurnTowerOffResponse {
-  Status status = 1;
-}
-
-message AimTowerAtFirstResponse {
-  Status status = 1;
-}
-
-message AimTowerAtStrongResponse {
-  Status status = 1;
-}
-
-message AimTowerAtLastResponse {
   Status status = 1;
 }
 
