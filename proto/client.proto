@@ -54,6 +54,18 @@ message TurnTowerOffRequest {
   TowerId tower = 1;
 }
 
+message AimTowerAtFirstRequest {
+  TowerId tower = 1;
+}
+
+message AimTowerAtStrongRequest {
+  TowerId tower = 1;
+}
+
+message AimTowerAtLastRequest {
+  TowerId tower = 1;
+}
+
 message SellTowerRequest {
   TowerId tower = 1;
 }
@@ -68,4 +80,14 @@ message SpeedGameUpRequest {
 }
 
 message LeaveLobbyRequest {
+}
+
+message TuneTowerRequest {
+  oneof response {
+    TurnTowerOnRequest turnOn = 1;
+    TurnTowerOffRequest turnOff = 2;
+    AimTowerAtFirstRequest aimAtFirst = 3;
+    AimTowerAtStrongRequest aimAtStrong = 4;
+    AimTowerAtLastRequest aimAtLast = 5;
+  }
 }

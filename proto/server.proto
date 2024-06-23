@@ -25,6 +25,9 @@ message JoinLobbyResponse {
     StartNewWaveRequest startNewWave = 3;
     SpeedGameUpRequest speedUp = 4;
     SlowGameDownRequest slowDown = 5;
+    UpgradeTowerRequest upgradeTower = 6;
+    SellTowerRequest sellTower = 7;
+    TuneTowerRequest tuneTower = 8;
   }
 //  optional PlayersList players = 2;
 }
@@ -53,6 +56,18 @@ message TurnTowerOffResponse {
   Status status = 1;
 }
 
+message AimTowerAtFirstResponse {
+  Status status = 1;
+}
+
+message AimTowerAtStrongResponse {
+  Status status = 1;
+}
+
+message AimTowerAtLastResponse {
+  Status status = 1;
+}
+
 message ChangeTowerAimTypeResponse {
   Status status = 1;
 }
@@ -75,5 +90,9 @@ message SpeedGameUpResponse {
 }
 
 message LeaveLobbyResponse {
+  Status status = 1;
+}
+
+message TuneTowerResponse {
   Status status = 1;
 }
