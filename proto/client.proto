@@ -69,3 +69,13 @@ message SpeedGameUpRequest {
 
 message LeaveLobbyRequest {
 }
+
+message TuneTowerRequest {
+  TowerId tower = 1;
+  Aim aim = 2;
+  enum Aim {
+    AIM_TOWER_AT_FIRST = 0;
+    AIM_TOWER_AT_STRONG = 1;
+    AIM_TOWER_AT_LAST = 2;
+  }
+}
