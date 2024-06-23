@@ -5,7 +5,6 @@ import (
 
 	image2 "github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/colornames"
 
 	"github.com/gopher-co/td-game/models/config"
@@ -15,16 +14,14 @@ import (
 // handleSpeed handles the speed button click.
 func (s *GameState) handleSpeed(args *widget.ButtonClickedEventArgs) {
 	if s.speedUp {
-		ebiten.SetTPS(60)
-		s.speedUp = false
+		_, _ = s.cli.SlowGameDown(s.ctx, &SlowGameDownRequest{})
 		args.Button.Image = &widget.ButtonImage{
 			Idle: image2.NewNineSliceColor(colornames.Cornflowerblue),
 		}
 		return
 	}
 
-	ebiten.SetTPS(180)
-	s.speedUp = true
+	_, _ = s.cli.SpeedGameUp(s.ctx, &SpeedGameUpRequest{})
 	args.Button.Image = &widget.ButtonImage{
 		Idle: image2.NewNineSliceColor(colornames.Greenyellow),
 	}
@@ -41,6 +38,7 @@ func (s *GameState) handleStart(args *widget.ButtonClickedEventArgs) {
 
 // handleMenu handles the menu button click.
 func (s *GameState) handleMenu(_ *widget.ButtonClickedEventArgs) {
+	_ = s.stream.CloseSend()
 	s.setStateAfterEnd()
 	s.Ended = true
 }

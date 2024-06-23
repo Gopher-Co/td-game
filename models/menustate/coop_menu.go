@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/url"
 	"regexp"
+	"strconv"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/image"
@@ -23,6 +24,20 @@ import (
 
 // valid is a function that checks if the string is valid.
 var valid = regexp.MustCompile(`^[a-zA-Z0-9_. ]*$`).MatchString
+var validCount = func(s string) bool {
+	if _, err := strconv.Atoi(s); err != nil {
+		return false
+	}
+	return true
+}
+
+func mustAtoi(s string) int {
+	n, err := strconv.Atoi(s)
+	if err != nil {
+		return 1
+	}
+	return n
+}
 
 // loadCoopMenuUI loads the coop menu UI.
 func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
@@ -60,7 +75,7 @@ func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
 			widget.RowLayoutOpts.Spacing(10),
 		)),
 	)
-	var sName, sLevel string
+	var sName, sLevel, sCount string
 	name := widget.NewTextInput(
 		widget.TextInputOpts.Validation(func(newInputText string) (bool, *string) {
 			if valid(newInputText) && len(newInputText) < 20 {
@@ -145,6 +160,49 @@ func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
 		),
 	)
 
+	count := widget.NewTextInput(
+		widget.TextInputOpts.Validation(func(newInputText string) (bool, *string) {
+			if validCount(newInputText) {
+				return true, &newInputText
+			}
+			return false, nil
+		}),
+		widget.TextInputOpts.Face(font.TTF20),
+		widget.TextInputOpts.Color(&widget.TextInputColor{
+			Idle:          color.NRGBA{R: 254, G: 255, B: 255, A: 255},
+			Disabled:      color.NRGBA{R: 200, G: 200, B: 200, A: 255},
+			Caret:         color.NRGBA{R: 254, G: 255, B: 255, A: 255},
+			DisabledCaret: color.NRGBA{R: 200, G: 200, B: 200, A: 255},
+		}),
+		widget.TextInputOpts.Placeholder("Players count"),
+		widget.TextInputOpts.Image(&widget.TextInputImage{
+			Idle:     image.NewNineSliceColor(color.NRGBA{R: 100, G: 100, B: 100, A: 255}),
+			Disabled: image.NewNineSliceColor(color.NRGBA{R: 100, G: 100, B: 100, A: 255}),
+		}),
+		widget.TextInputOpts.CaretOpts(
+			widget.CaretOpts.Size(font.TTF20, 2),
+		),
+
+		//This is called whenver there is a change to the text
+		widget.TextInputOpts.ChangedHandler(func(args *widget.TextInputChangedEventArgs) {
+			sCount = args.InputText
+		}),
+		widget.TextInputOpts.Padding(widget.Insets{
+			Top:    20,
+			Left:   10,
+			Right:  10,
+			Bottom: 20,
+		}),
+		widget.TextInputOpts.WidgetOpts(
+			//Set the layout information to center the textbox in the parent
+			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+				Stretch:   true,
+				MaxWidth:  250,
+				MaxHeight: 0,
+			}),
+		),
+	)
+
 	connStringCopyText := widget.NewText(
 		widget.TextOpts.Text("", font.TTF20, color.White),
 	)
@@ -156,7 +214,7 @@ func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
 			if err != nil {
 				panic(err)
 			}
-			s, id := coopstate.NewServer(sLevel, 2)
+			s, id := coopstate.NewServer(sLevel, mustAtoi(sCount))
 			go func() { _ = s.Serve(l) }()
 			conn, err := grpc.Dial("localhost:24555", grpc.WithTransportCredentials(insecure.NewCredentials()))
 			if err != nil {
@@ -284,6 +342,7 @@ func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
 
 	fields.AddChild(name)
 	fields.AddChild(level)
+	fields.AddChild(count)
 	fields.AddChild(submit)
 	fields.AddChild(conn)
 	fields.AddChild(connSubmit)

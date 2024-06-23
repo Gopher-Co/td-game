@@ -190,6 +190,12 @@ func (s *GameState) Update() error {
 			btn.ClickedEvent.Fire(&widget.ButtonClickedEventArgs{Button: btn})
 			s.State = Running
 			s.CurrentWave++
+		} else if msg := v.GetSpeedUp(); msg != nil {
+			ebiten.SetTPS(180)
+			s.speedUp = true
+		} else if msg := v.GetSlowDown(); msg != nil {
+			ebiten.SetTPS(60)
+			s.speedUp = false
 		}
 	default:
 	}

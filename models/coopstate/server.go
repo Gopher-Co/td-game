@@ -34,6 +34,8 @@ type Server struct {
 	size int
 	// gamestate is the game state.
 	gamestate GameState
+
+	speedUp bool
 	// UnimplementedGameHostServer is an unimplemented game host server.
 	UnimplementedGameHostServer
 }
@@ -124,4 +126,40 @@ func (s *Server) StartNewWave(_ context.Context, r *StartNewWaveRequest) (*Start
 		return nil, errs
 	}
 	return &StartNewWaveResponse{Status: Status_OK}, nil
+}
+
+func (s *Server) SpeedGameUp(_ context.Context, r *SpeedGameUpRequest) (*SpeedGameUpResponse, error) {
+	if s.speedUp {
+		return &SpeedGameUpResponse{Status: Status_OK}, nil
+	}
+	s.speedUp = true
+	var errs error
+	for _, state := range s.states {
+		if err := state.Send(&JoinLobbyResponse{Response: &JoinLobbyResponse_SpeedUp{}}); err != nil {
+			errs = errors.Join(errs, err)
+		}
+	}
+
+	if errs != nil {
+		return nil, errs
+	}
+	return &SpeedGameUpResponse{Status: Status_OK}, nil
+}
+
+func (s *Server) SlowGameDown(_ context.Context, r *SlowGameDownRequest) (*SlowGameDownResponse, error) {
+	if !s.speedUp {
+		return &SlowGameDownResponse{Status: Status_OK}, nil
+	}
+	s.speedUp = false
+	var errs error
+	for _, state := range s.states {
+		if err := state.Send(&JoinLobbyResponse{Response: &JoinLobbyResponse_SlowDown{}}); err != nil {
+			errs = errors.Join(errs, err)
+		}
+	}
+
+	if errs != nil {
+		return nil, errs
+	}
+	return &SlowGameDownResponse{Status: Status_OK}, nil
 }
