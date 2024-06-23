@@ -54,10 +54,12 @@ func (s *GameState) handleTowerTake(v *config.Tower) func(eventArgs *widget.Butt
 
 // handleUpgrade handles the upgrade button click.
 func (s *GameState) handleUpgrade(_ *widget.ButtonClickedEventArgs) {
-	s.upgradeTowerHandler(s.chosenTower)
+	_, _ = s.cli.UpgradeTower(s.ctx, &UpgradeTowerRequest{
+		Tower: &TowerId{Id: int64(s.chosenTower.Index)},
+	})
 
 	s.Watcher.Append(s.Time, replay.UpgradeTower, replay.InfoUpgradeTower{
-		Index: s.findTowerIndex(s.chosenTower),
+		Index: s.chosenTower.Index,
 	})
 }
 
@@ -66,63 +68,73 @@ func (s *GameState) handleTurning(args *widget.ButtonClickedEventArgs) {
 	btn := args.Button
 
 	if s.chosenTower.State.IsTurnedOn {
-		s.turnOffTowerHandler(s.chosenTower)
+		_, _ = s.cli.TurnTowerOff(s.ctx, &TurnTowerOffRequest{Tower: &TowerId{Id: int64(s.chosenTower.Index)}})
 		btn.Text().Label = "OFF"
 		btn.Image = &widget.ButtonImage{
 			Idle: image2.NewNineSliceColor(colornames.Indianred),
 		}
 
 		s.Watcher.Append(s.Time, replay.TurnOff, replay.InfoTurnOffTower{
-			Index: s.findTowerIndex(s.chosenTower),
+			Index: s.chosenTower.Index,
 		})
 
 		return
 	}
 
-	s.turnOnTowerHandler(s.chosenTower)
+	_, _ = s.cli.TurnTowerOn(s.ctx, &TurnTowerOnRequest{Tower: &TowerId{Id: int64(s.chosenTower.Index)}})
 	btn.Text().Label = "ON"
 	btn.Image = &widget.ButtonImage{
 		Idle: image2.NewNineSliceColor(colornames.Lawngreen),
 	}
 
 	s.Watcher.Append(s.Time, replay.TurnOn, replay.InfoTurnOnTower{
-		Index: s.findTowerIndex(s.chosenTower),
+		Index: s.chosenTower.Index,
 	})
 }
 
 // handleTuneFirst handles the tune first button click.
 func (s *GameState) handleTuneFirst(_ *widget.ButtonClickedEventArgs) {
-	s.tuneFirstTowerHandler(s.chosenTower)
-
+	_, _ = s.cli.ChangeTowerAimType(s.ctx, &ChangeTowerAimTypeRequest{
+		Tower:      &TowerId{Id: int64(s.chosenTower.Index)},
+		NewAimType: int32(TuneTowerRequest_AIM_TOWER_AT_FIRST),
+	})
 	s.Watcher.Append(s.Time, replay.TuneFirst, replay.InfoTuneFirst{
-		Index: s.findTowerIndex(s.chosenTower),
+		Index: s.chosenTower.Index,
 	})
 }
 
 // handleTuneStrong handles the tune strong button click.
 func (s *GameState) handleTuneStrong(_ *widget.ButtonClickedEventArgs) {
-	s.tuneStrongTowerHandler(s.chosenTower)
+	_, _ = s.cli.ChangeTowerAimType(s.ctx, &ChangeTowerAimTypeRequest{
+		Tower:      &TowerId{Id: int64(s.chosenTower.Index)},
+		NewAimType: int32(TuneTowerRequest_AIM_TOWER_AT_STRONG),
+	})
 
 	s.Watcher.Append(s.Time, replay.TuneStrong, replay.InfoTuneStrong{
-		Index: s.findTowerIndex(s.chosenTower),
+		Index: s.chosenTower.Index,
 	})
 }
 
 // handleTuneWeak handles the tune weak button click.
 func (s *GameState) handleTuneWeak(_ *widget.ButtonClickedEventArgs) {
-	s.tuneWeakTowerHandler(s.chosenTower)
+	_, _ = s.cli.ChangeTowerAimType(s.ctx, &ChangeTowerAimTypeRequest{
+		Tower:      &TowerId{Id: int64(s.chosenTower.Index)},
+		NewAimType: int32(TuneTowerRequest_AIM_TOWER_AT_LAST),
+	})
 
 	s.Watcher.Append(s.Time, replay.TuneWeak, replay.InfoTuneWeak{
-		Index: s.findTowerIndex(s.chosenTower),
+		Index: s.chosenTower.Index,
 	})
 }
 
 // handleSell handles the sell button click.
 func (s *GameState) handleSell(_ *widget.ButtonClickedEventArgs) {
-	s.sellTowerHandler(s.chosenTower)
+	_, _ = s.cli.SellTower(s.ctx, &SellTowerRequest{
+		Tower: &TowerId{Id: int64(s.chosenTower.Index)},
+	})
 
 	s.Watcher.Append(s.Time, replay.SellTower, replay.InfoSellTower{
-		Index: s.findTowerIndex(s.chosenTower),
+		Index: s.chosenTower.Index,
 	})
 
 	s.showTowerMenu()

@@ -29,6 +29,7 @@ const (
 
 // Tower is a struct that represents a tower.
 type Tower struct {
+	Index int
 	// Name is a name of the tower.
 	Name string
 
@@ -72,6 +73,8 @@ type Tower struct {
 	Sold bool
 }
 
+var globalIndex int
+
 // NewTower creates a new entity of Tower.
 func NewTower(config *config.Tower, pos general.Point, path Path) *Tower {
 	if CheckCollisionPath(pos, path) {
@@ -87,6 +90,7 @@ func NewTower(config *config.Tower, pos general.Point, path Path) *Tower {
 	}
 
 	t := &Tower{
+		Index:           globalIndex,
 		Name:            config.Name,
 		Damage:          config.InitDamage,
 		Type:            config.Type,
@@ -99,6 +103,7 @@ func NewTower(config *config.Tower, pos general.Point, path Path) *Tower {
 		ProjectileImage: config.ProjectileConfig.Image(),
 		UpgradesBought:  0,
 	}
+	globalIndex++
 
 	t.initUpgrades(config.Upgrades)
 
