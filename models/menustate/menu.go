@@ -39,6 +39,8 @@ type MenuState struct {
 
 	// Stream is a stream of the game.
 	Stream coopstate.GameHost_JoinLobbyClient
+
+	Players []string
 }
 
 // New creates a new entity of MenuState.

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"golang.org/x/exp/maps"
 	"google.golang.org/grpc"
 )
 
@@ -61,7 +62,7 @@ func (s *Server) AwaitGame(ctx context.Context, _ *AwaitGameRequest) (*AwaitGame
 			return nil, ctx.Err()
 		case <-time.After(time.Second):
 			if len(s.conns) == s.size {
-				return &AwaitGameResponse{Level: s.levelName}, nil
+				return &AwaitGameResponse{Level: s.levelName, Nicknames: maps.Keys(s.conns)}, nil
 			}
 		}
 	}

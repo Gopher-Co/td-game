@@ -54,7 +54,7 @@ func (g *Game) Update() error {
 			ms := g.s.(*menustate.MenuState)
 			if ms.Stream != nil {
 				log.Println("Starting stream")
-				g.s = coopstate.New(Levels[ms.Next], Maps, Enemies, Towers, PlayerState, general.Widgets(UI), ms.Host, ms.Stream)
+				g.s = coopstate.New(Levels[ms.Next], Maps, Enemies, Towers, PlayerState, general.Widgets(UI), ms.Host, ms.Stream, ms.Players)
 			} else if ms.Next != "" {
 				g.s = gamestate.New(Levels[ms.Next], Maps, Enemies, Towers, PlayerState, general.Widgets(UI))
 			} else if ms.NextReplay != -1 {

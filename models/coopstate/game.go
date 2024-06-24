@@ -97,6 +97,8 @@ type GameState struct {
 	ctx context.Context
 
 	ch <-chan *JoinLobbyResponse
+
+	players []string
 }
 
 // New creates a new entity of GameState.
@@ -109,6 +111,7 @@ func New(
 	w general.Widgets,
 	cli GameHostClient,
 	cli2 GameHost_JoinLobbyClient,
+	players []string,
 ) *GameState {
 	// remove all the unavailable towers
 	tw2 := maps2.Clone(tw)
@@ -147,6 +150,7 @@ func New(
 		PlayerState: ps,
 		uiUpdater:   new(updater.Updater),
 		ctx:         context.Background(),
+		players:     players,
 	}
 
 	ch := make(chan *JoinLobbyResponse)

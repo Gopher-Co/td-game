@@ -247,6 +247,7 @@ func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
 				m.Ended = true
 				m.Next = resp.Level
 				m.Stream = stream
+				m.Players = resp.Nicknames
 			}()
 		}),
 		widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(color.Black)}),
@@ -335,6 +336,7 @@ func (m *MenuState) loadCoopMenuUI(widgets general.Widgets) *ebitenui.UI {
 				m.Next = resp.Level
 				m.Stream = stream
 				m.Ended = true
+				m.Players = resp.Nicknames
 			}()
 		}),
 		widget.ButtonOpts.Image(&widget.ButtonImage{Idle: image.NewNineSliceColor(color.Black)}),

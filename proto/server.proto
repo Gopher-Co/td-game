@@ -36,6 +36,7 @@ message JoinLobbyResponse {
 
 message AwaitGameResponse {
   string level = 1;
+  repeated string nicknames = 2;
 }
 
 message SendGameStateRequest {

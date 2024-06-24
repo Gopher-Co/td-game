@@ -47,6 +47,10 @@ func (s *GameState) loadMapContainer(_ general.Widgets) *widget.Container {
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 
+	playersContainer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+	)
+
 	waveContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
@@ -60,6 +64,19 @@ func (s *GameState) loadMapContainer(_ general.Widgets) *widget.Container {
 			StretchVertical:    false,
 		})),
 	)
+
+	colors := []string{"FF3333", "33FF33", "3333FF", "FFFF33", "FF33FF", "33FFFF", "FFFFFF"}
+	sPlayersText := "Players:\n"
+	for i, player := range s.players {
+		sPlayersText += fmt.Sprintf("[color=%s] %s[/color]\n", colors[i%len(colors)], player)
+	}
+
+	playersText := widget.NewText(
+		widget.TextOpts.Text(sPlayersText, font.TTF36, color.White),
+		widget.TextOpts.ProcessBBCode(true),
+	)
+
+	playersContainer.AddChild(playersText)
 
 	s.uiUpdater.Append(func() {
 		if s.CurrentWave < 0 || s.CurrentWave >= len(s.GameRule) {
@@ -135,6 +152,7 @@ func (s *GameState) loadMapContainer(_ general.Widgets) *widget.Container {
 
 	speedContainer.AddChild(buttonGroup)
 
+	mapContainer.AddChild(playersContainer)
 	mapContainer.AddChild(waveContainer)
 	mapContainer.AddChild(buttonContainer)
 	mapContainer.AddChild(speedContainer)
