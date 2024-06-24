@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -177,19 +176,43 @@ func (s *GameState) Update() error {
 		return nil
 	}
 
+	// if clicked on tower
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
+		s.rightSidebarHandle()
+	}
+
 	select {
 	case v := <-s.ch:
 		if msg := v.GetPutTower(); msg != nil {
 			towerConfig := s.TowersToBuy[msg.TowerName]
 			s.putTowerHandler(towerConfig, int(msg.Point.X), int(msg.Point.Y))
 		} else if msg := v.GetStartNewWave(); msg != nil {
-			btn := s.UI.Container.Children()[0].(*widget.Container). // mapContainer
-											Children()[2].(*widget.Container). // speed
-											Children()[0].(*widget.Container). // buttonGroup
-											Children()[0].(*widget.Button)
-			btn.ClickedEvent.Fire(&widget.ButtonClickedEventArgs{Button: btn})
 			s.State = Running
 			s.CurrentWave++
+		} else if msg := v.GetSpeedUp(); msg != nil {
+			ebiten.SetTPS(180)
+			s.speedUp = true
+		} else if msg := v.GetSlowDown(); msg != nil {
+			ebiten.SetTPS(60)
+			s.speedUp = false
+		} else if msg := v.GetUpgradeTower(); msg != nil {
+			s.upgradeTowerHandler(s.findTowerByIndex(int(msg.Tower.Id)))
+		} else if msg := v.GetTurnOn(); msg != nil {
+			s.turnOnTowerHandler(s.findTowerByIndex(int(msg.Tower.Id)))
+		} else if msg := v.GetTurnOff(); msg != nil {
+			s.turnOffTowerHandler(s.findTowerByIndex(int(msg.Tower.Id)))
+			s.findTowerByIndex(int(msg.Tower.Id)).State.IsTurnedOn = false
+		} else if msg := v.GetSellTower(); msg != nil {
+			s.sellTowerHandler(s.findTowerByIndex(int(msg.Tower.Id)))
+		} else if msg := v.GetTuneTower(); msg != nil {
+			switch msg.Aim {
+			case TuneTowerRequest_AIM_TOWER_AT_FIRST:
+				s.tuneFirstTowerHandler(s.findTowerByIndex(int(msg.Tower.Id)))
+			case TuneTowerRequest_AIM_TOWER_AT_STRONG:
+				s.tuneStrongTowerHandler(s.findTowerByIndex(int(msg.Tower.Id)))
+			case TuneTowerRequest_AIM_TOWER_AT_LAST:
+				s.tuneWeakTowerHandler(s.findTowerByIndex(int(msg.Tower.Id)))
+			}
 		}
 	default:
 	}
@@ -426,11 +449,11 @@ func (s *GameState) tuneWeakTowerHandler(t *ingame.Tower) {
 }
 
 // findTowerIndex finds the index of the tower t in the map of towers.
-func (s *GameState) findTowerIndex(t *ingame.Tower) int {
-	for k, v := range s.Map.Towers {
-		if v == t {
-			return k
+func (s *GameState) findTowerByIndex(i int) *ingame.Tower {
+	for _, v := range s.Map.Towers {
+		if v.Index == i {
+			return v
 		}
 	}
-	return -1
+	return nil
 }

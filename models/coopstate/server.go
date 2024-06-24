@@ -34,6 +34,8 @@ type Server struct {
 	size int
 	// gamestate is the game state.
 	gamestate GameState
+
+	speedUp bool
 	// UnimplementedGameHostServer is an unimplemented game host server.
 	UnimplementedGameHostServer
 }
@@ -124,4 +126,118 @@ func (s *Server) StartNewWave(_ context.Context, r *StartNewWaveRequest) (*Start
 		return nil, errs
 	}
 	return &StartNewWaveResponse{Status: Status_OK}, nil
+}
+
+func (s *Server) SpeedGameUp(_ context.Context, r *SpeedGameUpRequest) (*SpeedGameUpResponse, error) {
+	if s.speedUp {
+		return &SpeedGameUpResponse{Status: Status_OK}, nil
+	}
+	s.speedUp = true
+	var errs error
+	for _, state := range s.states {
+		if err := state.Send(&JoinLobbyResponse{Response: &JoinLobbyResponse_SpeedUp{}}); err != nil {
+			errs = errors.Join(errs, err)
+		}
+	}
+
+	if errs != nil {
+		return nil, errs
+	}
+	return &SpeedGameUpResponse{Status: Status_OK}, nil
+}
+
+func (s *Server) SlowGameDown(_ context.Context, r *SlowGameDownRequest) (*SlowGameDownResponse, error) {
+	if !s.speedUp {
+		return &SlowGameDownResponse{Status: Status_OK}, nil
+	}
+	s.speedUp = false
+	var errs error
+	for _, state := range s.states {
+		if err := state.Send(&JoinLobbyResponse{Response: &JoinLobbyResponse_SlowDown{}}); err != nil {
+			errs = errors.Join(errs, err)
+		}
+	}
+
+	if errs != nil {
+		return nil, errs
+	}
+	return &SlowGameDownResponse{Status: Status_OK}, nil
+}
+
+func (s *Server) UpgradeTower(_ context.Context, r *UpgradeTowerRequest) (*UpgradeTowerResponse, error) {
+	var errs error
+	for _, state := range s.states {
+		if err := state.Send(&JoinLobbyResponse{Response: &JoinLobbyResponse_UpgradeTower{r}}); err != nil {
+			errs = errors.Join(errs, err)
+		}
+	}
+
+	if errs != nil {
+		return nil, errs
+	}
+
+	return &UpgradeTowerResponse{Status: Status_OK}, nil
+}
+
+func (s *Server) ChangeTowerAimType(_ context.Context, r *ChangeTowerAimTypeRequest) (*ChangeTowerAimTypeResponse, error) {
+	var errs error
+	for _, state := range s.states {
+		if err := state.Send(&JoinLobbyResponse{Response: &JoinLobbyResponse_TuneTower{TuneTower: &TuneTowerRequest{
+			Tower: r.Tower,
+			Aim:   TuneTowerRequest_Aim(r.NewAimType),
+		}}}); err != nil {
+			errs = errors.Join(errs, err)
+		}
+	}
+
+	if errs != nil {
+		return nil, errs
+	}
+
+	return &ChangeTowerAimTypeResponse{Status: Status_OK}, nil
+}
+
+func (s *Server) SellTower(_ context.Context, r *SellTowerRequest) (*SellTowerResponse, error) {
+	var errs error
+	for _, state := range s.states {
+		if err := state.Send(&JoinLobbyResponse{Response: &JoinLobbyResponse_SellTower{r}}); err != nil {
+			errs = errors.Join(errs, err)
+		}
+	}
+
+	if errs != nil {
+		return nil, errs
+	}
+
+	return &SellTowerResponse{Status: Status_OK}, nil
+}
+
+func (s *Server) TurnTowerOn(_ context.Context, r *TurnTowerOnRequest) (*TurnTowerOnResponse, error) {
+	var errs error
+	for _, state := range s.states {
+		if err := state.Send(&JoinLobbyResponse{Response: &JoinLobbyResponse_TurnOn{r}}); err != nil {
+			errs = errors.Join(errs, err)
+		}
+	}
+
+	if errs != nil {
+		return nil, errs
+	}
+
+	return &TurnTowerOnResponse{Status: Status_OK}, nil
+}
+
+func (s *Server) TurnTowerOff(_ context.Context, r *TurnTowerOffRequest) (*TurnTowerOffResponse, error) {
+	var errs error
+	for _, state := range s.states {
+		if err := state.Send(&JoinLobbyResponse{Response: &JoinLobbyResponse_TurnOff{r}}); err != nil {
+			errs = errors.Join(errs, err)
+		}
+	}
+
+	if errs != nil {
+		return nil, errs
+	}
+
+	return &TurnTowerOffResponse{Status: Status_OK}, nil
 }
